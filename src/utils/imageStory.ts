@@ -1,4 +1,8 @@
 import Konva from "konva";
+import { Group } from "konva/lib/Group";
+import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { Stage } from "konva/lib/Stage";
+import { Line } from "konva/lib/shapes/Line";
 
 const setImagePosition = (imageObj: HTMLImageElement) => {
   const imageWidth = imageObj.width;
@@ -15,18 +19,27 @@ const setImagePosition = (imageObj: HTMLImageElement) => {
   }
 }
 
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+let stage: Stage;
+
+const getStage = () => {
+  if (!stage) {
+    return new Konva.Stage({
+      container: 'container',
+      width: width,
+      height: height,
+    });
+  }
+  return stage;
+}
+
 export const addStoryImage = () => {
 
   Konva.hitOnDragEnabled = true;
 
-  let width = window.innerWidth;
-  let height = window.innerHeight;
-
-  const stage = new Konva.Stage({
-    container: 'container',
-    width: width,
-    height: height,
-  });
+  stage = getStage()
 
   let mainImageLayer = new Konva.Layer();
   stage.add(mainImageLayer);
@@ -41,14 +54,20 @@ export const addStoryImage = () => {
   });
   mainImageLayer.add(konvaImage);
 
-  //===================================================================================
-  
-  Konva.capturePointerEventsEnabled = true;
+  // setTimeout(() => {
+  //   stage.destroy()
+  // }, 3000);
 
-  var rotateLayer = new Konva.Layer();
+}
+
+export const addGesturedEventNode = () => {
+  Konva.capturePointerEventsEnabled = true;
+  stage = getStage()
+
+  let rotateLayer = new Konva.Layer();
   stage.add(rotateLayer);
 
-  var originalAttrs = {
+  let originalAttrs = {
     x: stage.width() / 2,
     y: stage.height() / 2,
     scaleX: 1,
@@ -57,15 +76,15 @@ export const addStoryImage = () => {
     rotation: 0,
   };
 
-  var group = new Konva.Group(originalAttrs);
+  let group = new Konva.Group(originalAttrs);
   rotateLayer.add(group);
 
-  var size = 200;
+  let size = 200;
 
-  var rect = new Konva.Rect({
+  let rect = new Konva.Rect({
     width: size,
     height: size,
-    fill: 'black',
+    fill: 'pink',
     offsetX: size / 2,
     offsetY: size / 2,
     cornerRadius: 5,
@@ -74,8 +93,8 @@ export const addStoryImage = () => {
   });
   group.add(rect);
 
-  var defaultText = 'Try\ndrag, swipe, pinch zoom, rotate, press...';
-  var text = new Konva.Text({
+  let defaultText = 'Try\ndrag, swipe, pinch zoom, rotate, press...';
+  let text = new Konva.Text({
     text: defaultText,
     x: -size / 2,
     width: size,
@@ -86,13 +105,12 @@ export const addStoryImage = () => {
   // attach modified version of Hammer.js
   // "domEvents" property will allow triggering events on group
   // instead of "hammertime" instance
-  var hammertime = new Hammer(group as any, { domEvents: true });
+  let hammertime = new Hammer(group as any, { domEvents: true });
 
   // add rotate gesture
   hammertime.get('rotate').set({ enable: true });
 
   // now attach all possible events
-
   group.on('press', function (ev) {
     text.text('Under press');
     rect.to({
@@ -114,8 +132,8 @@ export const addStoryImage = () => {
     // group.to(Object.assign({}, originalAttrs));
   });
 
-  var oldRotation = 0;
-  var startScale = 0;
+  let oldRotation = 0;
+  let startScale = 0;
   group.on('rotatestart', function (ev) {
     oldRotation = ev.evt.gesture.rotation;
     startScale = rect.scaleX();
@@ -125,7 +143,7 @@ export const addStoryImage = () => {
   });
 
   group.on('rotate', function (ev) {
-    var delta = oldRotation - ev.evt.gesture.rotation;
+    let delta = oldRotation - ev.evt.gesture.rotation;
     group.rotate(-delta);
     oldRotation = ev.evt.gesture.rotation;
     group.scaleX(startScale * ev.evt.gesture.scale);
@@ -138,4 +156,103 @@ export const addStoryImage = () => {
     group.draggable(true);
   });
 
+  // setTimeout(() => {
+  //   group.destroy()
+  // }, 3000);
+
+}
+
+// const addText = () => {
+//   stage = getStage()
+//   const textLayer = new Konva.Layer();
+//   stage.add(textLayer);
+
+//   const shape = new Konva.Image({
+//     x: 10,
+//     y: 10,
+//     draggable: true,
+//     stroke: 'red',
+//     scaleX: 1 / window.devicePixelRatio,
+//     scaleY: 1 / window.devicePixelRatio,
+//     image: new Image()
+//   });
+//   textLayer.add(shape);
+
+//   function renderText() {
+//     // convert DOM into image
+//     html2canvas(document.querySelector('.ql-editor'), {
+//       backgroundColor: 'rgba(0,0,0,0)',
+//     }).then((canvas) => {
+//       // show it inside Konva.Image
+//       shape.image(canvas);
+//     });
+//   }
+
+//   // batch updates, so we don't render text too frequently
+//   let timeout = null;
+//   function requestTextUpdate() {
+//     if (timeout) {
+//       return;
+//     }
+//     timeout = setTimeout(function () {
+//       timeout = null;
+//       renderText();
+//     }, 500);
+//   }
+
+//   // render text on all changes
+//   quill.on('text-change', requestTextUpdate);
+//   // make initial rendering
+//   renderText();
+// }
+
+export const draw = () => {
+
+  stage = getStage()
+  let drawLayer = new Konva.Layer();
+  stage.add(drawLayer);
+
+  let isPaint = false;
+  let mode = 'brush';
+  let lastLine: Line;
+
+  stage.on('mousedown touchstart', function (e) {
+    isPaint = true;
+    let pos = stage.getPointerPosition();
+    lastLine = new Konva.Line({
+      stroke: '#df4b26',
+      strokeWidth: 5,
+      globalCompositeOperation:
+        mode === 'brush' ? 'source-over' : 'destination-out',
+      // round cap for smoother lines
+      lineCap: 'round',
+      lineJoin: 'round',
+      // add point twice, so we have some drawings even on a simple click
+      ...(pos && { points: [pos.x, pos.y, pos.x, pos.y] }),
+    });
+    drawLayer.add(lastLine);
+  });
+
+  stage.on('mouseup touchend', function () {
+    isPaint = false;
+  });
+
+  // and core function - drawing
+  stage.on('mousemove touchmove', function (e) {
+    if (!isPaint) {
+      return;
+    }
+
+    // prevent scrolling on touch devices
+    e.evt.preventDefault();
+
+    const pos = stage.getPointerPosition();
+    let newPoints = pos && lastLine.points().concat([pos.x, pos.y]);
+    newPoints && lastLine.points(newPoints);
+  });
+
+  let select: any = document.getElementById('tool');
+  select?.addEventListener('change', function () {
+    mode = select?.value;
+  });
 }

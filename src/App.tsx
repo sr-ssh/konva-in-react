@@ -1,15 +1,14 @@
 import React, { useEffect } from 'react';
 import './App.css';
-import { addStoryImage } from './utils/imageStory';
-import Konva from 'konva';
-import Hammer from 'hammerjs';
+import { addGesturedEventNode, addStoryImage, draw } from './utils/imageStory';
 
 function App() {
 
   useEffect(() => {
     addStoryImage()
-    // TouchEmulator();
-
+    addGesturedEventNode()
+    addGesturedEventNode()
+    draw()
   }, [])
 
 
