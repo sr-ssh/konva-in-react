@@ -1,30 +1,13 @@
 import React, { FC, memo } from "react";
 import styled from "@emotion/styled";
-import AddText from "./AddText";
 import { useStoryContext } from "../hooks/useStoryContext";
-import { BrushModesEnum, OneToTenType } from "../@types/drawType";
+import {
+	BrushColorEnum,
+	BrushModesEnum,
+	OneToTwentyType,
+} from "../@types/drawType";
+import { HeaderStyle } from "../components/Header";
 
-const HeaderStyle = styled.div({
-	position: "absolute",
-	top: 0,
-	width: "100%",
-	display: "flex",
-	justifyContent: "space-between",
-	alignItems: "center",
-	zIndex: 2,
-	color: "#fff",
-	padding: "8px 8px 0",
-	div: { display: "flex", gap: 12, alignItems: "center" },
-});
-const FooterStyle = styled.div({
-	position: "absolute",
-	bottom: 0,
-	marginBottom: 20,
-	display: "flex",
-	justifyContent: "center",
-	color: "#fff",
-	zIndex: 2,
-});
 const BrushStyle = styled.div({
 	backgroundImage: "url(/assets/images/icons.png)",
 	backgroundRepeat: "no-repeat",
@@ -213,36 +196,36 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 			</HeaderStyle>
 			<ColorsStyle>
 				<ColorStyle
-					onClick={() => setBrushColor("white")}
-					color="white"
+					onClick={() => setBrushColor(BrushColorEnum.White)}
+					color={BrushColorEnum.White}
 				/>
 				<ColorStyle
-					onClick={() => setBrushColor("black")}
-					color="black"
+					onClick={() => setBrushColor(BrushColorEnum.Black)}
+					color={BrushColorEnum.Black}
 				/>
 				<ColorStyle
-					onClick={() => setBrushColor("rgb(88, 195, 34)")}
-					color="rgb(88, 195, 34)"
+					onClick={() => setBrushColor(BrushColorEnum.Green)}
+					color={BrushColorEnum.Green}
 				/>
 				<ColorStyle
-					onClick={() => setBrushColor("rgb(0, 149, 246)")}
-					color="rgb(0, 149, 246)"
+					onClick={() => setBrushColor(BrushColorEnum.Blue)}
+					color={BrushColorEnum.Blue}
 				/>
 				<ColorStyle
-					onClick={() => setBrushColor("rgb(163, 7, 186)")}
-					color="rgb(163, 7, 186)"
+					onClick={() => setBrushColor(BrushColorEnum.Purple)}
+					color={BrushColorEnum.Purple}
 				/>
 				<ColorStyle
-					onClick={() => setBrushColor("rgb(209, 8, 105)")}
-					color="rgb(209, 8, 105)"
+					onClick={() => setBrushColor(BrushColorEnum.Pink)}
+					color={BrushColorEnum.Pink}
 				/>
 				<ColorStyle
-					onClick={() => setBrushColor("rgb(253, 141, 50)")}
-					color="rgb(253, 141, 50)"
+					onClick={() => setBrushColor(BrushColorEnum.Orange)}
+					color={BrushColorEnum.Orange}
 				/>
 				<ColorStyle
-					onClick={() => setBrushColor("rgb(253, 203, 92)")}
-					color="rgb(253, 203, 92)"
+					onClick={() => setBrushColor(BrushColorEnum.Yellow)}
+					color={BrushColorEnum.Yellow}
 				/>
 			</ColorsStyle>
 			<RangeBackgroundStyle>
@@ -254,11 +237,11 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 				dir="ltr"
 				type="range"
 				min={1}
-				max={10}
-        defaultValue={5}
+				max={20}
+				defaultValue={10}
 				onChange={(e) =>
 					setBrushStrokeWidth(
-						parseInt(e.target.value) as OneToTenType
+						parseInt(e.target.value) as OneToTwentyType
 					)
 				}
 			/>

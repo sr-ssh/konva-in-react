@@ -3,7 +3,17 @@ import Konva from "konva";
 import { Line } from "konva/lib/shapes/Line";
 import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
-import { BrushModesEnum, OneToTenType } from "../@types/drawType";
+import {
+	BrushColorEnum,
+	BrushModesEnum,
+	OneToTwentyType,
+} from "../@types/drawType";
+import {
+	getGlobalCompositeOperation,
+	getShadowColor,
+	getStrokeColor,
+	setImagePosition,
+} from "../utils/drawColors";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -11,19 +21,19 @@ const height = window.innerHeight;
 interface StoryContextType {
 	startDraw: () => void;
 	stopDraw: () => void;
-	setBrushColor: (color: string) => void;
+	setBrushColor: (color: BrushColorEnum) => void;
 	setBrushMode: (mode: BrushModesEnum) => void;
 	undoDraw: () => void;
-	setBrushStrokeWidth: (strokeWidth: OneToTenType) => void;
+	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
 	startDraw: () => {},
 	stopDraw: () => {},
-	setBrushColor: (color: string) => {},
+	setBrushColor: (color: BrushColorEnum) => {},
 	setBrushMode: (mode: BrushModesEnum) => {},
 	undoDraw: () => {},
-	setBrushStrokeWidth: (strokeWidth: OneToTenType) => {},
+	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -35,12 +45,13 @@ export const StoryContextProvider = memo(
 		let drawLayerRef = useRef<Layer>();
 		let isDrawing = useRef<boolean>(false);
 		let brushConfig = useRef<{
-			stroke?: string;
-			mode?: BrushModesEnum;
-			strokeWidth: OneToTenType;
+			stroke: BrushColorEnum;
+			mode: BrushModesEnum;
+			strokeWidth: OneToTwentyType;
 		}>({
 			mode: BrushModesEnum.Pen,
-			strokeWidth: 5,
+			strokeWidth: 10,
+			stroke: BrushColorEnum.White,
 		});
 
 		const getStage = () => {
@@ -49,7 +60,6 @@ export const StoryContextProvider = memo(
 					container: "container",
 					width: width,
 					height: height,
-					zIndex: 3,
 				});
 			}
 			return stageRef.current;
@@ -75,27 +85,12 @@ export const StoryContextProvider = memo(
 			return drawLayerRef.current;
 		};
 
-		const setImagePosition = (imageObj: HTMLImageElement) => {
-			const imageWidth = imageObj.width;
-			const imageHeight = imageObj.height;
-
-			const width = window.innerWidth;
-			const height = window.innerHeight;
-
-			return {
-				x: imageWidth > width ? -(imageWidth - width) / 2 : 0,
-				y: imageHeight > height ? -(imageHeight - height) / 2 : 0,
-				...(imageHeight > height && { width }),
-				...(imageWidth > width && { height }),
-			};
-		};
-
 		const addStoryImage = () => {
 			const layer = getLayer();
 			Konva.hitOnDragEnabled = true;
 
 			let imageObj = new Image();
-			imageObj.src = "assets/images/longPic.png";
+			imageObj.src = "assets/images/black.jpeg";
 			let konvaImage = new Konva.Image({
 				image: imageObj,
 			});
@@ -116,7 +111,14 @@ export const StoryContextProvider = memo(
 			imageObj.src = "assets/images/longPic.png";
 
 			stageRef.current?.on("mousedown touchstart", function (e) {
-				console.log(brushConfig.current);
+				console.log(
+					getStrokeColor(
+						brushConfig.current?.stroke,
+						brushConfig.current?.mode
+					),
+					getShadowColor(brushConfig.current.stroke),
+					brushConfig.current.mode === BrushModesEnum.Neon
+				);
 				if (!isDrawing.current) {
 					return;
 				}
@@ -137,24 +139,27 @@ export const StoryContextProvider = memo(
 				imageObj.src = "assets/images/p2.png";
 				isPaint = true;
 				lastLine = new Konva.Line({
-					stroke: brushConfig.current?.stroke || "#fff",
+					stroke: getStrokeColor(
+						brushConfig.current?.stroke,
+						brushConfig.current?.mode
+					),
 					strokeWidth: brushConfig.current?.strokeWidth,
-					globalCompositeOperation:
-						brushConfig.current.mode === BrushModesEnum.Pen
-							? "source-over"
-							: "destination-out",
+					globalCompositeOperation: getGlobalCompositeOperation(
+						brushConfig.current.mode
+					),
 					// round cap for smoother lines
 					lineCap: "round",
 					lineJoin: "round",
-
-					// shadowColor: "rgb(88, 195, 34)",
-					// shadowOpacity: 1.2,
-					// shadowBlur: 0.2,
-					// fillPatternImage: imageObj,
-					// fillPatternRepeat: "no-repeat",
-					// fillPatternScaleX: 0.5, // Adjust the scale as needed
-					// fillPatternScaleY: 0.5,
-					// add point twice, so we have some drawings even on a simple click
+					...(brushConfig.current.mode === BrushModesEnum.Neon && {
+						shadowColor: getShadowColor(brushConfig.current.stroke),
+						hasShadow: true,
+						shadowBlur: 10,
+						fillAfterStrokeEnabled: true,
+						shadowForStrokeEnabled: true,
+						...(pos && {
+							shadowOffset: { x: 0, y: 0 },
+						}),
+					}),
 					...(pos && { points: [pos.x, pos.y, pos.x, pos.y] }),
 				});
 				drawShapeRef.current.push(lastLine);
@@ -171,6 +176,7 @@ export const StoryContextProvider = memo(
 
 			// and core function - drawing
 			stageRef.current?.on("mousemove touchmove", function (e) {
+				console.log("first");
 				if (!isDrawing.current) {
 					return;
 				}
@@ -206,7 +212,7 @@ export const StoryContextProvider = memo(
 			isDrawing.current = false;
 		};
 
-		const setBrushColor = (color: string) => {
+		const setBrushColor = (color: BrushColorEnum) => {
 			brushConfig.current.stroke = color;
 		};
 
@@ -214,7 +220,7 @@ export const StoryContextProvider = memo(
 			brushConfig.current.mode = mode;
 		};
 
-		const setBrushStrokeWidth = (strokeWidth: OneToTenType) => {
+		const setBrushStrokeWidth = (strokeWidth: OneToTwentyType) => {
 			brushConfig.current.strokeWidth = strokeWidth;
 		};
 
