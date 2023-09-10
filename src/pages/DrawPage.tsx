@@ -1,9 +1,8 @@
-import React, { memo } from "react";
+import React, { FC, memo } from "react";
 import styled from "@emotion/styled";
 import AddText from "./AddText";
 import { useStoryContext } from "../hooks/useStoryContext";
 import { BrushModesEnum } from "../@types/drawType";
-import DrawPage from "./DrawPage";
 
 const HeaderStyle = styled.div({
 	position: "absolute",
@@ -146,44 +145,109 @@ const RangeStyle = styled.input({
 	},
 });
 
-function StoryPage() {
-	const [textView, setTextView] = React.useState(false);
-	const [isDrawing, setIsDrawing] = React.useState(false);
+type DrawPageTypes = {
+	setIsDrawing: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
-	const { startDraw } = useStoryContext();
+const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
+	const [brush, setBrush] = React.useState<BrushModesEnum>(
+		BrushModesEnum.Pen
+	);
 
-	const closeAddText = (text: string) => {
-		setTextView(false);
-		// addText(text);
-	};
+	const { stopDraw, setBrushColor, setBrushMode, undoDraw } =
+		useStoryContext();
 
 	return (
-		<>
-			{textView ? <AddText close={closeAddText} /> : null}
-			{isDrawing ? (
-				<DrawPage setIsDrawing={setIsDrawing} />
-			) : (
+		<div>
+			<HeaderStyle>
 				<div>
-					<HeaderStyle>
-						<div>
-							<p>write</p>
-							<p
-								onClick={() => {
-									setIsDrawing(true);
-									startDraw();
-								}}
-							>
-								draw
-							</p>
-							<p>stickers</p>
-						</div>
-						<div>X</div>
-					</HeaderStyle>
-					<FooterStyle>add to your story</FooterStyle>
+					<span
+						style={{ marginInline: 6 }}
+						onClick={() => {
+							stopDraw();
+							setIsDrawing(false);
+						}}
+					>
+						Done
+					</span>
+					<div>
+						<EraserStyle
+							isActive={brush === BrushModesEnum.Eraser}
+							onClick={(e) => {
+								setBrushMode(BrushModesEnum.Eraser);
+								setBrush(BrushModesEnum.Eraser);
+							}}
+						/>
+						<NeonBrushStyle
+							isActive={brush === BrushModesEnum.Neon}
+							onClick={() => {
+								setBrushMode(BrushModesEnum.Neon);
+								setBrush(BrushModesEnum.Neon);
+							}}
+						/>
+						<HighlighterBrushStyle
+							isActive={brush === BrushModesEnum.Highlighter}
+							onClick={() => {
+								setBrushMode(BrushModesEnum.Highlighter);
+								setBrush(BrushModesEnum.Highlighter);
+							}}
+						/>
+						<PenStyle
+							isActive={brush === BrushModesEnum.Pen}
+							onClick={() => {
+								setBrushMode(BrushModesEnum.Pen);
+								setBrush(BrushModesEnum.Pen);
+							}}
+						/>
+					</div>
 				</div>
-			)}
-		</>
-	);
-}
 
-export default memo(StoryPage);
+				<div style={{ marginInline: 6 }} onClick={() => undoDraw()}>
+					Undo
+				</div>
+			</HeaderStyle>
+			<ColorsStyle>
+				<ColorStyle
+					onClick={() => setBrushColor("white")}
+					color="white"
+				/>
+				<ColorStyle
+					onClick={() => setBrushColor("black")}
+					color="black"
+				/>
+				<ColorStyle
+					onClick={() => setBrushColor("rgb(88, 195, 34)")}
+					color="rgb(88, 195, 34)"
+				/>
+				<ColorStyle
+					onClick={() => setBrushColor("rgb(0, 149, 246)")}
+					color="rgb(0, 149, 246)"
+				/>
+				<ColorStyle
+					onClick={() => setBrushColor("rgb(163, 7, 186)")}
+					color="rgb(163, 7, 186)"
+				/>
+				<ColorStyle
+					onClick={() => setBrushColor("rgb(209, 8, 105)")}
+					color="rgb(209, 8, 105)"
+				/>
+				<ColorStyle
+					onClick={() => setBrushColor("rgb(253, 141, 50)")}
+					color="rgb(253, 141, 50)"
+				/>
+				<ColorStyle
+					onClick={() => setBrushColor("rgb(253, 203, 92)")}
+					color="rgb(253, 203, 92)"
+				/>
+			</ColorsStyle>
+			<RangeBackgroundStyle>
+				<div>
+					<div></div>
+				</div>
+			</RangeBackgroundStyle>
+			<RangeStyle type="range" />
+		</div>
+	);
+};
+
+export default memo(DrawPage);

@@ -13,6 +13,7 @@ interface StoryContextType {
 	stopDraw: () => void;
 	setBrushColor: (color: string) => void;
 	setBrushMode: (mode: BrushModesEnum) => void;
+	undoDraw: () => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -20,6 +21,7 @@ export const StoryContext = createContext<StoryContextType>({
 	stopDraw: () => {},
 	setBrushColor: (color: string) => {},
 	setBrushMode: (mode: BrushModesEnum) => {},
+	undoDraw: () => {},
 });
 
 export const StoryContextProvider = memo(
@@ -138,11 +140,11 @@ export const StoryContextProvider = memo(
 					lineCap: "round",
 					lineJoin: "round",
 
-					shadowColor: "rgb(88, 195, 34)",
-					shadowOpacity: 1.2,
-					shadowBlur: 0.2,
-					fillPatternImage: imageObj,
-					fillPatternRepeat: "no-repeat",
+					// shadowColor: "rgb(88, 195, 34)",
+					// shadowOpacity: 1.2,
+					// shadowBlur: 0.2,
+					// fillPatternImage: imageObj,
+					// fillPatternRepeat: "no-repeat",
 					// fillPatternScaleX: 0.5, // Adjust the scale as needed
 					// fillPatternScaleY: 0.5,
 					// add point twice, so we have some drawings even on a simple click
@@ -157,6 +159,7 @@ export const StoryContextProvider = memo(
 					return;
 				}
 				isPaint = false;
+				console.log(drawShapeRef.current);
 			});
 
 			// and core function - drawing
@@ -204,15 +207,34 @@ export const StoryContextProvider = memo(
 			brushConfig.current.mode = mode;
 		};
 
+		const undoDraw = () => {
+			if (drawShapeRef.current.length < 1) {
+				return;
+			}
+			drawShapeRef.current[drawShapeRef.current.length - 1].remove();
+			drawShapeRef.current.splice(drawShapeRef.current.length - 1, 1);
+		};
+
 		useEffect(() => {
 			stageRef.current = getStage();
 			addStoryImage();
 			draw();
+			return () => {
+				stageRef.current?.off("mousedown touchstart");
+				stageRef.current?.off("mouseup touchend");
+				stageRef.current?.off("mousemove touchmove");
+			};
 		}, []);
 
 		return (
 			<StoryContext.Provider
-				value={{ startDraw, stopDraw, setBrushColor, setBrushMode }}
+				value={{
+					startDraw,
+					stopDraw,
+					setBrushColor,
+					setBrushMode,
+					undoDraw,
+				}}
 			>
 				{children}
 			</StoryContext.Provider>
