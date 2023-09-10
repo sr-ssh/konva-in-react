@@ -2,7 +2,7 @@ import React, { FC, memo } from "react";
 import styled from "@emotion/styled";
 import AddText from "./AddText";
 import { useStoryContext } from "../hooks/useStoryContext";
-import { BrushModesEnum } from "../@types/drawType";
+import { BrushModesEnum, OneToTenType } from "../@types/drawType";
 
 const HeaderStyle = styled.div({
 	position: "absolute",
@@ -154,8 +154,13 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 		BrushModesEnum.Pen
 	);
 
-	const { stopDraw, setBrushColor, setBrushMode, undoDraw } =
-		useStoryContext();
+	const {
+		stopDraw,
+		setBrushColor,
+		setBrushMode,
+		undoDraw,
+		setBrushStrokeWidth,
+	} = useStoryContext();
 
 	return (
 		<div>
@@ -245,7 +250,18 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 					<div></div>
 				</div>
 			</RangeBackgroundStyle>
-			<RangeStyle type="range" />
+			<RangeStyle
+				dir="ltr"
+				type="range"
+				min={1}
+				max={10}
+        defaultValue={5}
+				onChange={(e) =>
+					setBrushStrokeWidth(
+						parseInt(e.target.value) as OneToTenType
+					)
+				}
+			/>
 		</div>
 	);
 };

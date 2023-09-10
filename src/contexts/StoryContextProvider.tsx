@@ -3,7 +3,7 @@ import Konva from "konva";
 import { Line } from "konva/lib/shapes/Line";
 import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
-import { BrushModesEnum } from "../@types/drawType";
+import { BrushModesEnum, OneToTenType } from "../@types/drawType";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -14,6 +14,7 @@ interface StoryContextType {
 	setBrushColor: (color: string) => void;
 	setBrushMode: (mode: BrushModesEnum) => void;
 	undoDraw: () => void;
+	setBrushStrokeWidth: (strokeWidth: OneToTenType) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -22,6 +23,7 @@ export const StoryContext = createContext<StoryContextType>({
 	setBrushColor: (color: string) => {},
 	setBrushMode: (mode: BrushModesEnum) => {},
 	undoDraw: () => {},
+	setBrushStrokeWidth: (strokeWidth: OneToTenType) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -32,8 +34,13 @@ export const StoryContextProvider = memo(
 		let layerRef = useRef<Layer>();
 		let drawLayerRef = useRef<Layer>();
 		let isDrawing = useRef<boolean>(false);
-		let brushConfig = useRef<{ stroke?: string; mode?: BrushModesEnum }>({
+		let brushConfig = useRef<{
+			stroke?: string;
+			mode?: BrushModesEnum;
+			strokeWidth: OneToTenType;
+		}>({
 			mode: BrushModesEnum.Pen,
+			strokeWidth: 5,
 		});
 
 		const getStage = () => {
@@ -99,7 +106,7 @@ export const StoryContextProvider = memo(
 			layer.add(konvaImage);
 		};
 
-		const draw = (strokeWidth: number = 5) => {
+		const draw = () => {
 			const layer = getDrawLayer();
 
 			let isPaint = false;
@@ -131,7 +138,7 @@ export const StoryContextProvider = memo(
 				isPaint = true;
 				lastLine = new Konva.Line({
 					stroke: brushConfig.current?.stroke || "#fff",
-					strokeWidth,
+					strokeWidth: brushConfig.current?.strokeWidth,
 					globalCompositeOperation:
 						brushConfig.current.mode === BrushModesEnum.Pen
 							? "source-over"
@@ -207,6 +214,10 @@ export const StoryContextProvider = memo(
 			brushConfig.current.mode = mode;
 		};
 
+		const setBrushStrokeWidth = (strokeWidth: OneToTenType) => {
+			brushConfig.current.strokeWidth = strokeWidth;
+		};
+
 		const undoDraw = () => {
 			if (drawShapeRef.current.length < 1) {
 				return;
@@ -234,6 +245,7 @@ export const StoryContextProvider = memo(
 					setBrushColor,
 					setBrushMode,
 					undoDraw,
+					setBrushStrokeWidth,
 				}}
 			>
 				{children}
