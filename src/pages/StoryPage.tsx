@@ -170,7 +170,15 @@ function StoryPage() {
 				<div>
 					<HeaderStyle>
 						<div>
-							<span style={{ marginInline: 6 }}>Done</span>
+							<span
+								style={{ marginInline: 6 }}
+								onClick={() => {
+									stopDraw();
+									setIsDrawing(false);
+								}}
+							>
+								Done
+							</span>
 							<div>
 								<EraserStyle
 									isActive={brush === BrushModesEnum.Eraser}
