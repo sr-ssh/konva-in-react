@@ -19,7 +19,7 @@ function StoryPage() {
 	const [textView, setTextView] = React.useState(false);
 	const [isDrawing, setIsDrawing] = React.useState(false);
 
-	const { startDraw } = useStoryContext();
+	const { startDrawMode } = useStoryContext();
 
 	const closeAddText = (text: string) => {
 		setTextView(false);
@@ -39,7 +39,7 @@ function StoryPage() {
 							<p
 								onClick={() => {
 									setIsDrawing(true);
-									startDraw();
+									startDrawMode();
 								}}
 							>
 								draw
