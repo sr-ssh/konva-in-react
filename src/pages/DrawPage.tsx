@@ -204,7 +204,12 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 						setIsDrawing(false);
 					}}
 				>
-					Done
+					<img
+						src="assets/images/check.png"
+						alt="check"
+						width={39}
+						height={39}
+					/>
 				</div>
 				<div>
 					<BrushSection>
@@ -246,7 +251,12 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 					</BrushSection>
 				</div>
 				<div style={{ marginInline: 6 }} onClick={() => undoDraw()}>
-					Undo
+					<img
+						src="assets/images/undo.png"
+						alt="undo"
+						width={39}
+						height={39}
+					/>
 				</div>
 			</HeaderStyle>
 			<ColorsStyle>
