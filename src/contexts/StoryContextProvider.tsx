@@ -394,6 +394,8 @@ export const StoryContextProvider = memo(
 				let pos = stageRef.current?.getPointerPosition();
 				if (isEyeDropping.current) {
 					colorDropper(pos);
+					if (drawContainerRef.current)
+						drawContainerRef.current.style.display = "none";
 					return;
 				}
 				if (!isDrawModeOn.current) {

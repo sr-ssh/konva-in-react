@@ -156,6 +156,8 @@ const RangeStyle = styled.input({
 	},
 });
 
+// TODO add sections
+
 type DrawPageTypes = {
 	setIsDrawing: React.Dispatch<React.SetStateAction<boolean>>;
 };
