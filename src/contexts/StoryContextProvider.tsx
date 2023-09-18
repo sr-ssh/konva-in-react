@@ -37,6 +37,7 @@ interface StoryContextType {
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => void;
 	isDrawing: boolean;
 	registerDrawContainer: (ref: HTMLDivElement) => void;
+	toggleEyeDropper: () => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -48,6 +49,7 @@ export const StoryContext = createContext<StoryContextType>({
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => {},
 	isDrawing: false,
 	registerDrawContainer: (ref: HTMLDivElement) => {},
+	toggleEyeDropper: () => {},
 });
 
 export const StoryContextProvider = memo(
@@ -58,6 +60,8 @@ export const StoryContextProvider = memo(
 		let drawLayerRef = useRef<Layer>();
 		let isDrawModeOn = useRef<boolean>(false);
 		let isDrawing = useRef<boolean>(false);
+		let isEyeDropping = useRef<boolean>(false);
+		const colorDropperCircle = useRef();
 		let brushConfig = useRef<BrushConfigType>({
 			mode: BrushModesEnum.Pen,
 			strokeWidth: 10,
@@ -105,7 +109,7 @@ export const StoryContextProvider = memo(
 			Konva.hitOnDragEnabled = true;
 
 			let imageObj = new Image();
-			imageObj.src = "assets/images/longPic.png";
+			imageObj.src = "assets/images/p1.jpg";
 			let konvaImage = new Konva.Image({
 				image: imageObj,
 			});
@@ -477,15 +481,18 @@ export const StoryContextProvider = memo(
 			});
 
 			stageRef.current?.on("mousemove touchmove", function (e) {
+				console.log("mouse");
+				const pos = stageRef.current?.getPointerPosition();
+
+				colorDropper(pos);
 				if (!isDrawModeOn.current) {
 					return;
 				}
-				if (!isDrawing.current) {
+				if (!isDrawing.current || isEyeDropping.current) {
 					return;
 				}
 
 				e.evt.preventDefault();
-				const pos = stageRef.current?.getPointerPosition();
 
 				if (
 					brushConfig.current.mode === BrushModesEnum.Highlighter ||
@@ -501,6 +508,41 @@ export const StoryContextProvider = memo(
 					newPoints && lastLine.points(newPoints);
 				}
 			});
+		};
+
+		const colorDropper = (pos?: Vector2d | null) => {
+			if (!isEyeDropping.current) {
+				return;
+			}
+
+			let layer = getLayer();
+			let dropper = layer
+				.find("Circle")
+				.find((tr) => tr.name() === "dropper");
+			dropper?.hide();
+
+			var imageData =
+				pos &&
+				stageRef.current
+					?.toCanvas()
+					.getContext("2d")
+					?.getImageData(pos.x, pos.y, 1, 1).data;
+			let rgbaColor =
+				imageData &&
+				"rgba(" +
+					imageData[0] +
+					"," +
+					imageData[1] +
+					"," +
+					imageData[2] +
+					",1)";
+			if (rgbaColor) {
+				dropper?.setAttrs({
+					fill: rgbaColor,
+					...(pos && { x: pos.x, y: pos.y }),
+				});
+				dropper?.show();
+			}
 		};
 
 		const startDrawMode = () => {
@@ -531,6 +573,36 @@ export const StoryContextProvider = memo(
 			drawShapeRef.current.splice(drawShapeRef.current.length - 1, 1);
 		};
 
+		const toggleEyeDropper = () => {
+			isEyeDropping.current = !isEyeDropping.current;
+			if (isEyeDropping.current) {
+				const x = width / 2;
+				const y = height / 2;
+				var imageData = stageRef.current
+					?.toCanvas()
+					.getContext("2d")
+					?.getImageData(x, y, 1, 1).data;
+				let rgbaColor =
+					imageData &&
+					"rgba(" +
+						imageData[0] +
+						"," +
+						imageData[1] +
+						"," +
+						imageData[2] +
+						",1)";
+				let colorDrop = new Konva.Circle({
+					fill: rgbaColor,
+					radius: 70,
+					x,
+					y,
+					name: "dropper",
+				});
+				let layer = getLayer();
+				layer.add(colorDrop);
+			}
+		};
+
 		useEffect(() => {
 			stageRef.current = getStage();
 			addStoryImage();
@@ -553,6 +625,7 @@ export const StoryContextProvider = memo(
 					setBrushStrokeWidth,
 					isDrawing: isDrawing.current,
 					registerDrawContainer,
+					toggleEyeDropper,
 				}}
 			>
 				{children}

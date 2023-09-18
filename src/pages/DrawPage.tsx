@@ -178,6 +178,7 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 		setBrushStrokeWidth,
 		isDrawing,
 		registerDrawContainer,
+		toggleEyeDropper,
 	} = useStoryContext();
 
 	const brushColorHandler = (color: BrushColorEnum) => {
@@ -249,7 +250,7 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 				</div>
 			</HeaderStyle>
 			<ColorsStyle>
-				<ColorPicker color={color}>
+				<ColorPicker color={color} onClick={() => toggleEyeDropper()}>
 					<img
 						src="assets/images/eyedropper.png"
 						alt="eyedropper"
