@@ -25,7 +25,7 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 
 export interface BrushConfigType {
-	stroke: BrushColorEnum;
+	stroke: BrushColorEnum | string;
 	mode: BrushModesEnum;
 	strokeWidth: OneToTwentyType;
 }
@@ -67,6 +67,7 @@ export const StoryContextProvider = memo(
 			group: Group;
 			path: Path;
 			circle: Circle;
+			color?: string;
 		}>();
 		let brushConfig = useRef<BrushConfigType>({
 			mode: BrushModesEnum.Pen,
@@ -390,10 +391,15 @@ export const StoryContextProvider = memo(
 			let group: Group;
 
 			stageRef.current?.on("mousedown touchstart", function (e) {
+				let pos = stageRef.current?.getPointerPosition();
+				if (isEyeDropping.current) {
+					colorDropper(pos);
+					return;
+				}
 				if (!isDrawModeOn.current) {
 					return;
 				}
-				let pos = stageRef.current?.getPointerPosition();
+
 				lastPoint = pos;
 				isDrawing.current = true;
 				if (drawContainerRef.current)
@@ -416,6 +422,7 @@ export const StoryContextProvider = memo(
 			});
 
 			stageRef.current?.on("mouseup touchend", function () {
+				toggleEyeDropper(false);
 				if (!isDrawModeOn.current) {
 					return;
 				}
@@ -497,7 +504,15 @@ export const StoryContextProvider = memo(
 			drawShapeRef.current.splice(drawShapeRef.current.length - 1, 1);
 		};
 
-		const toggleEyeDropper = () => {
+		const toggleEyeDropper = (status?: boolean) => {
+			if (status === false) {
+				colorPickerSVG.current?.group?.hide();
+				isEyeDropping.current = false;
+				brushConfig.current.stroke =
+					colorPickerSVG.current?.color || brushConfig.current.stroke;
+				console.log(colorPickerSVG.current);
+				return;
+			}
 			isEyeDropping.current = !isEyeDropping.current;
 			if (isEyeDropping.current) {
 				const x = width / 2;
@@ -533,6 +548,7 @@ export const StoryContextProvider = memo(
 				colorPicker.group.setAttrs({ x: x - 24.875, y: y - 91.5 });
 				colorPicker.path.setAttrs({ fill: rgbaColor });
 				colorPicker.circle.setAttrs({ fill: rgbaColor });
+				colorPicker.color = rgbaColor;
 			}
 		};
 

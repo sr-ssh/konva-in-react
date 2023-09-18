@@ -1,14 +1,14 @@
 import { BrushColorEnum, BrushModesEnum } from "../@types/drawType";
 
-export const getShadowColor = (stroke: BrushColorEnum) => {
-  if (stroke === BrushColorEnum.Black) {
+export const getShadowColor = (stroke: BrushColorEnum | string) => {
+  if (stroke === BrushColorEnum.Black || stroke === "rgba(0,0,0,1)") {
     return BrushColorEnum.Purple_700
   } else return stroke
 }
 
-export const getStrokeColor = (stroke?: BrushColorEnum, mode?: BrushModesEnum) => {
+export const getStrokeColor = (stroke?: BrushColorEnum | string, mode?: BrushModesEnum) => {
   if (mode === BrushModesEnum.Neon) {
-    if (stroke === BrushColorEnum.Black) {
+    if (stroke === BrushColorEnum.Black || stroke === "rgba(0,0,0,1)") {
       return stroke
     } else return BrushColorEnum.White
   }
