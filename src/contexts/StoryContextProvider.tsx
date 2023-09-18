@@ -18,6 +18,8 @@ import { Vector2d } from "konva/lib/types";
 import { Group } from "konva/lib/Group";
 import { Rect } from "konva/lib/shapes/Rect";
 import { generateRandomNumber } from "../utils/random";
+import { Path } from "konva/lib/shapes/Path";
+import { Circle } from "konva/lib/shapes/Circle";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -61,7 +63,11 @@ export const StoryContextProvider = memo(
 		let isDrawModeOn = useRef<boolean>(false);
 		let isDrawing = useRef<boolean>(false);
 		let isEyeDropping = useRef<boolean>(false);
-		const colorDropperCircle = useRef();
+		const colorPickerSVG = useRef<{
+			group: Group;
+			path: Path;
+			circle: Circle;
+		}>();
 		let brushConfig = useRef<BrushConfigType>({
 			mode: BrushModesEnum.Pen,
 			strokeWidth: 10,
@@ -137,57 +143,6 @@ export const StoryContextProvider = memo(
 				x,
 				y,
 			});
-		};
-
-		const drawImage = (
-			x: number,
-			y: number,
-			imageObj: HTMLImageElement
-		) => {
-			let width = randomWidth();
-			// const hiddenCanvas = document.createElement("canvas");
-			// const hiddenCtx = hiddenCanvas.getContext("2d");
-			// const imageWidth = 100;
-			// hiddenCanvas.width = imageWidth;
-			// hiddenCanvas.height = imageWidth;
-			// hiddenCtx?.translate(imageWidth / 2, imageWidth / 2);
-			// hiddenCtx?.rotate(generateRandomNumber(360, 0));
-			// hiddenCtx?.drawImage(imageObj, -imageWidth / 2, -imageWidth / 2);
-			// const imageData = hiddenCtx?.getImageData(
-			// 	0,
-			// 	0,
-			// 	imageWidth,
-			// 	imageWidth
-			// );
-			// if (imageData?.data) {
-			// 	let color = getRGBFromColor(brushConfig.current.stroke);
-			// 	console.log(color);
-			// 	for (let i = 0; i < imageData.data.length; i += 4) {
-			// 		imageData.data[i] = color.red; // Set red to 0
-			// 		imageData.data[i + 1] = color.green; // Set green to 0
-			// 		imageData.data[i + 2] = color.blue; // Set blue to 255
-			// 	}
-			// 	hiddenCtx?.putImageData(imageData, 0, 0);
-			// }
-
-			let konvaImg = new Konva.Image({
-				image: imageObj,
-				width: width,
-				height: width,
-				x: x - width / 2,
-				y: y - width / 2,
-			});
-			// let color = getRGBFromColor(brushConfig.current.stroke);
-
-			// konvaImg.cache();
-			// konvaImg.filters([Konva.Filters.RGB]);
-			// konvaImg.red(color.red);
-			// konvaImg.green(color.green);
-			// konvaImg.blue(color.blue);
-
-			// hiddenCanvas.remove();
-
-			return konvaImg;
 		};
 
 		const drawSVG = (x: number, y: number, group: Group) => {
@@ -419,9 +374,7 @@ export const StoryContextProvider = memo(
 					shadowBlur: 10,
 					fillAfterStrokeEnabled: true,
 					shadowForStrokeEnabled: true,
-					...(pos && {
-						shadowOffset: { x: 0, y: 0 },
-					}),
+					shadowOffset: { x: 0, y: 0 },
 				}),
 				...(pos && { points: [pos.x, pos.y, pos.x, pos.y] }),
 			});
@@ -481,7 +434,6 @@ export const StoryContextProvider = memo(
 			});
 
 			stageRef.current?.on("mousemove touchmove", function (e) {
-				console.log("mouse");
 				const pos = stageRef.current?.getPointerPosition();
 
 				colorDropper(pos);
@@ -514,35 +466,7 @@ export const StoryContextProvider = memo(
 			if (!isEyeDropping.current) {
 				return;
 			}
-
-			let layer = getLayer();
-			let dropper = layer
-				.find("Circle")
-				.find((tr) => tr.name() === "dropper");
-			dropper?.hide();
-
-			var imageData =
-				pos &&
-				stageRef.current
-					?.toCanvas()
-					.getContext("2d")
-					?.getImageData(pos.x, pos.y, 1, 1).data;
-			let rgbaColor =
-				imageData &&
-				"rgba(" +
-					imageData[0] +
-					"," +
-					imageData[1] +
-					"," +
-					imageData[2] +
-					",1)";
-			if (rgbaColor) {
-				dropper?.setAttrs({
-					fill: rgbaColor,
-					...(pos && { x: pos.x, y: pos.y }),
-				});
-				dropper?.show();
-			}
+			pos && drawEyeDropperSVG(pos.x, pos.y);
 		};
 
 		const startDrawMode = () => {
@@ -578,29 +502,114 @@ export const StoryContextProvider = memo(
 			if (isEyeDropping.current) {
 				const x = width / 2;
 				const y = height / 2;
-				var imageData = stageRef.current
-					?.toCanvas()
-					.getContext("2d")
-					?.getImageData(x, y, 1, 1).data;
-				let rgbaColor =
-					imageData &&
-					"rgba(" +
-						imageData[0] +
-						"," +
-						imageData[1] +
-						"," +
-						imageData[2] +
-						",1)";
-				let colorDrop = new Konva.Circle({
-					fill: rgbaColor,
-					radius: 70,
-					x,
-					y,
-					name: "dropper",
-				});
-				let layer = getLayer();
-				layer.add(colorDrop);
+				drawEyeDropperSVG(x, y);
 			}
+		};
+
+		const drawEyeDropperSVG = (x: number, y: number) => {
+			let colorPicker = getColorPickerSVG();
+			colorPicker.group.hide();
+
+			var imageData = stageRef.current
+				?.toCanvas()
+				.getContext("2d")
+				?.getImageData(x, y, 1, 1).data;
+
+			colorPicker.group.show();
+			let layer = getDrawLayer();
+			colorPicker.group.zIndex(layer.getChildren().length - 1);
+
+			let rgbaColor =
+				imageData &&
+				"rgba(" +
+					imageData[0] +
+					"," +
+					imageData[1] +
+					"," +
+					imageData[2] +
+					",1)";
+
+			if (rgbaColor) {
+				colorPicker.group.setAttrs({ x: x - 24.875, y: y - 91.5 });
+				colorPicker.path.setAttrs({ fill: rgbaColor });
+				colorPicker.circle.setAttrs({ fill: rgbaColor });
+			}
+		};
+
+		const getColorPickerSVG = () => {
+			let layer = getDrawLayer();
+
+			if (
+				colorPickerSVG.current &&
+				colorPickerSVG.current.group &&
+				colorPickerSVG.current.path &&
+				colorPickerSVG.current.circle
+			) {
+				return colorPickerSVG.current;
+			}
+
+			const group = new Konva.Group({
+				scaleX: 0.25,
+				scaleY: 0.25,
+				zIndex: 4,
+			});
+			layer.add(group);
+			console.log(group.zIndex(), layer);
+			group.zIndex(1);
+
+			console.log(group.zIndex(), layer);
+
+			const path1 = new Konva.Path({
+				data: "M99.5001 253.812L23.7144 164.553C8.48697 146.605 0.0991211 123.791 0.0991211 100.313C0.0991211 45.5015 44.691 0.912392 99.5001 0.912392C154.309 0.912392 198.904 45.5043 198.904 100.313C198.904 123.791 190.516 146.605 175.286 164.553L99.5001 253.812Z",
+				shadowColor: "black",
+				hasShadow: true,
+				shadowBlur: 10,
+				zIndex: 4,
+				shadowOffset: { x: 0, y: 0 },
+			});
+			path1.zIndex(1);
+			group.add(path1);
+
+			const path2 = new Konva.Path({
+				data: "M99.5001 253.812L23.7144 164.553C8.48697 146.605 0.0991211 123.791 0.0991211 100.313C0.0991211 45.5015 44.691 0.912392 99.5001 0.912392C154.309 0.912392 198.904 45.5043 198.904 100.313C198.904 123.791 190.516 146.605 175.286 164.553L99.5001 253.812ZM99.5001 9.1766C49.246 9.1766 8.36333 50.0593 8.36333 100.313C8.36333 121.835 16.0543 142.75 30.0144 159.205L99.5001 241.047L168.986 159.205C182.949 142.753 190.64 121.835 190.64 100.313C190.637 50.0593 149.754 9.1766 99.5001 9.1766Z",
+				zIndex: 4,
+				fill: "#fff",
+			});
+			group.add(path2);
+
+			const circle1 = new Konva.Circle({
+				x: 100,
+				y: 341,
+				radius: 25,
+				zIndex: 4,
+				fill: "#D9D9D9",
+			});
+			group.add(circle1);
+
+			const circle2 = new Konva.Circle({
+				x: 100,
+				y: 341,
+				radius: 25,
+				shadowColor: "black",
+				hasShadow: true,
+				shadowBlur: 10,
+				zIndex: 4,
+				shadowOffset: { x: 0, y: 0 },
+			});
+			group.add(circle2);
+
+			const circle3 = new Konva.Circle({
+				x: 100,
+				y: 341,
+				radius: 21.5,
+				stroke: "#fff",
+				zIndex: 4,
+				strokeWidth: 7,
+			});
+			group.add(circle3);
+
+			colorPickerSVG.current = { group, path: path1, circle: circle2 };
+			return colorPickerSVG.current;
 		};
 
 		useEffect(() => {

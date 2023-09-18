@@ -59,11 +59,9 @@ export const getColorBrightness = (color: string) => {
 
   if (brightness < threshold) {
     // black
-    console.log(color, "black")
     return true;
   } else {
     // white
-    console.log(color, "white")
     return false;
   }
 }
