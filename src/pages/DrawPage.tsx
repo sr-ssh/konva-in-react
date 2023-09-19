@@ -53,9 +53,14 @@ const ColorsStyle = styled.div({
 	padding: "8px 8px 0",
 	paddingInlineEnd: 41,
 	direction: "ltr",
-	overflowX: "auto", // Enable horizontal scrolling
-	whiteSpace: "nowrap", // Prevent line wrapping
+	overflowX: "auto",
+	whiteSpace: "nowrap",
 	width: "-webkit-fill-available",
+	"::-webkit-scrollbar": {
+		display: "none",
+	},
+	"-ms-overflow-style": "none",
+	scrollbarWidth: "none",
 });
 const ColorStyle = styled.div(({ color }) => ({
 	backgroundColor: color,
@@ -91,7 +96,7 @@ const RangeBackgroundStyle = styled.div({
 		border: 0,
 		borderLeft: "14px solid transparent",
 		borderRight: "14px solid transparent",
-		borderTop: "280px solid rgba(255, 255, 255, .3)",
+		borderTop: "280px solid rgba(181, 181, 181, .3)",
 		boxSizing: "border-box",
 		display: "flex",
 		flexDirection: "column",
@@ -166,7 +171,7 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 	const [brush, setBrush] = React.useState<BrushModesEnum>(
 		BrushModesEnum.Pen
 	);
-	const [color, setColor] = React.useState<BrushColorEnum>(
+	const [color, setColor] = React.useState<BrushColorEnum | string>(
 		BrushColorEnum.White
 	);
 
@@ -183,13 +188,14 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 		toggleEyeDropper,
 	} = useStoryContext();
 
-	const brushColorHandler = (color: BrushColorEnum) => {
+	const brushColorHandler = (color: BrushColorEnum | string) => {
 		setBrushColor(color);
 		setColor(color);
 	};
 
 	useEffect(() => {
-		drawPageRef.current && registerDrawContainer(drawPageRef.current);
+		drawPageRef.current &&
+			registerDrawContainer(drawPageRef.current, setColor);
 	}, [drawPageRef, registerDrawContainer]);
 
 	if (isDrawing) {

@@ -1,4 +1,12 @@
-import { ReactNode, createContext, memo, useEffect, useRef } from "react";
+import {
+	Dispatch,
+	ReactNode,
+	SetStateAction,
+	createContext,
+	memo,
+	useEffect,
+	useRef,
+} from "react";
 import Konva from "konva";
 import { Line } from "konva/lib/shapes/Line";
 import { Stage } from "konva/lib/Stage";
@@ -33,24 +41,30 @@ export interface BrushConfigType {
 interface StoryContextType {
 	startDrawMode: () => void;
 	stopDrawMode: () => void;
-	setBrushColor: (color: BrushColorEnum) => void;
+	setBrushColor: (color: BrushColorEnum | string) => void;
 	setBrushMode: (mode: BrushModesEnum) => void;
 	undoDraw: () => void;
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => void;
 	isDrawing: boolean;
-	registerDrawContainer: (ref: HTMLDivElement) => void;
+	registerDrawContainer: (
+		ref: HTMLDivElement,
+		setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
+	) => void;
 	toggleEyeDropper: () => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
 	startDrawMode: () => {},
 	stopDrawMode: () => {},
-	setBrushColor: (color: BrushColorEnum) => {},
+	setBrushColor: (color: BrushColorEnum | string) => {},
 	setBrushMode: (mode: BrushModesEnum) => {},
 	undoDraw: () => {},
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => {},
 	isDrawing: false,
-	registerDrawContainer: (ref: HTMLDivElement) => {},
+	registerDrawContainer: (
+		ref: HTMLDivElement,
+		setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
+	) => {},
 	toggleEyeDropper: () => {},
 });
 
@@ -75,9 +89,15 @@ export const StoryContextProvider = memo(
 			stroke: BrushColorEnum.White,
 		});
 		let drawContainerRef = useRef<HTMLDivElement>();
+		let drawContainerSetColor =
+			useRef<Dispatch<SetStateAction<BrushColorEnum | string>>>();
 
-		const registerDrawContainer = (ref: HTMLDivElement) => {
+		const registerDrawContainer = (
+			ref: HTMLDivElement,
+			setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
+		) => {
 			drawContainerRef.current = ref;
+			drawContainerSetColor.current = setColor;
 		};
 
 		const getStage = () => {
@@ -424,7 +444,10 @@ export const StoryContextProvider = memo(
 			});
 
 			stageRef.current?.on("mouseup touchend", function () {
-				toggleEyeDropper(false);
+				if (isEyeDropping.current) {
+					toggleEyeDropper(false);
+					isEyeDropping.current = false;
+				}
 				if (!isDrawModeOn.current) {
 					return;
 				}
@@ -486,7 +509,7 @@ export const StoryContextProvider = memo(
 			isDrawModeOn.current = false;
 		};
 
-		const setBrushColor = (color: BrushColorEnum) => {
+		const setBrushColor = (color: BrushColorEnum | string) => {
 			brushConfig.current.stroke = color;
 		};
 
@@ -512,6 +535,11 @@ export const StoryContextProvider = memo(
 				isEyeDropping.current = false;
 				brushConfig.current.stroke =
 					colorPickerSVG.current?.color || brushConfig.current.stroke;
+				colorPickerSVG.current?.color &&
+					drawContainerSetColor?.current &&
+					drawContainerSetColor.current(
+						colorPickerSVG.current?.color
+					);
 				console.log(colorPickerSVG.current);
 				return;
 			}

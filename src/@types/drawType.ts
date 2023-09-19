@@ -28,5 +28,5 @@ export enum BrushColorEnum {
   Grey_500 = "#9E9E9E",
   Grey_700 = "#616161",
   Grey_800 = "#424242",
-  Grey_900 = "#212121"
+  Grey_900 = "#212121",
 }
