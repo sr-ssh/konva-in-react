@@ -46,11 +46,12 @@ interface StoryContextType {
 	undoDraw: () => void;
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => void;
 	isDrawing: boolean;
-	registerDrawContainer: (
-		ref: HTMLDivElement,
+	registerDrawContainer: (ref: HTMLDivElement) => void;
+	registerDrawContainerSetColor: (
 		setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
 	) => void;
 	toggleEyeDropper: () => void;
+	downloadStage: () => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -61,11 +62,12 @@ export const StoryContext = createContext<StoryContextType>({
 	undoDraw: () => {},
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => {},
 	isDrawing: false,
-	registerDrawContainer: (
-		ref: HTMLDivElement,
+	registerDrawContainer: (ref: HTMLDivElement) => {},
+	registerDrawContainerSetColor: (
 		setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
 	) => {},
 	toggleEyeDropper: () => {},
+	downloadStage: () => {},
 });
 
 export const StoryContextProvider = memo(
@@ -92,11 +94,13 @@ export const StoryContextProvider = memo(
 		let drawContainerSetColor =
 			useRef<Dispatch<SetStateAction<BrushColorEnum | string>>>();
 
-		const registerDrawContainer = (
-			ref: HTMLDivElement,
+		const registerDrawContainer = (ref: HTMLDivElement) => {
+			drawContainerRef.current = ref;
+		};
+
+		const registerDrawContainerSetColor = (
 			setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
 		) => {
-			drawContainerRef.current = ref;
 			drawContainerSetColor.current = setColor;
 		};
 
@@ -658,6 +662,21 @@ export const StoryContextProvider = memo(
 			return colorPickerSVG.current;
 		};
 
+		const downloadStage = () => {
+			const stage = getStage();
+			const dataURL = stage.toDataURL({
+				width,
+				height,
+				mimeType: "image/jpeg",
+				quality: 1,
+			});
+
+			const downloadLink = document.createElement("a");
+			downloadLink.href = dataURL;
+			downloadLink.download = "stage_image.png"; // Specify the desired filename
+			downloadLink.click();
+		};
+
 		useEffect(() => {
 			stageRef.current = getStage();
 			addStoryImage();
@@ -681,6 +700,8 @@ export const StoryContextProvider = memo(
 					isDrawing: isDrawing.current,
 					registerDrawContainer,
 					toggleEyeDropper,
+					downloadStage,
+					registerDrawContainerSetColor,
 				}}
 			>
 				{children}

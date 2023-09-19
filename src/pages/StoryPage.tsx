@@ -8,18 +8,39 @@ import { HeaderStyle } from "../components/Header";
 const FooterStyle = styled.div({
 	position: "absolute",
 	bottom: 0,
-	marginBottom: 20,
+	left: 0,
+	right: 0,
+	height: "100px",
+	alignItems: "flex-end",
+	paddingBottom: 20,
 	display: "flex",
 	justifyContent: "center",
 	color: "#fff",
 	zIndex: 2,
+	background: "linear-gradient(to top, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0))",
+});
+const IconsStyle = styled.div({
+	backgroundImage: "url(/assets/images/icons.png)",
+	backgroundRepeat: "no-repeat",
+	height: 44,
+	width: 44,
+	backgroundSize: "179px 179px",
+});
+const WidgetIcon = styled(IconsStyle)({
+	backgroundPosition: "-135px -45px",
+});
+const WriteIcon = styled(IconsStyle)({
+	backgroundPosition: "-135px -90px",
+});
+const CloseIcon = styled(IconsStyle)({
+	backgroundPosition: "0 -135px",
 });
 
 function StoryPage() {
 	const [textView, setTextView] = React.useState(false);
 	const [isDrawing, setIsDrawing] = React.useState(false);
 
-	const { startDrawMode } = useStoryContext();
+	const { startDrawMode, downloadStage } = useStoryContext();
 
 	const closeAddText = (text: string) => {
 		setTextView(false);
@@ -35,7 +56,7 @@ function StoryPage() {
 				<div>
 					<HeaderStyle>
 						<div>
-							<p>write</p>
+							<WriteIcon />
 							<p
 								onClick={() => {
 									setIsDrawing(true);
@@ -44,11 +65,13 @@ function StoryPage() {
 							>
 								draw
 							</p>
-							<p>stickers</p>
+							<WidgetIcon />
 						</div>
-						<div>X</div>
+						<CloseIcon />
 					</HeaderStyle>
-					<FooterStyle>add to your story</FooterStyle>
+					<FooterStyle onClick={() => downloadStage()}>
+						add to your story
+					</FooterStyle>
 				</div>
 			)}
 		</>

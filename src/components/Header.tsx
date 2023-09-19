@@ -10,5 +10,7 @@ export const HeaderStyle = styled.div({
 	zIndex: 2,
 	color: "#fff",
 	padding: "8px 8px 0",
+	background:
+		"linear-gradient(to bottom, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0))",
 	" > div": { display: "flex", gap: 12, alignItems: "center" },
 });
