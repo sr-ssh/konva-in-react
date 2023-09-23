@@ -105,6 +105,7 @@ export const StoryContextProvider = memo(
 		};
 
 		const getStage = () => {
+			// Konva.pixelRatio = 1;
 			if (!stageRef.current) {
 				return new Konva.Stage({
 					container: "container",
@@ -120,8 +121,10 @@ export const StoryContextProvider = memo(
 				layerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(layerRef.current);
+				layerRef.current.listening(false);
 				return layerRef.current;
 			}
+			layerRef.current.listening(false);
 			return layerRef.current;
 		};
 
@@ -130,8 +133,10 @@ export const StoryContextProvider = memo(
 				drawLayerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(drawLayerRef.current);
+				drawLayerRef.current.listening(false);
 				return drawLayerRef.current;
 			}
+			drawLayerRef.current.listening(false);
 			return drawLayerRef.current;
 		};
 
@@ -686,6 +691,7 @@ export const StoryContextProvider = memo(
 				stageRef.current?.off("mouseup touchend");
 				stageRef.current?.off("mousemove touchmove");
 			};
+			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, []);
 
 		return (
