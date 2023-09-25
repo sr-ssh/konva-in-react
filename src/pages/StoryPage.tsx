@@ -57,20 +57,22 @@ function StoryPage() {
 					<HeaderStyle>
 						<div>
 							<WriteIcon />
-							<p
+							<img
+								src="assets/images/drawing_tool.png"
+								alt="drawing-tool"
+								width={44}
+								height={44}
 								onClick={() => {
 									setIsDrawing(true);
 									startDrawMode();
 								}}
-							>
-								draw
-							</p>
+							/>
 							<WidgetIcon />
 						</div>
 						<CloseIcon />
 					</HeaderStyle>
 					<FooterStyle onClick={() => downloadStage()}>
-						add to your story
+						add to your story +
 					</FooterStyle>
 				</div>
 			)}
