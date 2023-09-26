@@ -2,7 +2,7 @@ import React, { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { BrushColorEnum } from "../../@types/drawType";
-import { getColorBrightness } from "../../utils/draw";
+import { getColorBrightness } from "../../utils/konvaUtils";
 
 const ColorsStyle = styled.div({
 	position: "absolute",
