@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import styled from "@emotion/styled";
-import AddText from "./AddText";
+import TextPage from "./TextPage";
 import { useStoryContext } from "../hooks/useStoryContext";
 import DrawPage from "./DrawPage";
 import { HeaderStyle } from "../components/Header";
@@ -37,26 +37,27 @@ const CloseIcon = styled(IconsStyle)({
 });
 
 function StoryPage() {
-	const [textView, setTextView] = React.useState(false);
+	const [textView, setTextView] = React.useState(true);
 	const [isDrawing, setIsDrawing] = React.useState(false);
 
-	const { startDrawMode, downloadStage } = useStoryContext();
+	const { startDrawMode, downloadStage, addText } = useStoryContext();
 
 	const closeAddText = (text: string) => {
 		setTextView(false);
-		// addText(text);
+		addText(text);
 	};
 
 	return (
 		<>
-			{textView ? <AddText close={closeAddText} /> : null}
-			{isDrawing ? (
+			{textView ? (
+				<TextPage close={closeAddText} />
+			) : isDrawing ? (
 				<DrawPage setIsDrawing={setIsDrawing} />
 			) : (
 				<div>
 					<HeaderStyle>
 						<div>
-							<WriteIcon />
+							<WriteIcon onClick={() => setTextView(true)} />
 							<img
 								src="assets/images/drawing_tool.png"
 								alt="drawing-tool"

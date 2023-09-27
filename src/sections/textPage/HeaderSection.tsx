@@ -14,8 +14,7 @@ const ContainerStyle = styled.div({
 	background:
 		"linear-gradient(to bottom, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0))",
 	display: "grid",
-	gridTemplateColumns: "r
-  epeat(3, 1fr)",
+	gridTemplateColumns: "repeat(3, 1fr)",
 	alignItems: "center",
 });
 

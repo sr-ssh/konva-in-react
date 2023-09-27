@@ -4,8 +4,9 @@ import { useStoryContext } from "../../hooks/useStoryContext";
 import { BrushColorEnum } from "../../@types/drawType";
 import { getColorBrightness } from "../../utils/konvaUtils";
 
-const ColorsStyle = styled.div({
-	position: "absolute",
+type ColorStyleProps = { position?: any };
+const ColorsStyle = styled.div<ColorStyleProps>((props) => ({
+	position: props.position ? props.position : "absolute",
 	bottom: 0,
 	alignItems: "center",
 	zIndex: 2,
@@ -22,7 +23,7 @@ const ColorsStyle = styled.div({
 	},
 	"-ms-overflow-style": "none",
 	scrollbarWidth: "none",
-});
+}));
 const ColorStyle = styled.div(({ color }) => ({
 	backgroundColor: color,
 	borderRadius: "50%",
@@ -32,9 +33,10 @@ const ColorStyle = styled.div(({ color }) => ({
 	width: 26,
 	border: "1px solid #fff",
 	display: "inline-block",
+	zIndex: 3,
 }));
 const ColorPicker = styled(ColorStyle)({
-	position: "fixed",
+	position: "absolute",
 	bottom: 13,
 	right: 0,
 	width: 31,
@@ -44,7 +46,10 @@ const ColorPicker = styled(ColorStyle)({
 	alignItems: "center",
 });
 
-const ColorsSection: FC = () => {
+type ColorsSectionPropsType = {
+	position?: string;
+};
+const ColorsSection: FC<ColorsSectionPropsType> = ({ position }) => {
 	const [color, setColor] = React.useState<BrushColorEnum | string>(
 		BrushColorEnum.White
 	);
@@ -62,7 +67,7 @@ const ColorsSection: FC = () => {
 	}, [registerDrawContainerSetColor]);
 
 	return (
-		<ColorsStyle>
+		<>
 			<ColorPicker color={color} onClick={() => toggleEyeDropper()}>
 				<img
 					src="assets/images/eyedropper.png"
@@ -76,13 +81,15 @@ const ColorsSection: FC = () => {
 					}}
 				/>
 			</ColorPicker>
-			{Object.values(BrushColorEnum).map((item) => (
-				<ColorStyle
-					onClick={() => brushColorHandler(item)}
-					color={item}
-				/>
-			))}
-		</ColorsStyle>
+			<ColorsStyle position={position}>
+				{Object.values(BrushColorEnum).map((item) => (
+					<ColorStyle
+						onClick={() => brushColorHandler(item)}
+						color={item}
+					/>
+				))}
+			</ColorsStyle>
+		</>
 	);
 };
 

@@ -1,17 +1,18 @@
-import React, { FC, memo } from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { OneToTwentyType } from "../../@types/drawType";
 
-const RangeBackgroundStyle = styled.div({
+type RangePropsType = { height: number };
+const RangeBackgroundStyle = styled.div<RangePropsType>((props) => ({
 	left: "14px",
 	pointerEvents: "none",
 	position: "absolute",
-	top: "50%",
+	top: props.height / 2,
 	transform: "translate(0%, -50%)",
 	zIndex: 2,
 	div: {
-		top: window.innerHeight / 2,
+		top: (window.visualViewport?.height || window.innerHeight) / 2,
 		left: -window.innerWidth / 2 + 20,
 		alignItems: "stretch",
 		border: 0,
@@ -54,14 +55,14 @@ const RangeBackgroundStyle = styled.div({
 			right: 2,
 		},
 	},
-});
-const RangeStyle = styled.input({
+}));
+const RangeStyle = styled.input<RangePropsType>((props) => ({
 	WebkitAppearance: "none",
 	width: 280 + 28,
 	background: "transparent",
 	position: "absolute",
 	transform: "rotate(-90deg)",
-	top: (window.innerHeight - 28) / 2,
+	top: (props.height - 28) / 2,
 	left: -128,
 	zIndex: 2,
 	height: 28,
@@ -80,19 +81,27 @@ const RangeStyle = styled.input({
 		cursor: "pointer",
 		// boxShadow: "1px 1px 1px #000000, 0px 0px 1px #0d0d0d",
 	},
-});
+}));
 
 const RangeInputSection: FC = () => {
+	let [dynamicHeight, setDynamicHeight] = useState(window.innerHeight);
+
 	const { setBrushStrokeWidth } = useStoryContext();
+
+	window.addEventListener("resize", () => {
+		const height = window.visualViewport?.height;
+		setDynamicHeight(height ? height : window.innerHeight);
+	});
 
 	return (
 		<>
-			<RangeBackgroundStyle>
+			<RangeBackgroundStyle height={dynamicHeight}>
 				<div>
 					<div></div>
 				</div>
 			</RangeBackgroundStyle>
 			<RangeStyle
+				height={dynamicHeight}
 				dir="ltr"
 				type="range"
 				min={1}

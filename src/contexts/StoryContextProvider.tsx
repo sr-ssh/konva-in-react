@@ -53,6 +53,7 @@ interface StoryContextType {
 	) => void;
 	toggleEyeDropper: () => void;
 	downloadStage: () => void;
+	addText: (defaultText: string) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -69,6 +70,7 @@ export const StoryContext = createContext<StoryContextType>({
 	) => {},
 	toggleEyeDropper: () => {},
 	downloadStage: () => {},
+	addText: (defaultText: string) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -425,6 +427,21 @@ export const StoryContextProvider = memo(
 			downloadLink.click();
 		};
 
+		const addText = (defaultText: string) => {
+			const layer = getLayer();
+
+			let size = 200;
+
+			let text = new Konva.Text({
+				text: defaultText,
+				x: -size / 2,
+				width: size,
+				align: "center",
+				draggable: true,
+			});
+			layer.add(text);
+		};
+
 		useEffect(() => {
 			stageRef.current = getStage();
 			addStoryImage();
@@ -451,6 +468,7 @@ export const StoryContextProvider = memo(
 					toggleEyeDropper,
 					downloadStage,
 					registerDrawContainerSetColor,
+					addText,
 				}}
 			>
 				{children}
