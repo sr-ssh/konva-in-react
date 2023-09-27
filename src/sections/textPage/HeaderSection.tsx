@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { FontFamiliesObjectType } from "../../@types/textType";
 import { FontFamilies } from "../../components/TextPage/FontFamilies";
+import { PInputStylePropsType } from "./TextSection";
 
 const ContainerStyle = styled.div({
 	position: "absolute",
@@ -28,8 +29,14 @@ export const fontFamilies: FontFamiliesObjectType = {
 
 type HeaderSectionPropsType = {
 	inputRef: React.RefObject<HTMLParagraphElement>;
+	setTextStyle: React.Dispatch<React.SetStateAction<PInputStylePropsType>>;
+	textStyle: PInputStylePropsType;
 };
-const HeaderSection: FC<HeaderSectionPropsType> = ({ inputRef }) => {
+const HeaderSection: FC<HeaderSectionPropsType> = ({
+	inputRef,
+	setTextStyle,
+	textStyle,
+}) => {
 	const { stopDrawMode } = useStoryContext();
 
 	return (
@@ -48,7 +55,11 @@ const HeaderSection: FC<HeaderSectionPropsType> = ({ inputRef }) => {
 					height={39}
 				/>
 			</div>
-			<FontFamilies inputRef={inputRef} />
+			<FontFamilies
+				inputRef={inputRef}
+				setTextStyle={setTextStyle}
+				textStyle={textStyle}
+			/>
 		</ContainerStyle>
 	);
 };

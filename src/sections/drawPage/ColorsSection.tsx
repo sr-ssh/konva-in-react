@@ -21,7 +21,7 @@ const ColorsStyle = styled.div<ColorStyleProps>((props) => ({
 	"::-webkit-scrollbar": {
 		display: "none",
 	},
-	"-ms-overflow-style": "none",
+	msOverflowStyle: "none",
 	scrollbarWidth: "none",
 }));
 const ColorStyle = styled.div(({ color }) => ({
@@ -48,8 +48,9 @@ const ColorPicker = styled(ColorStyle)({
 
 type ColorsSectionPropsType = {
 	position?: string;
+	getColor?: (color: string) => void;
 };
-const ColorsSection: FC<ColorsSectionPropsType> = ({ position }) => {
+const ColorsSection: FC<ColorsSectionPropsType> = ({ position, getColor }) => {
 	const [color, setColor] = React.useState<BrushColorEnum | string>(
 		BrushColorEnum.White
 	);
@@ -60,6 +61,7 @@ const ColorsSection: FC<ColorsSectionPropsType> = ({ position }) => {
 	const brushColorHandler = (color: BrushColorEnum | string) => {
 		setBrushColor(color);
 		setColor(color);
+		getColor?.(color);
 	};
 
 	useEffect(() => {
@@ -84,6 +86,7 @@ const ColorsSection: FC<ColorsSectionPropsType> = ({ position }) => {
 			<ColorsStyle position={position}>
 				{Object.values(BrushColorEnum).map((item) => (
 					<ColorStyle
+						key={item}
 						onClick={() => brushColorHandler(item)}
 						color={item}
 					/>

@@ -22,6 +22,7 @@ import {
 	drawLine,
 	drawRect,
 	drawSVG,
+	rgbToHex,
 } from "../utils/konvaUtils";
 import { Vector2d } from "konva/lib/types";
 import { Group } from "konva/lib/Group";
@@ -377,16 +378,17 @@ export const StoryContextProvider = memo(
 			let layer = getDrawLayer();
 			colorPicker.group.zIndex(layer.getChildren().length - 1);
 
+			// let rgbaColor =
+			// 	imageData &&
+			// 	"rgba(" +
+			// 		imageData[0] +
+			// 		"," +
+			// 		imageData[1] +
+			// 		"," +
+			// 		imageData[2] +
+			// 		",1)";
 			let rgbaColor =
-				imageData &&
-				"rgba(" +
-					imageData[0] +
-					"," +
-					imageData[1] +
-					"," +
-					imageData[2] +
-					",1)";
-
+				imageData && rgbToHex(imageData[0], imageData[1], imageData[2]);
 			if (rgbaColor) {
 				colorPicker.group.setAttrs({ x: x - 24.875, y: y - 91.5 });
 				colorPicker.path.setAttrs({ fill: rgbaColor });

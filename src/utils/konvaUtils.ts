@@ -5,6 +5,15 @@ import { generateRandomNumber } from "./random";
 import { Vector2d } from "konva/lib/types";
 import { BrushConfigType } from "../contexts/StoryContextProvider";
 
+const componentToHex = (c: number) => {
+  const hex = c.toString(16);
+  return hex.length === 1 ? "0" + hex : hex;
+}
+
+export const rgbToHex = (r: number, g: number, b: number) => {
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
 export const getShadowColor = (stroke: BrushColorEnum | string) => {
   if (stroke === BrushColorEnum.Black || stroke === "rgba(0,0,0,1)") {
     return BrushColorEnum.Purple_700

@@ -3,6 +3,10 @@ import ColorsSection from "../sections/drawPage/ColorsSection";
 import styled from "@emotion/styled";
 import RangeInputSection from "../sections/drawPage/RangeInputSection";
 import HeaderSection from "../sections/textPage/HeaderSection";
+import { BrushColorEnum } from "../@types/drawType";
+import TextSection, {
+	PInputStylePropsType,
+} from "../sections/textPage/TextSection";
 
 type AddTextProps = {
 	close: (text: string) => void;
@@ -17,14 +21,15 @@ const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
 	flexDirection: "column",
 	overflow: "hidden",
 }));
-
-const MiddleDiv = styled.div({
-	flex: "auto",
-});
-
 const TextPage: FC<AddTextProps> = ({ close }) => {
-	const pRef = React.useRef<HTMLParagraphElement>(null);
+	const textRef = React.useRef<HTMLParagraphElement>(null);
 	let [dynamicHeight, setDynamicHeight] = useState("100%");
+	let [textStyle, setTextStyle] = useState<PInputStylePropsType>({
+		color: BrushColorEnum.White,
+		backgroundColor: "transparent",
+		borderRadius: 0,
+		hasOpacity: false,
+	});
 
 	window.addEventListener("resize", () => {
 		const height = window.visualViewport?.height;
@@ -32,7 +37,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 	});
 
 	useEffect(() => {
-		pRef.current?.focus();
+		textRef.current?.focus();
 	}, []);
 
 	return (
@@ -55,20 +60,26 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 			}}
 		>
 			<ContainerStyle height={dynamicHeight}>
-				<HeaderSection inputRef={pRef} />
-				<p
-					ref={pRef}
-					contentEditable
-					style={{
-						outline: "none",
-						width: "100%",
-						color: "white",
-						justifySelf: "center",
-						alignSelf: "center",
-					}}
-				></p>
+				<HeaderSection
+					inputRef={textRef}
+					setTextStyle={setTextStyle}
+					textStyle={textStyle}
+				/>
+				<TextSection textRef={textRef} textStyle={textStyle} />
 				<RangeInputSection />
-				<ColorsSection position="absolute" />
+				<ColorsSection
+					position="absolute"
+					getColor={(color: string) => {
+						setTextStyle({
+							...textStyle,
+							color,
+							...(textStyle.backgroundColor !== "transparent" && {
+								backgroundColor: color,
+							}),
+						});
+						textRef.current?.focus();
+					}}
+				/>
 			</ContainerStyle>
 		</div>
 	);
