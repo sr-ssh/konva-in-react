@@ -37,14 +37,14 @@ const CloseIcon = styled(IconsStyle)({
 });
 
 function StoryPage() {
-	const [textView, setTextView] = React.useState(true);
+	const [textView, setTextView] = React.useState(false);
 	const [isDrawing, setIsDrawing] = React.useState(false);
 
 	const { startDrawMode, downloadStage, addText } = useStoryContext();
 
-	const closeAddText = (text: string) => {
+	const closeAddText = (text?: string, color?: string) => {
 		setTextView(false);
-		addText(text);
+		text && color && addText(text, color);
 	};
 
 	return (

@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import ColorsSection from "../sections/drawPage/ColorsSection";
 import styled from "@emotion/styled";
-import RangeInputSection from "../sections/drawPage/RangeInputSection";
 import HeaderSection from "../sections/textPage/HeaderSection";
 import { BrushColorEnum } from "../@types/drawType";
 import TextSection, {
@@ -9,7 +8,7 @@ import TextSection, {
 } from "../sections/textPage/TextSection";
 
 type AddTextProps = {
-	close: (text: string) => void;
+	close: (text?: string, color?: string) => void;
 };
 
 type ContainerStyleProps = { height: string };
@@ -42,9 +41,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 
 	return (
 		<div
-			// onClick={() =>
-			// 	pRef.current?.innerText && close(pRef.current?.innerText)
-			// }
+			onClick={() => close(textRef.current?.innerText, textStyle.color)}
 			style={{
 				background: "rgba(0, 0, 0, .5)",
 				border: "none",
@@ -66,7 +63,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 					textStyle={textStyle}
 				/>
 				<TextSection textRef={textRef} textStyle={textStyle} />
-				<RangeInputSection />
+				{/* <RangeInputSection /> */}
 				<ColorsSection
 					position="absolute"
 					getColor={(color: string) => {

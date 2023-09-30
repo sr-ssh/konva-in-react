@@ -30,6 +30,7 @@ import { Rect } from "konva/lib/shapes/Rect";
 import { Path } from "konva/lib/shapes/Path";
 import { Circle } from "konva/lib/shapes/Circle";
 import { smokeSVG } from "../assets/svg/smokeSVG";
+import { Shape } from "konva/lib/Shape";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -54,7 +55,7 @@ interface StoryContextType {
 	) => void;
 	toggleEyeDropper: () => void;
 	downloadStage: () => void;
-	addText: (defaultText: string) => void;
+	addText: (defaultText: string, color: string) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -71,7 +72,7 @@ export const StoryContext = createContext<StoryContextType>({
 	) => {},
 	toggleEyeDropper: () => {},
 	downloadStage: () => {},
-	addText: (defaultText: string) => {},
+	addText: (defaultText: string, color: string) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -125,10 +126,10 @@ export const StoryContextProvider = memo(
 				layerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(layerRef.current);
-				layerRef.current.listening(false);
+				// layerRef.current.listening(false);
 				return layerRef.current;
 			}
-			layerRef.current.listening(false);
+			// layerRef.current.listening(false);
 			return layerRef.current;
 		};
 
@@ -369,7 +370,7 @@ export const StoryContextProvider = memo(
 			let colorPicker = getColorPickerShape();
 			colorPicker.group.hide();
 
-			var imageData = stageRef.current
+			let imageData = stageRef.current
 				?.toCanvas()
 				.getContext("2d")
 				?.getImageData(x, y, 1, 1).data;
@@ -378,17 +379,9 @@ export const StoryContextProvider = memo(
 			let layer = getDrawLayer();
 			colorPicker.group.zIndex(layer.getChildren().length - 1);
 
-			// let rgbaColor =
-			// 	imageData &&
-			// 	"rgba(" +
-			// 		imageData[0] +
-			// 		"," +
-			// 		imageData[1] +
-			// 		"," +
-			// 		imageData[2] +
-			// 		",1)";
 			let rgbaColor =
 				imageData && rgbToHex(imageData[0], imageData[1], imageData[2]);
+
 			if (rgbaColor) {
 				colorPicker.group.setAttrs({ x: x - 24.875, y: y - 91.5 });
 				colorPicker.path.setAttrs({ fill: rgbaColor });
@@ -429,19 +422,77 @@ export const StoryContextProvider = memo(
 			downloadLink.click();
 		};
 
-		const addText = (defaultText: string) => {
-			const layer = getLayer();
-
+		const addText = (defaultText: string, color: string) => {
 			let size = 200;
 
 			let text = new Konva.Text({
 				text: defaultText,
+				fill: color,
 				x: -size / 2,
 				width: size,
 				align: "center",
-				draggable: true,
+				fontSize: 30,
 			});
-			layer.add(text);
+			addInteractivity(text);
+		};
+
+		const addInteractivity = (shape: Shape) => {
+			Konva.capturePointerEventsEnabled = true;
+			const layer = getLayer();
+			const stage = getStage();
+
+			let originalAttrs = {
+				x: stage.width() / 2,
+				y: stage.height() / 2,
+				scaleX: 1,
+				scaleY: 1,
+				draggable: true,
+				rotation: 0,
+			};
+
+			let group = new Konva.Group(originalAttrs);
+			layer.add(group);
+
+			group.add(shape);
+
+			let hammertime = new Hammer(group as any, { domEvents: true });
+
+			hammertime.get("rotate").set({ enable: true });
+
+			let oldRotation = 0;
+			let startScaleX = 0;
+			let startScaleY = 0;
+			group.on("rotatestart", function (ev) {
+				oldRotation = ev.evt.gesture.rotation;
+				startScaleX = group.scaleX();
+				startScaleY = group.scaleY();
+				console.log(startScaleX, startScaleY);
+				group.stopDrag();
+				group.draggable(false);
+			});
+
+			group.on("rotate", function (ev) {
+				let delta = oldRotation - ev.evt.gesture.rotation;
+				Math.abs(delta) < 20 && group.rotate(-delta);
+				oldRotation = ev.evt.gesture.rotation;
+				group.scaleX(startScaleX * ev.evt.gesture.scale);
+				group.scaleY(startScaleY * ev.evt.gesture.scale);
+				console.log(
+					startScaleX * ev.evt.gesture.scale,
+					startScaleY * ev.evt.gesture.scale,
+					ev.evt.gesture.scale,
+					group.scaleX(),
+					group.scaleY()
+				);
+			});
+
+			group.on("rotateend rotatecancel", function (ev) {
+				console.log(
+					startScaleX * ev.evt.gesture.scale,
+					startScaleY * ev.evt.gesture.scale
+				);
+				group.draggable(true);
+			});
 		};
 
 		useEffect(() => {

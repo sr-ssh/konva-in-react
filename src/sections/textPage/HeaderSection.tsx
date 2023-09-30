@@ -55,11 +55,11 @@ const HeaderSection: FC<HeaderSectionPropsType> = ({
 					height={39}
 				/>
 			</div>
-			<FontFamilies
+			{/* <FontFamilies
 				inputRef={inputRef}
 				setTextStyle={setTextStyle}
 				textStyle={textStyle}
-			/>
+			/> */}
 		</ContainerStyle>
 	);
 };

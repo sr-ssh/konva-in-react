@@ -77,10 +77,12 @@ const TextSection: FC<AddTextProps> = ({ textRef, textStyle }) => {
 
 	return (
 		// <PInputStyle ref={textRef} contentEditable {...textStyle}></PInputStyle>
-		<ContainerStyle>
-			<SpanInputStyle ref={textRef} contentEditable {...textStyle}>
-				sjdkfsdhfgkjsdgksdjfls lsdkjfkdsl fldkfjskldjf klsdjfksdlf{" "}
-			</SpanInputStyle>
+		<ContainerStyle onClick={(e) => e.stopPropagation()}>
+			<SpanInputStyle
+				ref={textRef}
+				contentEditable
+				{...textStyle}
+			></SpanInputStyle>
 		</ContainerStyle>
 	);
 };

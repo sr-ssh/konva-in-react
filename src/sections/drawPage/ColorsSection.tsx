@@ -58,7 +58,11 @@ const ColorsSection: FC<ColorsSectionPropsType> = ({ position, getColor }) => {
 	const { setBrushColor, toggleEyeDropper, registerDrawContainerSetColor } =
 		useStoryContext();
 
-	const brushColorHandler = (color: BrushColorEnum | string) => {
+	const brushColorHandler = (
+		e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+		color: BrushColorEnum | string
+	) => {
+		e.stopPropagation();
 		setBrushColor(color);
 		setColor(color);
 		getColor?.(color);
@@ -87,7 +91,7 @@ const ColorsSection: FC<ColorsSectionPropsType> = ({ position, getColor }) => {
 				{Object.values(BrushColorEnum).map((item) => (
 					<ColorStyle
 						key={item}
-						onClick={() => brushColorHandler(item)}
+						onClick={(e) => brushColorHandler(e, item)}
 						color={item}
 					/>
 				))}
