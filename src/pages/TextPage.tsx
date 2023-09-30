@@ -6,10 +6,7 @@ import { BrushColorEnum } from "../@types/drawType";
 import TextSection, {
 	PInputStylePropsType,
 } from "../sections/textPage/TextSection";
-
-type AddTextProps = {
-	close: (text?: string, color?: string) => void;
-};
+import { useStoryContext } from "../hooks/useStoryContext";
 
 type ContainerStyleProps = { height: string };
 const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
@@ -20,8 +17,15 @@ const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
 	flexDirection: "column",
 	overflow: "hidden",
 }));
+
+type AddTextProps = {
+	close: (text?: string, color?: string) => void;
+};
+
 const TextPage: FC<AddTextProps> = ({ close }) => {
-	const textRef = React.useRef<HTMLParagraphElement>(null);
+	const textRef = React.useRef<HTMLSpanElement>(null);
+	const textPageRef = React.useRef<HTMLDivElement>(null);
+
 	let [dynamicHeight, setDynamicHeight] = useState("100%");
 	let [textStyle, setTextStyle] = useState<PInputStylePropsType>({
 		color: BrushColorEnum.White,
@@ -30,17 +34,28 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 		hasOpacity: false,
 	});
 
+	const { registerTextContainer } = useStoryContext();
+
 	window.addEventListener("resize", () => {
 		const height = window.visualViewport?.height;
 		setDynamicHeight(height ? height + "px" : "100%");
+		document.body.style.height = height + "px";
 	});
 
 	useEffect(() => {
+		const handleText = (text: string, color: string) => {
+			if (textRef.current) textRef.current.innerText = text;
+			textRef.current?.focus();
+			setTextStyle({ ...textStyle, color: color });
+		};
 		textRef.current?.focus();
-	}, []);
+		textPageRef.current &&
+			registerTextContainer(textPageRef.current, handleText);
+	}, [registerTextContainer, textPageRef, textStyle]);
 
 	return (
 		<div
+			ref={textPageRef}
 			onClick={() => close(textRef.current?.innerText, textStyle.color)}
 			style={{
 				background: "rgba(0, 0, 0, .5)",

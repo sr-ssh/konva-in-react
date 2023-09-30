@@ -28,7 +28,7 @@ export const fontFamilies: FontFamiliesObjectType = {
 };
 
 type HeaderSectionPropsType = {
-	inputRef: React.RefObject<HTMLParagraphElement>;
+	inputRef: React.RefObject<HTMLSpanElement>;
 	setTextStyle: React.Dispatch<React.SetStateAction<PInputStylePropsType>>;
 	textStyle: PInputStylePropsType;
 };

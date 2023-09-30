@@ -9,26 +9,6 @@ export type PInputStylePropsType = {
 	borderRadius: number;
 	hasOpacity: boolean;
 };
-const PInputStyle = styled.p<PInputStylePropsType>(
-	({ color, backgroundColor, borderRadius, hasOpacity }) => ({
-		outline: "none",
-		minWidth: 10,
-		color:
-			backgroundColor !== "transparent"
-				? getColorBrightness(color)
-					? BrushColorEnum.White
-					: BrushColorEnum.Black
-				: color,
-		backgroundColor: `${backgroundColor}${
-			hasOpacity && backgroundColor !== "transparent" ? "80" : ""
-		}`,
-		borderRadius,
-		maxWidth: "calc(100% - 88px)",
-		justifySelf: "center",
-		alignSelf: "center",
-		padding: "4px 7px",
-	})
-);
 const SpanInputStyle = styled.span<PInputStylePropsType>(
 	({ color, backgroundColor, borderRadius, hasOpacity }) => ({
 		outline: "none",
@@ -59,7 +39,7 @@ const ContainerStyle = styled.div({
 });
 
 type AddTextProps = {
-	textRef: React.RefObject<HTMLParagraphElement>;
+	textRef: React.RefObject<HTMLSpanElement>;
 	textStyle: PInputStylePropsType;
 };
 const TextSection: FC<AddTextProps> = ({ textRef, textStyle }) => {
@@ -72,8 +52,6 @@ const TextSection: FC<AddTextProps> = ({ textRef, textStyle }) => {
 	// useEffect(() => {
 	// 	pRef.current?.focus();
 	// }, []);
-
-	console.log(textRef);
 
 	return (
 		// <PInputStyle ref={textRef} contentEditable {...textStyle}></PInputStyle>

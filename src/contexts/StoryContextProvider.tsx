@@ -31,6 +31,8 @@ import { Path } from "konva/lib/shapes/Path";
 import { Circle } from "konva/lib/shapes/Circle";
 import { smokeSVG } from "../assets/svg/smokeSVG";
 import { Shape } from "konva/lib/Shape";
+import { KonvaEventObject } from "konva/lib/Node";
+import { EventType, useEvent } from "../hooks/useEvent";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -43,6 +45,7 @@ export interface BrushConfigType {
 
 interface StoryContextType {
 	startDrawMode: () => void;
+	startTextMode: () => void;
 	stopDrawMode: () => void;
 	setBrushColor: (color: BrushColorEnum | string) => void;
 	setBrushMode: (mode: BrushModesEnum) => void;
@@ -50,16 +53,22 @@ interface StoryContextType {
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => void;
 	isDrawing: boolean;
 	registerDrawContainer: (ref: HTMLDivElement) => void;
+	registerStoryContainer: (ref: HTMLDivElement) => void;
 	registerDrawContainerSetColor: (
 		setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
 	) => void;
 	toggleEyeDropper: () => void;
 	downloadStage: () => void;
-	addText: (defaultText: string, color: string) => void;
+	addText: (defaultText?: string, color?: string) => void;
+	registerTextContainer: (
+		ref: HTMLDivElement,
+		handleText: (text: string, color: string) => void
+	) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
 	startDrawMode: () => {},
+	startTextMode: () => {},
 	stopDrawMode: () => {},
 	setBrushColor: (color: BrushColorEnum | string) => {},
 	setBrushMode: (mode: BrushModesEnum) => {},
@@ -67,12 +76,17 @@ export const StoryContext = createContext<StoryContextType>({
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => {},
 	isDrawing: false,
 	registerDrawContainer: (ref: HTMLDivElement) => {},
+	registerStoryContainer: (ref: HTMLDivElement) => {},
 	registerDrawContainerSetColor: (
 		setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
 	) => {},
 	toggleEyeDropper: () => {},
 	downloadStage: () => {},
-	addText: (defaultText: string, color: string) => {},
+	addText: (defaultText?: string, color?: string) => {},
+	registerTextContainer: (
+		ref: HTMLDivElement,
+		handleText: (text: string, color: string) => void
+	) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -84,6 +98,8 @@ export const StoryContextProvider = memo(
 		let isDrawModeOn = useRef<boolean>(false);
 		let isDrawing = useRef<boolean>(false);
 		let isEyeDropping = useRef<boolean>(false);
+		let showTextContainerRef =
+			useRef<(text: string, color: string) => void>();
 		const colorPickerSVG = useRef<{
 			group: Group;
 			path: Path;
@@ -95,12 +111,26 @@ export const StoryContextProvider = memo(
 			strokeWidth: 10,
 			stroke: BrushColorEnum.White,
 		});
+		let storyContainerRef = useRef<HTMLDivElement>();
 		let drawContainerRef = useRef<HTMLDivElement>();
+		let textContainerRef = useRef<HTMLDivElement>();
 		let drawContainerSetColor =
 			useRef<Dispatch<SetStateAction<BrushColorEnum | string>>>();
 
+		const registerStoryContainer = (ref: HTMLDivElement) => {
+			storyContainerRef.current = ref;
+		};
+
 		const registerDrawContainer = (ref: HTMLDivElement) => {
 			drawContainerRef.current = ref;
+		};
+
+		const registerTextContainer = (
+			ref: HTMLDivElement,
+			handleText: (text: string, color: string) => void
+		) => {
+			showTextContainerRef.current = handleText;
+			textContainerRef.current = ref;
 		};
 
 		const registerDrawContainerSetColor = (
@@ -320,6 +350,15 @@ export const StoryContextProvider = memo(
 			isDrawModeOn.current = true;
 		};
 
+		const startTextMode = () => {
+			if (textContainerRef.current) {
+				textContainerRef.current.style.display = "block";
+			}
+			if (showTextContainerRef.current) {
+				showTextContainerRef.current("", BrushColorEnum.White);
+			}
+		};
+
 		const stopDrawMode = () => {
 			isDrawModeOn.current = false;
 		};
@@ -422,21 +461,45 @@ export const StoryContextProvider = memo(
 			downloadLink.click();
 		};
 
-		const addText = (defaultText: string, color: string) => {
-			let size = 200;
+		const addText = (defaultText?: string, color?: string) => {
+			const name = new Date().toISOString();
+			if (textContainerRef.current && storyContainerRef.current) {
+				storyContainerRef.current.style.display = "block";
+				textContainerRef.current.style.display = "none";
+			}
+			if (defaultText && color) {
+				let size = 200;
 
-			let text = new Konva.Text({
-				text: defaultText,
-				fill: color,
-				x: -size / 2,
-				width: size,
-				align: "center",
-				fontSize: 30,
-			});
-			addInteractivity(text);
+				let text = new Konva.Text({
+					text: defaultText,
+					fill: color,
+					x: -size / 2,
+					width: size,
+					align: "center",
+					fontSize: 30,
+				});
+				addInteractivity(text, name, function (ev) {
+					removeShape(name);
+					if (textContainerRef.current && storyContainerRef.current) {
+						textContainerRef.current.style.display = "block";
+						storyContainerRef.current.style.display = "none";
+						console.log(storyContainerRef.current);
+					}
+					showTextContainerRef.current?.(defaultText, color);
+				});
+			}
 		};
 
-		const addInteractivity = (shape: Shape) => {
+		const removeShape = (name: string) => {
+			const layer = getLayer();
+			layer.findOne(`.${name}`)?.destroy();
+		};
+
+		const addInteractivity = (
+			shape: Shape,
+			name: string,
+			tabHandler: (ev: KonvaEventObject<any>) => void
+		) => {
 			Konva.capturePointerEventsEnabled = true;
 			const layer = getLayer();
 			const stage = getStage();
@@ -448,6 +511,7 @@ export const StoryContextProvider = memo(
 				scaleY: 1,
 				draggable: true,
 				rotation: 0,
+				name,
 			};
 
 			let group = new Konva.Group(originalAttrs);
@@ -455,14 +519,22 @@ export const StoryContextProvider = memo(
 
 			group.add(shape);
 
-			let hammertime = new Hammer(group as any, { domEvents: true });
+			// useEvent(group as any, EventType.Tap, {
+			//   onTap: () => {
+			//     console.log("Tap");
+			//   },
+			// });
 
-			hammertime.get("rotate").set({ enable: true });
+			let hammerTime = new Hammer(group as any, { domEvents: true });
+
+			hammerTime.get("rotate").set({ enable: true });
 
 			let oldRotation = 0;
 			let startScaleX = 0;
 			let startScaleY = 0;
+			let isRotating = false;
 			group.on("rotatestart", function (ev) {
+				isRotating = true;
 				oldRotation = ev.evt.gesture.rotation;
 				startScaleX = group.scaleX();
 				startScaleY = group.scaleY();
@@ -477,22 +549,14 @@ export const StoryContextProvider = memo(
 				oldRotation = ev.evt.gesture.rotation;
 				group.scaleX(startScaleX * ev.evt.gesture.scale);
 				group.scaleY(startScaleY * ev.evt.gesture.scale);
-				console.log(
-					startScaleX * ev.evt.gesture.scale,
-					startScaleY * ev.evt.gesture.scale,
-					ev.evt.gesture.scale,
-					group.scaleX(),
-					group.scaleY()
-				);
 			});
 
 			group.on("rotateend rotatecancel", function (ev) {
-				console.log(
-					startScaleX * ev.evt.gesture.scale,
-					startScaleY * ev.evt.gesture.scale
-				);
+				isRotating = false;
 				group.draggable(true);
 			});
+
+			shape.on("tap", (ev) => !isRotating && tabHandler(ev));
 		};
 
 		useEffect(() => {
@@ -511,6 +575,7 @@ export const StoryContextProvider = memo(
 			<StoryContext.Provider
 				value={{
 					startDrawMode,
+					startTextMode,
 					stopDrawMode,
 					setBrushColor,
 					setBrushMode,
@@ -522,6 +587,8 @@ export const StoryContextProvider = memo(
 					downloadStage,
 					registerDrawContainerSetColor,
 					addText,
+					registerTextContainer,
+					registerStoryContainer,
 				}}
 			>
 				{children}
