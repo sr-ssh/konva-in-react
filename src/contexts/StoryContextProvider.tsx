@@ -556,6 +556,10 @@ export const StoryContextProvider = memo(
 				group.draggable(true);
 			});
 
+			group.on("dragstart", function (ev) {
+				group.zIndex(layer.getChildren().length - 1);
+			});
+
 			shape.on("tap", (ev) => !isRotating && tabHandler(ev));
 		};
 
