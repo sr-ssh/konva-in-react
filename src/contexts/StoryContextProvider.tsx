@@ -117,6 +117,7 @@ export const StoryContextProvider = memo(
 		let textContainerRef = useRef<HTMLDivElement>();
 		let drawContainerSetColor =
 			useRef<Dispatch<SetStateAction<BrushColorEnum | string>>>();
+		let currentEditingShapeRef = useRef<any>();
 		const { listenTap } = useEvent();
 
 		const registerStoryContainer = (ref: HTMLDivElement) => {
@@ -481,20 +482,23 @@ export const StoryContextProvider = memo(
 					fontSize: 30,
 				});
 				addInteractivity(text, name, function (ev) {
-					removeShape(name);
+					currentEditingShapeRef.current = popShape(name);
+
 					if (textContainerRef.current && storyContainerRef.current) {
 						textContainerRef.current.style.display = "block";
 						storyContainerRef.current.style.display = "none";
-						console.log(storyContainerRef.current);
 					}
 					showTextContainerRef.current?.(defaultText, color);
 				});
 			}
 		};
 
-		const removeShape = (name: string) => {
+		const popShape = (name: string) => {
 			const layer = getLayer();
-			layer.findOne(`.${name}`)?.destroy();
+			const foundShape = layer.findOne(`.${name}`);
+			const shapeAttrs = foundShape?.getAttrs();
+			foundShape?.destroy();
+			return shapeAttrs;
 		};
 
 		const addInteractivity = (
@@ -505,15 +509,20 @@ export const StoryContextProvider = memo(
 			Konva.capturePointerEventsEnabled = true;
 			const layer = getLayer();
 			const stage = getStage();
+			const currentEditingShape = currentEditingShapeRef.current;
 
 			let originalAttrs = {
 				x: stage.width() / 2,
 				y: stage.height() / 2,
-				scaleX: 1,
-				scaleY: 1,
+				scaleX: currentEditingShape?.scaleX || 1,
+				scaleY: currentEditingShape?.scaleY || 1,
 				draggable: true,
-				rotation: 0,
+				rotation: currentEditingShape?.rotation || 0,
 				name,
+				...(currentEditingShape && {
+					x: currentEditingShape.x,
+					y: currentEditingShape.y,
+				}),
 			};
 
 			let group = new Konva.Group(originalAttrs);
@@ -528,9 +537,7 @@ export const StoryContextProvider = memo(
 			let oldRotation = 0;
 			let startScaleX = 0;
 			let startScaleY = 0;
-			let isRotating = false;
 			group.on("rotatestart", function (ev) {
-				isRotating = true;
 				oldRotation = ev.evt.gesture.rotation;
 				startScaleX = group.scaleX();
 				startScaleY = group.scaleY();
@@ -547,7 +554,6 @@ export const StoryContextProvider = memo(
 			});
 
 			group.on("rotateend rotatecancel", function (ev) {
-				isRotating = false;
 				group.draggable(true);
 			});
 
@@ -555,9 +561,11 @@ export const StoryContextProvider = memo(
 				group.zIndex(layer.getChildren().length - 1);
 			});
 
-			// shape.on("tap", (ev) => !isRotating && tabHandler(ev));
-
 			listenTap(group as any, EventType.Tap, tabHandler);
+
+			if (currentEditingShape) {
+				currentEditingShapeRef.current = null;
+			}
 		};
 
 		const drawWidgets = () => {

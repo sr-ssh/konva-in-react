@@ -94,7 +94,6 @@ export const useEvent = (
   }, []);
 
   const handleTap = (e: Event) => {
-    debugger
     const touches = touchRef.current;
     if (touches.length !== 1 || isTouchMoveRef.current) {
       resetTouchRef();
@@ -148,7 +147,6 @@ export const useEvent = (
     callback: (e: Event) => void) => {
     eventsRef.current.push(callback);
     const handleTouchStart = (e: Event) => {
-      console.log("touchstart")
       currentHandleRef.current = callback;
       const touches = touchRef.current;
       touches.push(getCurrentTime());

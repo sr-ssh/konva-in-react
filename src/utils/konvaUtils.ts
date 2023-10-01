@@ -87,7 +87,7 @@ export const addBackgroundImage = () => {
   Konva.hitOnDragEnabled = true;
 
   let imageObj = new Image();
-  imageObj.src = "assets/images/p1.jpg";
+  imageObj.src = "assets/images/longPic.png";
   let konvaImage = new Konva.Image({
     image: imageObj,
   });
@@ -228,8 +228,31 @@ export const drawColorPickerShape = () => {
   return { group, path: path1, circle: circle2 }
 };
 
+const degreeToKonva = (degree: number) => {
+  // Compute angle in radians - CSS starts from 180 degrees and goes clockwise
+  // Math functions start from 0 and go anti-clockwise so we use 180 - angleInDeg to convert between the two
+  const angle = ((180 - degree) / 180) * Math.PI
+
+  // This computes the length such that the start/stop points will be at the corners
+  const length =
+    Math.abs(width * Math.sin(angle)) + Math.abs(height * Math.cos(angle))
+
+  // Compute the actual x,y points based on the angle, length of the gradient line and the center of the div
+  const halfX = (Math.sin(angle) * length) / 2.0
+  const halfY = (Math.cos(angle) * length) / 2.0
+  const cx = width / 2.0
+  const cy = height / 2.0
+  return {
+    x1: cx - halfX,
+    y1: cy - halfY,
+    x2: cx + halfX,
+    y2: cy + halfY,
+  }
+}
 
 export const drawHashtag = () => {
+
+
   let originalAttrs = {
     x: width / 2,
     y: height / 2,
@@ -241,27 +264,35 @@ export const drawHashtag = () => {
 
   let group = new Konva.Group(originalAttrs);
   let size = 200;
-  let rect = new Konva.Rect({
-    width: size,
-    height: size,
-    fill: 'white',
-    offsetX: size / 2,
-    offsetY: size / 2,
-    cornerRadius: 5,
-    shadowBlur: 10,
-    shadowColor: 'grey',
-  });
-  group.add(rect);
+
+  const gradientPoints = degreeToKonva(90)
 
   let defaultText = "هشتگ سمپل"
   let text = new Konva.Text({
     text: `#${defaultText}`,
-    fill: BrushColorEnum.Red_100,
-    offsetX: size / 2,
+    fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
+    fillLinearGradientEndPoint: { x: gradientPoints.x2, y: gradientPoints.y2 },
+    fillLinearGradientColorStops: [0, "#FF7043", .5, "#FF5863", 1, "#FF4081"],
+    offsetX: size / 2 - 5,
+    offsetY: size / 2 - 7,
     align: "center",
-    fontSize: 30,
+    justify: "center",
+    fontSize: 40,
   });
   group.add(text);
+
+  let rect = new Konva.Rect({
+    width: text.width() + 10,
+    height: text.height() + 10,
+    fill: 'white',
+    offsetX: size / 2,
+    offsetY: size / 2,
+    cornerRadius: 5,
+  });
+  group.add(rect);
+
+  text.zIndex(2)
+
   return group
 }
 
