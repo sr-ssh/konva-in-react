@@ -5,6 +5,9 @@ import { generateRandomNumber } from "./random";
 import { Vector2d } from "konva/lib/types";
 import { BrushConfigType } from "../contexts/StoryContextProvider";
 
+const width = window.innerWidth;
+const height = window.innerHeight;
+
 const componentToHex = (c: number) => {
   const hex = c.toString(16);
   return hex.length === 1 ? "0" + hex : hex;
@@ -224,4 +227,41 @@ export const drawColorPickerShape = () => {
 
   return { group, path: path1, circle: circle2 }
 };
+
+
+export const drawHashtag = () => {
+  let originalAttrs = {
+    x: width / 2,
+    y: height / 2,
+    scaleX: 1,
+    scaleY: 1,
+    draggable: true,
+    rotation: 0,
+  };
+
+  let group = new Konva.Group(originalAttrs);
+  let size = 200;
+  let rect = new Konva.Rect({
+    width: size,
+    height: size,
+    fill: 'white',
+    offsetX: size / 2,
+    offsetY: size / 2,
+    cornerRadius: 5,
+    shadowBlur: 10,
+    shadowColor: 'grey',
+  });
+  group.add(rect);
+
+  let defaultText = "هشتگ سمپل"
+  let text = new Konva.Text({
+    text: `#${defaultText}`,
+    fill: BrushColorEnum.Red_100,
+    offsetX: size / 2,
+    align: "center",
+    fontSize: 30,
+  });
+  group.add(text);
+  return group
+}
 

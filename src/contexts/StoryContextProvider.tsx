@@ -19,6 +19,7 @@ import {
 import {
 	addBackgroundImage,
 	drawColorPickerShape,
+	drawHashtag,
 	drawLine,
 	drawRect,
 	drawSVG,
@@ -116,6 +117,7 @@ export const StoryContextProvider = memo(
 		let textContainerRef = useRef<HTMLDivElement>();
 		let drawContainerSetColor =
 			useRef<Dispatch<SetStateAction<BrushColorEnum | string>>>();
+		const { listenTap } = useEvent();
 
 		const registerStoryContainer = (ref: HTMLDivElement) => {
 			storyContainerRef.current = ref;
@@ -498,7 +500,7 @@ export const StoryContextProvider = memo(
 		const addInteractivity = (
 			shape: Shape,
 			name: string,
-			tabHandler: (ev: KonvaEventObject<any>) => void
+			tabHandler: (ev: Event) => void
 		) => {
 			Konva.capturePointerEventsEnabled = true;
 			const layer = getLayer();
@@ -519,12 +521,6 @@ export const StoryContextProvider = memo(
 
 			group.add(shape);
 
-			// useEvent(group as any, EventType.Tap, {
-			//   onTap: () => {
-			//     console.log("Tap");
-			//   },
-			// });
-
 			let hammerTime = new Hammer(group as any, { domEvents: true });
 
 			hammerTime.get("rotate").set({ enable: true });
@@ -538,7 +534,6 @@ export const StoryContextProvider = memo(
 				oldRotation = ev.evt.gesture.rotation;
 				startScaleX = group.scaleX();
 				startScaleY = group.scaleY();
-				console.log(startScaleX, startScaleY);
 				group.stopDrag();
 				group.draggable(false);
 			});
@@ -560,13 +555,22 @@ export const StoryContextProvider = memo(
 				group.zIndex(layer.getChildren().length - 1);
 			});
 
-			shape.on("tap", (ev) => !isRotating && tabHandler(ev));
+			// shape.on("tap", (ev) => !isRotating && tabHandler(ev));
+
+			listenTap(group as any, EventType.Tap, tabHandler);
+		};
+
+		const drawWidgets = () => {
+			const layer = getLayer();
+			layer.add(drawHashtag());
 		};
 
 		useEffect(() => {
 			stageRef.current = getStage();
 			addStoryImage();
 			draw();
+			// drawWidgets();
+
 			return () => {
 				stageRef.current?.off("mousedown touchstart");
 				stageRef.current?.off("mouseup touchend");

@@ -1,8 +1,5 @@
-import { MutableRefObject, useEffect, useRef, useCallback } from "react";
-import { useDisableSelection } from "./useDisableSelection";
-const MIN_PRESS_TIME = 500;
+import { useEffect, useRef, useCallback } from "react";
 const MAX_TAP_TIME = 300;
-const MIN_MOVE_TIME = 50;
 export enum EventType {
   None = "None",
   Tap = "Tap",
@@ -40,22 +37,20 @@ export interface Position {
 }
 
 export const useEvent = (
-  elRef: MutableRefObject<HTMLElement | undefined>,
-  eventType: EventType,
-  events: EventHandler,
 ) => {
   const timeoutRef = useRef<NodeJS.Timeout>();
   const startPositionRef = useRef<Position | undefined>();
   const touchRef = useRef<number[]>([]);
   const isTouchMoveRef = useRef(false);
-  const startSwipeRef = useRef<boolean>();
-  useDisableSelection();
+  const handleTouchStartRef = useRef<Function[]>([]);
+  const eventsRef = useRef<Function[]>([]);
+  const currentHandleRef = useRef<Function>();
 
   const getCurrentTime = () => Date.now();
 
   const getTouchEvent = (e: Event | any) => {
     const startPosition = startPositionRef.current;
-    const touch = e.touches?.last();
+    const touch = e.touches?.[e.touches.length - 1];
     const x = e.clientX || touch.clientX;
     const y = e.clientY || touch.clientY;
     return {
@@ -67,7 +62,39 @@ export const useEvent = (
     } as TouchEvent;
   };
 
+  const clearTimer = () => {
+    const timer = timeoutRef.current;
+    if (!timer) {
+      return;
+    }
+    clearTimeout(timer);
+    timeoutRef.current = undefined;
+  };
+
+  const resetTouchRef = () => {
+    touchRef.current = [];
+  };
+
+  const listenMove = (listen: boolean) => {
+    if (listen && !isTouchMoveRef.current) {
+      addListener("mousemove", handleTouchMove, window);
+      addListener("touchmove", handleTouchMove, window);
+    } else if (!listen) {
+      isTouchMoveRef.current = false;
+      removeListener("mousemove", handleTouchMove, window);
+      removeListener("touchmove", handleTouchMove, window);
+    }
+  };
+
+  const handleTouchEnd = useCallback((e: Event) => {
+    handleTap(e);
+    listenMove(false);
+    clearTimer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleTap = (e: Event) => {
+    debugger
     const touches = touchRef.current;
     if (touches.length !== 1 || isTouchMoveRef.current) {
       resetTouchRef();
@@ -79,182 +106,26 @@ export const useEvent = (
       return;
     }
     touchRef.current = [];
-    events?.onTap?.(e);
+    const event = eventsRef.current.find(e => e === currentHandleRef.current);
+    event?.(e);
   };
 
-  const handleDoubleClick = (e: Event) => {
-    const touches = touchRef.current;
-    if (
-      getCurrentTime() - touches[touches.length - 1] > MAX_TAP_TIME ||
-      isTouchMoveRef.current
-    ) {
-      resetTouchRef();
-      return;
-    }
-
-    if (touches.length < 2) {
-      return;
-    }
-    resetTouchRef();
-    if (touches.length === 2 && touches[1] - touches[0] < MAX_TAP_TIME) {
-      events?.onDoubleClick?.(e);
-    }
+  const detectMove = (e: Event) => {
+    const current = getTouchEvent(e)
+    return Math.abs(current.moveX) > 5 || Math.abs(current.moveY) > 5
   };
-
-  const handlePress = (e: Event) => {
-    clearTimer();
-    resetTouchRef();
-    timeoutRef.current = setTimeout(() => {
-      if (!isTouchMoveRef.current) {
-        events.onPress?.(e);
-      }
-    }, MIN_PRESS_TIME);
-  };
-
-  const handleRightClick = (e: Event) => {
-    e.preventDefault();
-    events.onRightClick?.(e);
-  };
-
-  const handleSwipe = (e: Event) => {
-    const touchEvent = getTouchEvent(e);
-    if (timeoutRef.current) {
-      if (startSwipeRef.current) {
-        events.onTouchMove?.(touchEvent);
-      }
-      return;
-    }
-    resetTouchRef();
-    const isVertical = eventType === EventType.VerticalSwipe;
-    timeoutRef.current = setTimeout(() => {
-      if (!isTouchMoveRef.current) {
-        return;
-      }
-      const startPosition = startPositionRef.current;
-      if (!touchEvent || !startPosition) {
-        return;
-      }
-      const moveX = Math.abs(touchEvent.moveX);
-      const moveY = Math.abs(touchEvent.moveY);
-      if (moveX < moveY && isVertical) {
-        startSwipeRef.current = true;
-        events.onTouchStart?.({
-          ...touchEvent,
-          x: startPosition.x,
-          y: startPosition.y,
-        });
-        events.onTouchMove?.(touchEvent);
-      } else if (moveX >= moveY && !isVertical) {
-        startSwipeRef.current = true;
-        events.onTouchStart?.({
-          ...touchEvent,
-          x: startPosition.x,
-          y: startPosition.y,
-        });
-        events.onTouchMove?.(touchEvent);
-      }
-    }, MIN_MOVE_TIME);
-  };
-
-  const resetTouchRef = () => {
-    touchRef.current = [];
-  };
-
-  const handleTouchStart = useCallback((e: Event) => {
-    const touches = touchRef.current;
-    if (touches.length > 2) {
-      touchRef.current.length = 0;
-    }
-    touches.push(getCurrentTime());
-    startPositionRef.current = getTouchEvent(e);
-    listenMove(true);
-    handleStartEvents(e);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleTouchEnd = useCallback((e: Event) => {
-    handleEndEvents(e);
-    listenMove(false);
-    clearTimer();
-    if (startSwipeRef.current) {
-      events.onTouchEnd?.(getTouchEvent(e));
-      startSwipeRef.current = undefined;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const clearTimer = () => {
-    const timer = timeoutRef.current;
-    if (!timer) {
-      return;
-    }
-    clearTimeout(timer);
-    timeoutRef.current = undefined;
-  };
-
-  const handleStartEvents = (e: Event) => {
-    switch (eventType) {
-      case EventType.Press:
-        handlePress(e);
-        break;
-    }
-  };
-
-  const handleEndEvents = (e: Event) => {
-    switch (eventType) {
-      case EventType.DoubleClick:
-        handleDoubleClick(e);
-        break;
-      case EventType.Tap:
-        handleTap(e);
-        break;
-      default:
-        resetTouchRef();
-        break;
-    }
-  };
-
-  const detectMove = (e: Event) => true;
 
   const handleTouchMove = useCallback((e: Event) => {
     isTouchMoveRef.current = detectMove(e);
-    switch (eventType) {
-      case EventType.HorizontalSwipe:
-      case EventType.VerticalSwipe:
-        handleSwipe(e);
-        break;
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleMouseover = useCallback((e: Event) => {
-    events?.onMouseover?.(e);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleMouseout = useCallback((e: Event) => {
-    events?.onMouseout?.(e);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const listenMove = (listen: boolean) => {
-    if (listen && !isTouchMoveRef.current) {
-      addListener("mousemove", handleTouchMove);
-      addListener("touchmove", handleTouchMove);
-    } else if (!listen) {
-      isTouchMoveRef.current = false;
-      removeListener("mousemove", handleTouchMove);
-      removeListener("touchmove", handleTouchMove);
-    }
-  };
 
   const removeListener = (
     type: string,
     handle: (e: Event) => void,
-    forElement?: boolean,
+    el: any,
   ) => {
-    if (!elRef.current) return;
-    (forElement ? elRef.current : window).removeEventListener(
+    el.removeEventListener(
       type,
       handle as EventListener,
     );
@@ -263,46 +134,52 @@ export const useEvent = (
   const addListener = (
     type: string,
     handle: (e: Event) => void,
-    forElement?: boolean,
+    el: any,
   ) => {
-    if (!elRef.current) return;
-    (forElement ? elRef.current : window).addEventListener(
+    el.addEventListener(
       type,
       handle as EventListener,
     );
   };
 
+  const listenTap = (
+    el: HTMLElement,
+    type: EventType,
+    callback: (e: Event) => void) => {
+    eventsRef.current.push(callback);
+    const handleTouchStart = (e: Event) => {
+      console.log("touchstart")
+      currentHandleRef.current = callback;
+      const touches = touchRef.current;
+      touches.push(getCurrentTime());
+      startPositionRef.current = getTouchEvent(e);
+      listenMove(true);
+    }
+    addListener("mousedown", handleTouchStart, el);
+    addListener("touchstart", handleTouchStart, el);
+    handleTouchStartRef.current.push(() => {
+      removeListener("mousedown", handleTouchStart, el);
+      removeListener("touchstart", handleTouchStart, el);
+    });
+  }
+
   useEffect(() => {
-    if (eventType === EventType.None) {
-      return;
-    }
-    if (eventType === EventType.Hover) {
-      addListener("mouseover", handleMouseover, true);
-      addListener("mouseout", handleMouseout, true);
-      return () => {
-        removeListener("mouseover", handleMouseover, true);
-        removeListener("mouseout", handleMouseout, true);
-      };
-    }
-    if (eventType === EventType.RightClick) {
-      addListener("contextmenu", handleRightClick, true);
-      return () => {
-        removeListener("contextmenu", handleDoubleClick, true);
-      };
-    }
-    addListener("mousedown", handleTouchStart, true);
-    addListener("mouseup", handleTouchEnd);
-    addListener("touchstart", handleTouchStart, true);
-    addListener("touchend", handleTouchEnd);
+
+    addListener("mouseup", handleTouchEnd, window);
+    addListener("touchend", handleTouchEnd, window);
+    const handleTouchStartConst = handleTouchStartRef.current;
 
     return () => {
       listenMove(false);
-      removeListener("mousedown", handleTouchStart, true);
-      removeListener("mouseup", handleTouchEnd);
-      removeListener("touchstart", handleTouchStart, true);
-      removeListener("touchend", handleTouchEnd);
+      removeListener("mouseup", handleTouchEnd, window);
+      removeListener("touchend", handleTouchEnd, window);
+      handleTouchStartConst.forEach(unListen => unListen());
       clearTimer();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  return {
+    listenTap
+  }
 };
