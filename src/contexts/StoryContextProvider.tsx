@@ -249,6 +249,80 @@ export const StoryContextProvider = memo(
 			}
 		};
 
+		const getColorPickerShape = () => {
+			let layer = getDrawLayer();
+
+			if (
+				colorPickerSVG.current &&
+				colorPickerSVG.current.group &&
+				colorPickerSVG.current.path &&
+				colorPickerSVG.current.circle
+			) {
+				return colorPickerSVG.current;
+			}
+
+			colorPickerSVG.current = drawColorPickerShape();
+			layer.add(colorPickerSVG.current.group);
+			return colorPickerSVG.current;
+		};
+
+		const drawEyeDropperSVG = (x: number, y: number) => {
+			let colorPicker = getColorPickerShape();
+			colorPicker.group.hide();
+
+			let imageData = stageRef.current
+				?.toCanvas()
+				.getContext("2d")
+				?.getImageData(x, y, 1, 1).data;
+
+			colorPicker.group.show();
+			let layer = getDrawLayer();
+			colorPicker.group.zIndex(layer.getChildren().length - 1);
+
+			let rgbaColor =
+				imageData && rgbToHex(imageData[0], imageData[1], imageData[2]);
+
+			if (rgbaColor) {
+				colorPicker.group.setAttrs({ x: x - 24.875, y: y - 91.5 });
+				colorPicker.path.setAttrs({ fill: rgbaColor });
+				colorPicker.circle.setAttrs({ fill: rgbaColor });
+				colorPicker.color = rgbaColor;
+			}
+		};
+
+		const colorDropper = (pos?: Vector2d | null) => {
+			if (!isEyeDropping.current) {
+				return;
+			}
+			pos && drawEyeDropperSVG(pos.x, pos.y);
+		};
+
+		const toggleEyeDropper = (status?: boolean) => {
+			if (!isDrawModeOn.current && textContainerRef.current) {
+				textContainerRef.current.style.display = "none";
+			}
+			if (status === false) {
+				colorPickerSVG.current?.group?.hide();
+				isEyeDropping.current = false;
+				brushConfig.current.stroke =
+					colorPickerSVG.current?.color || brushConfig.current.stroke;
+				colorPickerSVG.current?.color &&
+					drawContainerSetColor?.current &&
+					drawContainerSetColor.current(
+						colorPickerSVG.current?.color
+					);
+				!isDrawModeOn.current &&
+					startTextMode(colorPickerSVG.current?.color);
+				return;
+			}
+			isEyeDropping.current = !isEyeDropping.current;
+			if (isEyeDropping.current) {
+				const x = width / 2;
+				const y = height / 2;
+				drawEyeDropperSVG(x, y);
+			}
+		};
+
 		const draw = () => {
 			const layer = getDrawLayer();
 
@@ -341,19 +415,11 @@ export const StoryContextProvider = memo(
 			});
 		};
 
-		const colorDropper = (pos?: Vector2d | null) => {
-			if (!isEyeDropping.current) {
-				return;
-			}
-			pos && drawEyeDropperSVG(pos.x, pos.y);
-		};
-
 		const startDrawMode = () => {
 			isDrawModeOn.current = true;
 		};
 
 		const startTextMode = (color?: string) => {
-			console.log(color);
 			if (textContainerRef.current) {
 				textContainerRef.current.style.display = "block";
 			}
@@ -386,73 +452,6 @@ export const StoryContextProvider = memo(
 			drawShapeRef.current.splice(drawShapeRef.current.length - 1, 1);
 		};
 
-		const toggleEyeDropper = (status?: boolean) => {
-			if (!isDrawModeOn.current && textContainerRef.current) {
-				textContainerRef.current.style.display = "none";
-			}
-			if (status === false) {
-				colorPickerSVG.current?.group?.hide();
-				isEyeDropping.current = false;
-				brushConfig.current.stroke =
-					colorPickerSVG.current?.color || brushConfig.current.stroke;
-				colorPickerSVG.current?.color &&
-					drawContainerSetColor?.current &&
-					drawContainerSetColor.current(
-						colorPickerSVG.current?.color
-					);
-				!isDrawModeOn.current &&
-					startTextMode(colorPickerSVG.current?.color);
-				return;
-			}
-			isEyeDropping.current = !isEyeDropping.current;
-			if (isEyeDropping.current) {
-				const x = width / 2;
-				const y = height / 2;
-				drawEyeDropperSVG(x, y);
-			}
-		};
-
-		const drawEyeDropperSVG = (x: number, y: number) => {
-			let colorPicker = getColorPickerShape();
-			colorPicker.group.hide();
-
-			let imageData = stageRef.current
-				?.toCanvas()
-				.getContext("2d")
-				?.getImageData(x, y, 1, 1).data;
-
-			colorPicker.group.show();
-			let layer = getDrawLayer();
-			colorPicker.group.zIndex(layer.getChildren().length - 1);
-
-			let rgbaColor =
-				imageData && rgbToHex(imageData[0], imageData[1], imageData[2]);
-
-			if (rgbaColor) {
-				colorPicker.group.setAttrs({ x: x - 24.875, y: y - 91.5 });
-				colorPicker.path.setAttrs({ fill: rgbaColor });
-				colorPicker.circle.setAttrs({ fill: rgbaColor });
-				colorPicker.color = rgbaColor;
-			}
-		};
-
-		const getColorPickerShape = () => {
-			let layer = getDrawLayer();
-
-			if (
-				colorPickerSVG.current &&
-				colorPickerSVG.current.group &&
-				colorPickerSVG.current.path &&
-				colorPickerSVG.current.circle
-			) {
-				return colorPickerSVG.current;
-			}
-
-			colorPickerSVG.current = drawColorPickerShape();
-			layer.add(colorPickerSVG.current.group);
-			return colorPickerSVG.current;
-		};
-
 		const downloadStage = () => {
 			const stage = getStage();
 			const dataURL = stage.toDataURL({
@@ -466,43 +465,6 @@ export const StoryContextProvider = memo(
 			downloadLink.href = dataURL;
 			downloadLink.download = "story_image.png"; // Specify the desired filename
 			downloadLink.click();
-		};
-
-		const addText = (defaultText?: string, color?: string) => {
-			const name = new Date().toISOString();
-			if (textContainerRef.current && storyContainerRef.current) {
-				storyContainerRef.current.style.display = "block";
-				textContainerRef.current.style.display = "none";
-			}
-			if (defaultText && color) {
-				let size = 200;
-
-				let text = new Konva.Text({
-					text: defaultText,
-					fill: color,
-					x: -size / 2,
-					width: size,
-					align: "center",
-					fontSize: 30,
-				});
-				addInteractivity(text, name, function (ev) {
-					currentEditingShapeRef.current = popShape(name);
-
-					if (textContainerRef.current && storyContainerRef.current) {
-						textContainerRef.current.style.display = "block";
-						storyContainerRef.current.style.display = "none";
-					}
-					showTextContainerRef.current?.(defaultText, color);
-				});
-			}
-		};
-
-		const popShape = (name: string) => {
-			const layer = getLayer();
-			const foundShape = layer.findOne(`.${name}`);
-			const shapeAttrs = foundShape?.getAttrs();
-			foundShape?.destroy();
-			return shapeAttrs;
 		};
 
 		const addInteractivity = (
@@ -569,17 +531,14 @@ export const StoryContextProvider = memo(
 			});
 
 			group.on("dragstart", function (ev) {
-				console.log("first dragstart");
 				group.zIndex(layer.getChildren().length - 1);
 				if (storyContainerRef.current) {
-					console.log(storyContainerRef.current.style.display);
 					storyContainerRef.current.style.display = "none";
 				}
 			});
 
 			group.on("dragend", function (ev) {
 				if (storyContainerRef.current) {
-					console.log(storyContainerRef.current.style.display);
 					storyContainerRef.current.style.display = "block";
 				}
 			});
@@ -588,6 +547,43 @@ export const StoryContextProvider = memo(
 
 			if (currentEditingShape) {
 				currentEditingShapeRef.current = null;
+			}
+		};
+
+		const popShape = (name: string) => {
+			const layer = getLayer();
+			const foundShape = layer.findOne(`.${name}`);
+			const shapeAttrs = foundShape?.getAttrs();
+			foundShape?.destroy();
+			return shapeAttrs;
+		};
+
+		const addText = (defaultText?: string, color?: string) => {
+			const name = new Date().toISOString();
+			if (textContainerRef.current && storyContainerRef.current) {
+				storyContainerRef.current.style.display = "block";
+				textContainerRef.current.style.display = "none";
+			}
+			if (defaultText && color) {
+				let size = 200;
+
+				let text = new Konva.Text({
+					text: defaultText,
+					fill: color,
+					x: -size / 2,
+					width: size,
+					align: "center",
+					fontSize: 30,
+				});
+				addInteractivity(text, name, function (ev) {
+					currentEditingShapeRef.current = popShape(name);
+
+					if (textContainerRef.current && storyContainerRef.current) {
+						textContainerRef.current.style.display = "block";
+						storyContainerRef.current.style.display = "none";
+					}
+					showTextContainerRef.current?.(defaultText, color);
+				});
 			}
 		};
 

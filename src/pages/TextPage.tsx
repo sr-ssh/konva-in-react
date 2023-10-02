@@ -44,7 +44,6 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 
 	useEffect(() => {
 		const handleText = (text: string, color: string) => {
-			console.log(color);
 			if (textRef.current) textRef.current.innerText = text;
 			textRef.current?.focus();
 			setTextStyle({ ...textStyle, color: color });
@@ -58,7 +57,6 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 		<div
 			ref={textPageRef}
 			onClick={() => {
-				console.log("textPageClicked");
 				close(textRef.current?.innerText, textStyle.color);
 			}}
 			style={{
