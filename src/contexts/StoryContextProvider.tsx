@@ -32,7 +32,6 @@ import { Path } from "konva/lib/shapes/Path";
 import { Circle } from "konva/lib/shapes/Circle";
 import { smokeSVG } from "../assets/svg/smokeSVG";
 import { Shape } from "konva/lib/Shape";
-import { KonvaEventObject } from "konva/lib/Node";
 import { EventType, useEvent } from "../hooks/useEvent";
 
 const width = window.innerWidth;
@@ -353,12 +352,13 @@ export const StoryContextProvider = memo(
 			isDrawModeOn.current = true;
 		};
 
-		const startTextMode = () => {
+		const startTextMode = (color?: string) => {
+			console.log(color);
 			if (textContainerRef.current) {
 				textContainerRef.current.style.display = "block";
 			}
 			if (showTextContainerRef.current) {
-				showTextContainerRef.current("", BrushColorEnum.White);
+				showTextContainerRef.current("", color || BrushColorEnum.White);
 			}
 		};
 
@@ -387,6 +387,9 @@ export const StoryContextProvider = memo(
 		};
 
 		const toggleEyeDropper = (status?: boolean) => {
+			if (!isDrawModeOn.current && textContainerRef.current) {
+				textContainerRef.current.style.display = "none";
+			}
 			if (status === false) {
 				colorPickerSVG.current?.group?.hide();
 				isEyeDropping.current = false;
@@ -397,7 +400,8 @@ export const StoryContextProvider = memo(
 					drawContainerSetColor.current(
 						colorPickerSVG.current?.color
 					);
-				console.log(colorPickerSVG.current);
+				!isDrawModeOn.current &&
+					startTextMode(colorPickerSVG.current?.color);
 				return;
 			}
 			isEyeDropping.current = !isEyeDropping.current;
@@ -546,11 +550,18 @@ export const StoryContextProvider = memo(
 			});
 
 			group.on("rotate", function (ev) {
-				let delta = oldRotation - ev.evt.gesture.rotation;
-				Math.abs(delta) < 20 && group.rotate(-delta);
-				oldRotation = ev.evt.gesture.rotation;
-				group.scaleX(startScaleX * ev.evt.gesture.scale);
-				group.scaleY(startScaleY * ev.evt.gesture.scale);
+				const gestureRotation = ev.evt.gesture.rotation;
+				let delta = oldRotation - gestureRotation;
+				oldRotation = gestureRotation;
+				if (Math.abs(delta) < 20) {
+					group.rotate(-delta);
+				}
+
+				const gestureScale = ev.evt.gesture.scale;
+				if (gestureScale !== 1) {
+					group.scaleX(startScaleX * gestureScale);
+					group.scaleY(startScaleY * gestureScale);
+				}
 			});
 
 			group.on("rotateend rotatecancel", function (ev) {
@@ -558,7 +569,19 @@ export const StoryContextProvider = memo(
 			});
 
 			group.on("dragstart", function (ev) {
+				console.log("first dragstart");
 				group.zIndex(layer.getChildren().length - 1);
+				if (storyContainerRef.current) {
+					console.log(storyContainerRef.current.style.display);
+					storyContainerRef.current.style.display = "none";
+				}
+			});
+
+			group.on("dragend", function (ev) {
+				if (storyContainerRef.current) {
+					console.log(storyContainerRef.current.style.display);
+					storyContainerRef.current.style.display = "block";
+				}
 			});
 
 			listenTap(group as any, EventType.Tap, tabHandler);

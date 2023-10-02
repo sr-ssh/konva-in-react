@@ -69,13 +69,13 @@ const HeaderSection: FC<HeaderSectionTypes> = ({ setIsDrawing }) => {
 			</div>
 			<div>
 				<BrushSection>
-					<HeartStyle
+					{/* <HeartStyle
 						isActive={brush === BrushModesEnum.Heart}
 						onClick={(e) => {
 							setBrushMode(BrushModesEnum.Heart);
 							setBrush(BrushModesEnum.Heart);
 						}}
-					/>
+					/> */}
 					<EraserStyle
 						isActive={brush === BrushModesEnum.Eraser}
 						onClick={(e) => {

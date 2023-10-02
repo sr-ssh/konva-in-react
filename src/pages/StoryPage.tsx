@@ -58,7 +58,9 @@ function StoryPage() {
 	};
 
 	useEffect(() => {
-		storyPageRef.current && registerStoryContainer(storyPageRef.current);
+		if (storyPageRef.current) {
+			registerStoryContainer(storyPageRef.current);
+		}
 	}, [registerStoryContainer, storyPageRef]);
 
 	return (
@@ -67,36 +69,38 @@ function StoryPage() {
 			{isDrawing ? (
 				<DrawPage setIsDrawing={setIsDrawing} />
 			) : (
-				storyView && (
-					<div ref={storyPageRef}>
-						<HeaderStyle>
-							<div>
-								<WriteIcon
-									onClick={() => {
-										setTextView(true);
-										setStoryView(false);
-										startTextMode();
-									}}
-								/>
-								<img
-									src="assets/images/drawing_tool.png"
-									alt="drawing-tool"
-									width={44}
-									height={44}
-									onClick={() => {
-										setIsDrawing(true);
-										startDrawMode();
-									}}
-								/>
-								<WidgetIcon />
-							</div>
-							<CloseIcon />
-						</HeaderStyle>
-						<FooterStyle onClick={() => downloadStage()}>
-							add to your story +
-						</FooterStyle>
-					</div>
-				)
+				<div ref={storyPageRef}>
+					{storyView && (
+						<>
+							<HeaderStyle>
+								<div>
+									<WriteIcon
+										onClick={() => {
+											setTextView(true);
+											setStoryView(false);
+											startTextMode();
+										}}
+									/>
+									<img
+										src="assets/images/drawing_tool.png"
+										alt="drawing-tool"
+										width={44}
+										height={44}
+										onClick={() => {
+											setIsDrawing(true);
+											startDrawMode();
+										}}
+									/>
+									<WidgetIcon />
+								</div>
+								<CloseIcon />
+							</HeaderStyle>
+							<FooterStyle onClick={() => downloadStage()}>
+								add to your story +
+							</FooterStyle>
+						</>
+					)}
+				</div>
 			)}
 		</>
 	);

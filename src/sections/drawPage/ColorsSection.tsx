@@ -74,7 +74,13 @@ const ColorsSection: FC<ColorsSectionPropsType> = ({ position, getColor }) => {
 
 	return (
 		<>
-			<ColorPicker color={color} onClick={() => toggleEyeDropper()}>
+			<ColorPicker
+				color={color}
+				onClick={(e) => {
+					e.stopPropagation();
+					toggleEyeDropper();
+				}}
+			>
 				<img
 					src="assets/images/eyedropper.png"
 					alt="eyedropper"
