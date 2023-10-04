@@ -17,6 +17,7 @@ const rainbow = [
 const twoColorOrange = [0, "#FF7043", 0.5, "#FBC02D", 1, "#FDD835"];
 const twoColorBlue = [0, "#4b86ac", 0.5, "#4582ab", 1, "#4078a3"];
 const simple = [0, "white", 1, "white"];
+const simpleBlack = [0, "black", 1, "black"];
 const round = "#fff";
 const roundFrost = "rgba(234, 234, 234, .5)";
 
@@ -25,3 +26,16 @@ export const hashtagColors = [
   { color: rainbow, fill: round },
   { color: simple, fill: roundFrost },
 ];
+
+export const mentionColors = [
+  { color: twoColorOrange, fill: round },
+  { color: rainbow, fill: round },
+  { color: simple, fill: roundFrost },
+]
+
+export const linkColors = [
+  { color: twoColorBlue, fill: round },
+  { color: rainbow, fill: round },
+  { color: simple, fill: roundFrost },
+  { color: simpleBlack, fill: round },
+]

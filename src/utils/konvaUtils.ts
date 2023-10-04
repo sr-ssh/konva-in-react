@@ -11,6 +11,9 @@ const height = window.innerHeight;
 const hashtagTextName = "hashtag-text"
 const hashtagBackgroundName = "hashtag-background"
 
+const mentionTextName = "mention-text"
+const mentionBackgroundName = "mention-background"
+
 const componentToHex = (c: number) => {
   const hex = c.toString(16);
   return hex.length === 1 ? "0" + hex : hex;
@@ -253,8 +256,7 @@ const degreeToKonva = (degree: number, width: number, height: number) => {
   }
 }
 
-export const drawHashtag = (gradient: any, background: string) => {
-
+const drawTextWithBackground = (gradient: any, defaultText: string, background: string) => {
   let originalAttrs = {
     scaleX: 1,
     scaleY: 1,
@@ -264,7 +266,6 @@ export const drawHashtag = (gradient: any, background: string) => {
 
   let group = new Konva.Group(originalAttrs);
 
-  let defaultText = "هشتگ سمپل"
   let tmp = new Konva.Text({ text: `#${defaultText}`, fontSize: 40, })
 
   const textWidth = tmp.width()
@@ -272,7 +273,7 @@ export const drawHashtag = (gradient: any, background: string) => {
   const gradientPoints = degreeToKonva(90, textWidth, textHeight)
 
   let text = new Konva.Text({
-    text: `#${defaultText}`,
+    text: defaultText,
     fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
     fillLinearGradientEndPoint: { x: gradientPoints.x2, y: gradientPoints.y2 },
     fillLinearGradientColorStops: gradient,
@@ -280,12 +281,12 @@ export const drawHashtag = (gradient: any, background: string) => {
     justify: "center",
     fontSize: 40,
     name: hashtagTextName,
-    offsetX: textWidth / 2 - 5,
+    offsetX: textWidth / 2 - 10,
     offsetY: textHeight / 2 - 5,
   });
   group.add(text);
   let rect = new Konva.Rect({
-    width: textWidth + 10,
+    width: textWidth,
     height: textHeight + 10,
     fill: background,
     offsetX: textWidth / 2,
@@ -302,14 +303,36 @@ export const drawHashtag = (gradient: any, background: string) => {
   return group
 }
 
-export const setHashtagColor = (hashtag: Group, gradient: any, background: string) => {
-  hashtag.children?.forEach(item => {
-    if (item.name() === hashtagTextName) {
+export const drawHashtag = (gradient: any, background: string) => {
+  let defaultText = "هشتگ سمپل"
+  return drawTextWithBackground(gradient, '#' + defaultText, background)
+}
+
+export const drawMention = (gradient: any, background: string) => {
+  let defaultText = "sdfesftewfe"
+  return drawTextWithBackground(gradient, '@' + defaultText, background)
+}
+
+export const drawLink = (gradient: any, background: string) => {
+  let defaultText = "mylink"
+  return drawTextWithBackground(gradient, '🔗' + defaultText, background)
+}
+
+export const changeTextColorByName = (textName: string, backgroundName: string, group: Group, gradient: any, background: string) => {
+  group.children?.forEach(item => {
+    if (item.name() === textName) {
       item.setAttrs({ fillLinearGradientColorStops: gradient })
     }
-    if (item.name() === hashtagBackgroundName) {
+    if (item.name() === backgroundName) {
       item.setAttrs({ fill: background })
     }
   })
 }
 
+export const setHashtagColor = (hashtag: Group, gradient: any, background: string) => {
+  changeTextColorByName(hashtagTextName, hashtagBackgroundName, hashtag, gradient, background)
+}
+
+export const setMentionColor = (mention: Group, gradient: any, background: string) => {
+  changeTextColorByName(mentionTextName, mentionBackgroundName, mention, gradient, background)
+}

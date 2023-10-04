@@ -13,6 +13,8 @@ import {
 	drawColorPickerShape,
 	drawHashtag,
 	drawLine,
+	drawLink,
+	drawMention,
 	drawRect,
 	drawSVG,
 	rgbToHex,
@@ -27,7 +29,11 @@ import { smokeSVG } from "../assets/svg/smokeSVG";
 import { Shape } from "konva/lib/Shape";
 import { EventType, useEvent } from "../hooks/useEvent";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
-import { hashtagColors } from "../utils/widgetColors";
+import {
+	hashtagColors,
+	linkColors,
+	mentionColors,
+} from "../utils/widgetColors";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -586,21 +592,57 @@ export const StoryContextProvider = memo(
 			setMode(StoryContextModes.IsAddingText, false);
 		};
 
-		const drawWidgets = () => {
+		const changeWidgetColor = (
+			group: Group,
+			colorArray: { color: (string | number)[]; fill: string }[],
+			i: number
+		) => {
+			return function () {
+				i = (i + 1) % colorArray.length;
+				setHashtagColor(group, colorArray[i].color, colorArray[i].fill);
+			};
+		};
+
+		const addHashtag = () => {
 			let i = 0;
 			const hashtag = drawHashtag(
 				hashtagColors[i].color,
 				hashtagColors[i].fill
 			);
-			addInteractivity(hashtag, "name", function (ev) {
-				console.log("tp");
-				i = (i + 1) % hashtagColors.length;
-				setHashtagColor(
-					hashtag,
-					hashtagColors[i].color,
-					hashtagColors[i].fill
-				);
-			});
+			addInteractivity(
+				hashtag,
+				"name",
+				changeWidgetColor(hashtag, hashtagColors, 0)
+			);
+		};
+
+		const addMention = () => {
+			let i = 0;
+			const mention = drawMention(
+				mentionColors[i].color,
+				mentionColors[i].fill
+			);
+			addInteractivity(
+				mention,
+				"name",
+				changeWidgetColor(mention, mentionColors, 0)
+			);
+		};
+
+		const addLink = () => {
+			let i = 0;
+			const link = drawLink(linkColors[i].color, linkColors[i].fill);
+			addInteractivity(
+				link,
+				"name",
+				changeWidgetColor(link, linkColors, 0)
+			);
+		};
+
+		const drawWidgets = () => {
+			addHashtag();
+			addMention();
+			addLink();
 		};
 
 		useEffect(() => {
