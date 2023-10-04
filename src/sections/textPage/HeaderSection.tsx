@@ -4,6 +4,8 @@ import { useStoryContext } from "../../hooks/useStoryContext";
 import { FontFamiliesObjectType } from "../../@types/textType";
 import { FontFamilies } from "../../components/TextPage/FontFamilies";
 import { PInputStylePropsType } from "./TextSection";
+import { usePageMangerContext } from "../../hooks/usePageMangerContext";
+import { StoryContextModes } from "../../contexts/StoryContextProvider";
 
 const ContainerStyle = styled.div({
 	position: "absolute",
@@ -37,14 +39,14 @@ const HeaderSection: FC<HeaderSectionPropsType> = ({
 	setTextStyle,
 	textStyle,
 }) => {
-	const { stopDrawMode } = useStoryContext();
+	const { setMode } = usePageMangerContext();
 
 	return (
 		<ContainerStyle>
 			<div
 				style={{ marginInline: 6, justifySelf: "start" }}
 				onClick={() => {
-					stopDrawMode();
+					setMode(StoryContextModes.IsDefault, true);
 					inputRef.current?.focus();
 				}}
 			>

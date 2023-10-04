@@ -33,6 +33,7 @@ import { Circle } from "konva/lib/shapes/Circle";
 import { smokeSVG } from "../assets/svg/smokeSVG";
 import { Shape } from "konva/lib/Shape";
 import { EventType, useEvent } from "../hooks/useEvent";
+import { usePageMangerContext } from "../hooks/usePageMangerContext";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -41,6 +42,16 @@ export interface BrushConfigType {
 	stroke: BrushColorEnum | string;
 	mode: BrushModesEnum;
 	strokeWidth: OneToTwentyType;
+}
+
+export enum StoryContextModes {
+	IsColorPicking = "isColorPicking",
+	IsAddingText = "isAddingText",
+	IsDefault = "isDefault",
+	IsDragging = "isDragging",
+	IsEditingText = "isEditingText",
+	IsDrawing = "isDrawing",
+	IsPainting = "isPainting",
 }
 
 interface StoryContextType {
@@ -54,9 +65,7 @@ interface StoryContextType {
 	isDrawing: boolean;
 	registerDrawContainer: (ref: HTMLDivElement) => void;
 	registerStoryContainer: (ref: HTMLDivElement) => void;
-	registerDrawContainerSetColor: (
-		setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
-	) => void;
+	registerDrawContainerSetColor: (setColor: (color: string) => void) => void;
 	toggleEyeDropper: () => void;
 	downloadStage: () => void;
 	addText: (defaultText?: string, color?: string) => void;
@@ -64,6 +73,7 @@ interface StoryContextType {
 		ref: HTMLDivElement,
 		handleText: (text: string, color: string) => void
 	) => void;
+	getBrushColor: string;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -77,9 +87,7 @@ export const StoryContext = createContext<StoryContextType>({
 	isDrawing: false,
 	registerDrawContainer: (ref: HTMLDivElement) => {},
 	registerStoryContainer: (ref: HTMLDivElement) => {},
-	registerDrawContainerSetColor: (
-		setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
-	) => {},
+	registerDrawContainerSetColor: (setColor: (color: string) => void) => {},
 	toggleEyeDropper: () => {},
 	downloadStage: () => {},
 	addText: (defaultText?: string, color?: string) => {},
@@ -87,6 +95,7 @@ export const StoryContext = createContext<StoryContextType>({
 		ref: HTMLDivElement,
 		handleText: (text: string, color: string) => void
 	) => {},
+	getBrushColor: "",
 });
 
 export const StoryContextProvider = memo(
@@ -114,10 +123,10 @@ export const StoryContextProvider = memo(
 		let storyContainerRef = useRef<HTMLDivElement>();
 		let drawContainerRef = useRef<HTMLDivElement>();
 		let textContainerRef = useRef<HTMLDivElement>();
-		let drawContainerSetColor =
-			useRef<Dispatch<SetStateAction<BrushColorEnum | string>>>();
+		let drawContainerSetColor = useRef<(newColor: string) => void>();
 		let currentEditingShapeRef = useRef<any>();
 		const { listenTap } = useEvent();
+		const { setMode } = usePageMangerContext();
 
 		const registerStoryContainer = (ref: HTMLDivElement) => {
 			storyContainerRef.current = ref;
@@ -136,7 +145,7 @@ export const StoryContextProvider = memo(
 		};
 
 		const registerDrawContainerSetColor = (
-			setColor: Dispatch<SetStateAction<BrushColorEnum | string>>
+			setColor: (color: string) => void
 		) => {
 			drawContainerSetColor.current = setColor;
 		};
@@ -298,19 +307,27 @@ export const StoryContextProvider = memo(
 		};
 
 		const toggleEyeDropper = (status?: boolean) => {
-			if (!isDrawModeOn.current && textContainerRef.current) {
-				textContainerRef.current.style.display = "none";
+			if (status === undefined || status === true) {
+				setMode(StoryContextModes.IsColorPicking, true);
 			}
 			if (status === false) {
 				colorPickerSVG.current?.group?.hide();
 				isEyeDropping.current = false;
 				brushConfig.current.stroke =
 					colorPickerSVG.current?.color || brushConfig.current.stroke;
+				console.log(
+					colorPickerSVG.current?.color,
+					drawContainerSetColor?.current
+				);
+				debugger;
 				colorPickerSVG.current?.color &&
 					drawContainerSetColor?.current &&
 					drawContainerSetColor.current(
 						colorPickerSVG.current?.color
 					);
+				if (isDrawModeOn.current) {
+					startDrawMode();
+				}
 				!isDrawModeOn.current &&
 					startTextMode(colorPickerSVG.current?.color);
 				return;
@@ -334,8 +351,7 @@ export const StoryContextProvider = memo(
 				let pos = stageRef.current?.getPointerPosition();
 				if (isEyeDropping.current) {
 					colorDropper(pos);
-					if (drawContainerRef.current)
-						drawContainerRef.current.style.display = "none";
+					setMode(StoryContextModes.IsColorPicking, true);
 					return;
 				}
 				if (!isDrawModeOn.current) {
@@ -344,9 +360,7 @@ export const StoryContextProvider = memo(
 
 				lastPoint = pos;
 				isDrawing.current = true;
-				if (drawContainerRef.current)
-					drawContainerRef.current.style.display = "none";
-
+				setMode(StoryContextModes.IsPainting, true);
 				if (
 					brushConfig.current.mode === BrushModesEnum.Highlighter ||
 					brushConfig.current.mode === BrushModesEnum.Heart
@@ -373,15 +387,14 @@ export const StoryContextProvider = memo(
 					return;
 				}
 				isDrawing.current = false;
-				if (drawContainerRef.current)
-					drawContainerRef.current.style.display = "block";
+				setMode(StoryContextModes.IsPainting, false);
 
 				if (
 					brushConfig.current.mode === BrushModesEnum.Highlighter ||
 					brushConfig.current.mode === BrushModesEnum.Heart
 				) {
 					drawShapeRef.current.push(group);
-				} else if (brushConfig.current.mode !== BrushModesEnum.Eraser) {
+				} else {
 					drawShapeRef.current.push(lastLine);
 				}
 			});
@@ -417,19 +430,19 @@ export const StoryContextProvider = memo(
 
 		const startDrawMode = () => {
 			isDrawModeOn.current = true;
+			setMode(StoryContextModes.IsDrawing, true);
 		};
 
 		const startTextMode = (color?: string) => {
-			if (textContainerRef.current) {
-				textContainerRef.current.style.display = "block";
-			}
-			if (showTextContainerRef.current) {
-				showTextContainerRef.current("", color || BrushColorEnum.White);
-			}
+			setMode(StoryContextModes.IsEditingText, true, {
+				text: " ",
+				color: color || BrushColorEnum.White,
+			});
 		};
 
 		const stopDrawMode = () => {
 			isDrawModeOn.current = false;
+			setMode(StoryContextModes.IsDrawing, false);
 		};
 
 		const setBrushColor = (color: BrushColorEnum | string) => {
@@ -532,15 +545,11 @@ export const StoryContextProvider = memo(
 
 			group.on("dragstart", function (ev) {
 				group.zIndex(layer.getChildren().length - 1);
-				if (storyContainerRef.current) {
-					storyContainerRef.current.style.display = "none";
-				}
+				setMode(StoryContextModes.IsDragging, true);
 			});
 
 			group.on("dragend", function (ev) {
-				if (storyContainerRef.current) {
-					storyContainerRef.current.style.display = "block";
-				}
+				setMode(StoryContextModes.IsDragging, false);
 			});
 
 			listenTap(group as any, EventType.Tap, tabHandler);
@@ -560,10 +569,7 @@ export const StoryContextProvider = memo(
 
 		const addText = (defaultText?: string, color?: string) => {
 			const name = new Date().toISOString();
-			if (textContainerRef.current && storyContainerRef.current) {
-				storyContainerRef.current.style.display = "block";
-				textContainerRef.current.style.display = "none";
-			}
+			setMode(StoryContextModes.IsAddingText, true);
 			if (defaultText && color) {
 				let size = 200;
 
@@ -578,13 +584,13 @@ export const StoryContextProvider = memo(
 				addInteractivity(text, name, function (ev) {
 					currentEditingShapeRef.current = popShape(name);
 
-					if (textContainerRef.current && storyContainerRef.current) {
-						textContainerRef.current.style.display = "block";
-						storyContainerRef.current.style.display = "none";
-					}
-					showTextContainerRef.current?.(defaultText, color);
+					setMode(StoryContextModes.IsEditingText, true, {
+						text: defaultText,
+						color,
+					});
 				});
 			}
+			setMode(StoryContextModes.IsAddingText, false);
 		};
 
 		const drawWidgets = () => {
@@ -624,6 +630,7 @@ export const StoryContextProvider = memo(
 					addText,
 					registerTextContainer,
 					registerStoryContainer,
+					getBrushColor: brushConfig.current.stroke,
 				}}
 			>
 				{children}

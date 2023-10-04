@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import { getColorBrightness } from "../../utils/konvaUtils";
 import { BrushColorEnum } from "../../@types/drawType";
@@ -41,17 +41,18 @@ const ContainerStyle = styled.div({
 type AddTextProps = {
 	textRef: React.RefObject<HTMLSpanElement>;
 	textStyle: PInputStylePropsType;
+	text: string;
 };
-const TextSection: FC<AddTextProps> = ({ textRef, textStyle }) => {
+const TextSection: FC<AddTextProps> = ({ textRef, textStyle, text }) => {
 	// let [textStyle, setTextStyle] = useState<PInputStylePropsType>({
 	// 	color: BrushColorEnum.White,
 	// 	backgroundColor: "transparent",
 	// 	borderRadius: 0,
 	// });
 
-	// useEffect(() => {
-	// 	pRef.current?.focus();
-	// }, []);
+	useEffect(() => {
+		textRef.current?.focus();
+	}, [textRef]);
 
 	return (
 		// <PInputStyle ref={textRef} contentEditable {...textStyle}></PInputStyle>
@@ -60,7 +61,10 @@ const TextSection: FC<AddTextProps> = ({ textRef, textStyle }) => {
 				ref={textRef}
 				contentEditable
 				{...textStyle}
-			></SpanInputStyle>
+				suppressContentEditableWarning={true}
+			>
+				{text}
+			</SpanInputStyle>
 		</ContainerStyle>
 	);
 };

@@ -7,6 +7,7 @@ import TextSection, {
 	PInputStylePropsType,
 } from "../sections/textPage/TextSection";
 import { useStoryContext } from "../hooks/useStoryContext";
+import { usePageMangerContext } from "../hooks/usePageMangerContext";
 
 type ContainerStyleProps = { height: string };
 const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
@@ -27,6 +28,8 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 	const textPageRef = React.useRef<HTMLDivElement>(null);
 
 	let [dynamicHeight, setDynamicHeight] = useState("100%");
+	let [show, setShow] = useState(false);
+	let [text, setText] = useState("");
 	let [textStyle, setTextStyle] = useState<PInputStylePropsType>({
 		color: BrushColorEnum.White,
 		backgroundColor: "transparent",
@@ -35,6 +38,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 	});
 
 	const { registerTextContainer } = useStoryContext();
+	const { registerTextPage } = usePageMangerContext();
 
 	window.addEventListener("resize", () => {
 		const height = window.visualViewport?.height;
@@ -42,16 +46,31 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 		document.body.style.height = height + "px";
 	});
 
+	const listen = (showPage: boolean) => {
+		setShow(showPage);
+	};
+
 	useEffect(() => {
 		const handleText = (text: string, color: string) => {
-			if (textRef.current) textRef.current.innerText = text;
-			textRef.current?.focus();
+			console.log(color);
+			setText(text);
 			setTextStyle({ ...textStyle, color: color });
+			textRef.current?.focus();
 		};
 		textRef.current?.focus();
-		textPageRef.current &&
+		registerTextPage(listen, handleText);
+		if (textPageRef.current) {
 			registerTextContainer(textPageRef.current, handleText);
-	}, [registerTextContainer, textPageRef, textStyle]);
+		}
+	}, [registerTextContainer, registerTextPage, textPageRef, textStyle]);
+
+	// useEffect(() => {
+	// 	textRef.current?.focus();
+	// }, [textRef.current]);
+
+	if (!show) {
+		return <></>;
+	}
 
 	return (
 		<div
@@ -79,7 +98,11 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 					setTextStyle={setTextStyle}
 					textStyle={textStyle}
 				/>
-				<TextSection textRef={textRef} textStyle={textStyle} />
+				<TextSection
+					textRef={textRef}
+					textStyle={textStyle}
+					text={text}
+				/>
 				{/* <RangeInputSection /> */}
 				<ColorsSection
 					position="absolute"

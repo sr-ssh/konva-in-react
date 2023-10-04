@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import TextPage from "./TextPage";
 import { useStoryContext } from "../hooks/useStoryContext";
@@ -6,7 +6,6 @@ import DrawPage from "./DrawPage";
 import { HeaderStyle } from "../components/Header";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import { StoryContextModes } from "../contexts/StoryContextProvider";
-import DefaultPage from "./DefaultPage";
 
 const FooterStyle = styled.div({
 	position: "absolute",
@@ -39,37 +38,63 @@ const CloseIcon = styled(IconsStyle)({
 	backgroundPosition: "0 -135px",
 });
 
-function StoryPage() {
-	const [storyView, setStoryView] = React.useState(true);
-	const [textView, setTextView] = React.useState(false);
-	const [isDrawing, setIsDrawing] = React.useState(false);
-
-	const storyPageRef = useRef<HTMLDivElement>(null);
+const DefaultPage = () => {
+	let [show, setShow] = useState(true);
 
 	const { startDrawMode, downloadStage, addText, registerStoryContainer } =
 		useStoryContext();
 
-	const { setMode } = usePageMangerContext();
+	const { setMode, registerDefaultPage } = usePageMangerContext();
 
-	const closeAddText = (text?: string, color?: string) => {
-		addText(text, color);
+	// const closeAddText = (text?: string, color?: string) => {
+	// 	// setTextView(false);
+	// 	// setStoryView(true);
+	// 	addText(text, color);
+	// };
+
+	const listen = (showPage: boolean) => {
+		setShow(showPage);
 	};
 
 	useEffect(() => {
-		if (storyPageRef.current) {
-			registerStoryContainer(storyPageRef.current);
-		}
-	}, [registerStoryContainer, storyPageRef]);
+		registerDefaultPage(listen);
+	}, [registerDefaultPage]);
+
+	if (!show) {
+		return <></>;
+	}
 
 	return (
 		<>
-			<TextPage close={closeAddText} />
-			<DrawPage setIsDrawing={setIsDrawing} />
-			<div ref={storyPageRef}>
-				<DefaultPage />
-			</div>
+			<HeaderStyle>
+				<div>
+					<WriteIcon
+						onClick={() => {
+							// setTextView(true);
+							// setStoryView(false);
+							setMode(StoryContextModes.IsAddingText, true);
+							// startTextMode();
+						}}
+					/>
+					<img
+						src="assets/images/drawing_tool.png"
+						alt="drawing-tool"
+						width={44}
+						height={44}
+						onClick={() => {
+							// setIsDrawing(true);
+							startDrawMode();
+						}}
+					/>
+					<WidgetIcon />
+				</div>
+				<CloseIcon />
+			</HeaderStyle>
+			<FooterStyle onClick={() => downloadStage()}>
+				add to your story +
+			</FooterStyle>
 		</>
 	);
-}
+};
 
-export default memo(StoryPage);
+export default memo(DefaultPage);

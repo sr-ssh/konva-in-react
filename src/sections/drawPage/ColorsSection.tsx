@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { BrushColorEnum } from "../../@types/drawType";
@@ -51,12 +51,16 @@ type ColorsSectionPropsType = {
 	getColor?: (color: string) => void;
 };
 const ColorsSection: FC<ColorsSectionPropsType> = ({ position, getColor }) => {
-	const [color, setColor] = React.useState<BrushColorEnum | string>(
-		BrushColorEnum.White
-	);
+	let colorRef = useRef<string>(BrushColorEnum.White);
 
-	const { setBrushColor, toggleEyeDropper, registerDrawContainerSetColor } =
-		useStoryContext();
+	const {
+		setBrushColor,
+		toggleEyeDropper,
+		registerDrawContainerSetColor,
+		getBrushColor,
+	} = useStoryContext();
+
+	const [color, setColor] = React.useState<string>(getBrushColor);
 
 	const brushColorHandler = (
 		e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -66,11 +70,23 @@ const ColorsSection: FC<ColorsSectionPropsType> = ({ position, getColor }) => {
 		setBrushColor(color);
 		setColor(color);
 		getColor?.(color);
+		colorRef.current = color;
 	};
 
 	useEffect(() => {
-		registerDrawContainerSetColor(setColor);
+		registerDrawContainerSetColor((newColor) => {
+			console.log("new color", newColor);
+			setColor(newColor);
+			colorRef.current = newColor;
+		});
 	}, [registerDrawContainerSetColor]);
+
+	useEffect(() => {
+		setColor(getBrushColor);
+		console.log("getBrushColor", getBrushColor);
+	}, [getBrushColor]);
+
+	console.log("color", color, colorRef.current);
 
 	return (
 		<>
