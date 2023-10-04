@@ -1,12 +1,4 @@
-import {
-	Dispatch,
-	ReactNode,
-	SetStateAction,
-	createContext,
-	memo,
-	useEffect,
-	useRef,
-} from "react";
+import { ReactNode, createContext, memo, useEffect, useRef } from "react";
 import Konva from "konva";
 import { Line } from "konva/lib/shapes/Line";
 import { Stage } from "konva/lib/Stage";
@@ -24,6 +16,7 @@ import {
 	drawRect,
 	drawSVG,
 	rgbToHex,
+	setHashtagColor,
 } from "../utils/konvaUtils";
 import { Vector2d } from "konva/lib/types";
 import { Group } from "konva/lib/Group";
@@ -34,6 +27,7 @@ import { smokeSVG } from "../assets/svg/smokeSVG";
 import { Shape } from "konva/lib/Shape";
 import { EventType, useEvent } from "../hooks/useEvent";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
+import { hashtagColors } from "../utils/widgetColors";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -53,7 +47,6 @@ export enum StoryContextModes {
 	IsDrawing = "isDrawing",
 	IsPainting = "isPainting",
 }
-
 interface StoryContextType {
 	startDrawMode: () => void;
 	startTextMode: () => void;
@@ -481,7 +474,7 @@ export const StoryContextProvider = memo(
 		};
 
 		const addInteractivity = (
-			shape: Shape,
+			shape: Shape | Group,
 			name: string,
 			tabHandler: (ev: Event) => void
 		) => {
@@ -594,15 +587,27 @@ export const StoryContextProvider = memo(
 		};
 
 		const drawWidgets = () => {
-			const layer = getLayer();
-			layer.add(drawHashtag());
+			let i = 0;
+			const hashtag = drawHashtag(
+				hashtagColors[i].color,
+				hashtagColors[i].fill
+			);
+			addInteractivity(hashtag, "name", function (ev) {
+				console.log("tp");
+				i = (i + 1) % hashtagColors.length;
+				setHashtagColor(
+					hashtag,
+					hashtagColors[i].color,
+					hashtagColors[i].fill
+				);
+			});
 		};
 
 		useEffect(() => {
 			stageRef.current = getStage();
 			addStoryImage();
 			draw();
-			// drawWidgets();
+			drawWidgets();
 
 			return () => {
 				stageRef.current?.off("mousedown touchstart");

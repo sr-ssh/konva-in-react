@@ -8,6 +8,9 @@ import { BrushConfigType } from "../contexts/StoryContextProvider";
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+const hashtagTextName = "hashtag-text"
+const hashtagBackgroundName = "hashtag-background"
+
 const componentToHex = (c: number) => {
   const hex = c.toString(16);
   return hex.length === 1 ? "0" + hex : hex;
@@ -228,7 +231,7 @@ export const drawColorPickerShape = () => {
   return { group, path: path1, circle: circle2 }
 };
 
-const degreeToKonva = (degree: number) => {
+const degreeToKonva = (degree: number, width: number, height: number) => {
   // Compute angle in radians - CSS starts from 180 degrees and goes clockwise
   // Math functions start from 0 and go anti-clockwise so we use 180 - angleInDeg to convert between the two
   const angle = ((180 - degree) / 180) * Math.PI
@@ -250,12 +253,9 @@ const degreeToKonva = (degree: number) => {
   }
 }
 
-export const drawHashtag = () => {
-
+export const drawHashtag = (gradient: any, background: string) => {
 
   let originalAttrs = {
-    x: width / 2,
-    y: height / 2,
     scaleX: 1,
     scaleY: 1,
     draggable: true,
@@ -263,36 +263,53 @@ export const drawHashtag = () => {
   };
 
   let group = new Konva.Group(originalAttrs);
-  let size = 200;
-
-  const gradientPoints = degreeToKonva(90)
 
   let defaultText = "هشتگ سمپل"
+  let tmp = new Konva.Text({ text: `#${defaultText}`, fontSize: 40, })
+
+  const textWidth = tmp.width()
+  const textHeight = tmp.height()
+  const gradientPoints = degreeToKonva(90, textWidth, textHeight)
+
   let text = new Konva.Text({
     text: `#${defaultText}`,
     fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
     fillLinearGradientEndPoint: { x: gradientPoints.x2, y: gradientPoints.y2 },
-    fillLinearGradientColorStops: [0, "#FF7043", .5, "#FF5863", 1, "#FF4081"],
-    offsetX: size / 2 - 5,
-    offsetY: size / 2 - 7,
+    fillLinearGradientColorStops: gradient,
     align: "center",
     justify: "center",
     fontSize: 40,
+    name: hashtagTextName,
+    offsetX: textWidth / 2 - 5,
+    offsetY: textHeight / 2 - 5,
   });
   group.add(text);
-
   let rect = new Konva.Rect({
-    width: text.width() + 10,
-    height: text.height() + 10,
-    fill: 'white',
-    offsetX: size / 2,
-    offsetY: size / 2,
+    width: textWidth + 10,
+    height: textHeight + 10,
+    fill: background,
+    offsetX: textWidth / 2,
+    offsetY: textHeight / 2,
     cornerRadius: 5,
+    name: hashtagBackgroundName
   });
   group.add(rect);
+
+  tmp.destroy()
 
   text.zIndex(2)
 
   return group
+}
+
+export const setHashtagColor = (hashtag: Group, gradient: any, background: string) => {
+  hashtag.children?.forEach(item => {
+    if (item.name() === hashtagTextName) {
+      item.setAttrs({ fillLinearGradientColorStops: gradient })
+    }
+    if (item.name() === hashtagBackgroundName) {
+      item.setAttrs({ fill: background })
+    }
+  })
 }
 
