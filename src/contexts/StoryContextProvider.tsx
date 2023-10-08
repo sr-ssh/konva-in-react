@@ -660,10 +660,10 @@ export const StoryContextProvider = memo(
 		};
 
 		const drawWidgets = () => {
-			// addHashtag();
-			// addMention();
-			// addLink();
-			// addPoll();
+			addHashtag();
+			addMention();
+			addLink();
+			addPoll();
 			addEmojiSlider();
 		};
 

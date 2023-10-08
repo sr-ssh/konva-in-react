@@ -265,10 +265,6 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
   const textHeight = tmp.height()
 
   let originalAttrs = {
-    scaleX: 1,
-    scaleY: 1,
-    draggable: true,
-    rotation: 0,
     x: -textWidth / 2
   };
 
@@ -377,10 +373,6 @@ export const drawPoll = (question: string, leftOption: string = "YES", rightOpti
   let fontSize = 35
 
   let originalAttrs = {
-    scaleX: 1,
-    scaleY: 1,
-    draggable: true,
-    rotation: 0,
     x: -pollWidth / 2
   };
 
@@ -435,11 +427,7 @@ export const drawEmojiSlider = (colorProps: EmojiSliderColorsType, percent: numb
   const emojiSliderHeight = 64
 
   let originalAttrs = {
-    scaleX: 1,
-    scaleY: 1,
-    draggable: true,
-    rotation: 0,
-    x: -emojiSliderWidth / 2
+    x: -emojiSliderWidth / 2,
   };
   let group = new Konva.Group(originalAttrs);
 
