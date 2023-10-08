@@ -15,6 +15,7 @@ import {
 	drawLine,
 	drawLink,
 	drawMention,
+	drawPoll,
 	drawRect,
 	drawSVG,
 	rgbToHex,
@@ -611,38 +612,46 @@ export const StoryContextProvider = memo(
 			);
 			addInteractivity(
 				hashtag,
-				"name",
+				"hashtag",
 				changeWidgetColor(hashtag, hashtagColors, 0)
 			);
 		};
 
 		const addMention = () => {
-			let i = 0;
 			const mention = drawMention(
-				mentionColors[i].color,
-				mentionColors[i].fill
+				mentionColors[0].color,
+				mentionColors[0].fill
 			);
 			addInteractivity(
 				mention,
-				"name",
+				"mention",
 				changeWidgetColor(mention, mentionColors, 0)
 			);
 		};
 
 		const addLink = () => {
-			let i = 0;
-			const link = drawLink(linkColors[i].color, linkColors[i].fill);
+			const link = drawLink(linkColors[0].color, linkColors[0].fill);
 			addInteractivity(
 				link,
-				"name",
+				"link",
 				changeWidgetColor(link, linkColors, 0)
 			);
 		};
 
+		const addPoll = () => {
+			const poll = drawPoll(
+				" سینت ینتس؟",
+				"lksdjfksdjfskd f",
+				"fsdjhfjksdhfskdj ldksjf sdfj"
+			);
+			addInteractivity(poll, "poll", () => {});
+		};
+
 		const drawWidgets = () => {
-			addHashtag();
-			addMention();
-			addLink();
+			// addHashtag();
+			// addMention();
+			// addLink();
+			addPoll();
 		};
 
 		useEffect(() => {

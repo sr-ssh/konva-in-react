@@ -4,6 +4,7 @@ import { Group } from "konva/lib/Group";
 import { generateRandomNumber } from "./random";
 import { Vector2d } from "konva/lib/types";
 import { BrushConfigType } from "../contexts/StoryContextProvider";
+import { optionLeftGradient, optionRightGradient } from "./widgetColors";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -257,19 +258,22 @@ const degreeToKonva = (degree: number, width: number, height: number) => {
 }
 
 const drawTextWithBackground = (gradient: any, defaultText: string, background: string) => {
-  let originalAttrs = {
-    scaleX: 1,
-    scaleY: 1,
-    draggable: true,
-    rotation: 0,
-  };
-
-  let group = new Konva.Group(originalAttrs);
 
   let tmp = new Konva.Text({ text: `#${defaultText}`, fontSize: 40, })
 
   const textWidth = tmp.width()
   const textHeight = tmp.height()
+
+  let originalAttrs = {
+    scaleX: 1,
+    scaleY: 1,
+    draggable: true,
+    rotation: 0,
+    x: -textWidth / 2
+  };
+
+  let group = new Konva.Group(originalAttrs);
+
   const gradientPoints = degreeToKonva(90, textWidth, textHeight)
 
   let text = new Konva.Text({
@@ -281,16 +285,16 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     justify: "center",
     fontSize: 40,
     name: hashtagTextName,
-    offsetX: textWidth / 2 - 10,
-    offsetY: textHeight / 2 - 5,
+    offsetX: -10,
+    offsetY: -5,
   });
   group.add(text);
   let rect = new Konva.Rect({
     width: textWidth,
     height: textHeight + 10,
     fill: background,
-    offsetX: textWidth / 2,
-    offsetY: textHeight / 2,
+    // offsetX: textWidth / 2,
+    // offsetY: textHeight / 2,
     cornerRadius: 5,
     name: hashtagBackgroundName
   });
@@ -335,4 +339,94 @@ export const setHashtagColor = (hashtag: Group, gradient: any, background: strin
 
 export const setMentionColor = (mention: Group, gradient: any, background: string) => {
   changeTextColorByName(mentionTextName, mentionBackgroundName, mention, gradient, background)
+}
+
+const drawPollOptions = (text: string, gradientColor: any, gradientPoints: {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}, fontSize: number, pollWidth: number, optionsHeight: number, offsetX?: number) => {
+  let optionNode = new Konva.Text({
+    text,
+    fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
+    fillLinearGradientEndPoint: { x: gradientPoints.x2, y: gradientPoints.y2 },
+    fillLinearGradientColorStops: gradientColor,
+    align: "center",
+    justify: "center",
+    fontSize: fontSize,
+    width: pollWidth / 2,
+    textWrap: 'word', // Enable word wrapping
+    textWrapWidth: pollWidth / 2,// Set the initial wrap width
+    offsetX,
+  });
+  let tmp = new Konva.Text({ text, fontSize })
+  while (tmp.width() > pollWidth) {
+    fontSize--; // Decrease the font size
+    optionNode.fontSize(fontSize);
+    tmp.fontSize(fontSize)
+  }
+  // it needs the exact font family to be accurate
+  optionNode.offsetY((-optionsHeight + optionNode.height()) / 2)
+  return optionNode
+}
+
+export const drawPoll = (question: string, leftOption: string = "YES", rightOption: string = "NO") => {
+  const pollWidth = width * 3 / 5
+  const optionsHeight = 65;
+  let fontSize = 35
+
+  let originalAttrs = {
+    scaleX: 1,
+    scaleY: 1,
+    draggable: true,
+    rotation: 0,
+    x: -pollWidth / 2
+  };
+
+  let group = new Konva.Group(originalAttrs);
+
+  let rect = new Konva.Rect({
+    width: pollWidth,
+    height: optionsHeight + 10,
+    fill: "#fff",
+    cornerRadius: 10,
+  });
+  group.add(rect);
+  let line = new Konva.Line({
+    stroke: "#e0e0e0",
+    strokeWidth: 3,
+    points: [pollWidth / 2, 0, pollWidth / 2, optionsHeight + 10]
+  })
+  group.add(line)
+
+  const tmp = new Konva.Text({ text: question, fontSize: 20 })
+  const questionTexWidth = tmp.width()
+  let conditionalOffsetX = 0
+  console.log(questionTexWidth, width, pollWidth)
+  if (pollWidth - 36 >= questionTexWidth) {
+    conditionalOffsetX = 135
+  } else
+    if (pollWidth - 36 < questionTexWidth && questionTexWidth < width - 50) {
+      conditionalOffsetX = (width + 50 - questionTexWidth) / 2
+    } else if (questionTexWidth >= width - 50) {
+      conditionalOffsetX = 50
+    }
+  const questionNode = new Konva.Text({
+    text: question,
+    fontSize: 20,
+    fill: "#fff",
+    align: "right",
+    width: width - 50,
+    offsetX: conditionalOffsetX,
+  })
+  questionNode.offsetY(questionNode.height() + 20)
+  group.add(questionNode)
+
+  const gradientPoints = degreeToKonva(90, pollWidth / 2, optionsHeight)
+
+  group.add(drawPollOptions(leftOption, optionLeftGradient, gradientPoints, fontSize, pollWidth, optionsHeight));
+  group.add(drawPollOptions(rightOption, optionRightGradient, gradientPoints, fontSize, pollWidth, optionsHeight, -pollWidth / 2));
+
+  return group
 }
