@@ -4,7 +4,7 @@ import { Group } from "konva/lib/Group";
 import { generateRandomNumber } from "./random";
 import { Vector2d } from "konva/lib/types";
 import { BrushConfigType } from "../contexts/StoryContextProvider";
-import { optionLeftGradient, optionRightGradient } from "./widgetColors";
+import { EmojiSliderColorsType, optionLeftGradient, optionRightGradient } from "./widgetColors";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -403,7 +403,6 @@ export const drawPoll = (question: string, leftOption: string = "YES", rightOpti
   const tmp = new Konva.Text({ text: question, fontSize: 20 })
   const questionTexWidth = tmp.width()
   let conditionalOffsetX = 0
-  console.log(questionTexWidth, width, pollWidth)
   if (pollWidth - 36 >= questionTexWidth) {
     conditionalOffsetX = 135
   } else
@@ -427,6 +426,81 @@ export const drawPoll = (question: string, leftOption: string = "YES", rightOpti
 
   group.add(drawPollOptions(leftOption, optionLeftGradient, gradientPoints, fontSize, pollWidth, optionsHeight));
   group.add(drawPollOptions(rightOption, optionRightGradient, gradientPoints, fontSize, pollWidth, optionsHeight, -pollWidth / 2));
+
+  return group
+}
+
+export const drawEmojiSlider = (colorProps: EmojiSliderColorsType, percent: number, emoji: any, text?: string) => {
+  const emojiSliderWidth = width * 2 / 3
+  const emojiSliderHeight = 64
+
+  let originalAttrs = {
+    scaleX: 1,
+    scaleY: 1,
+    draggable: true,
+    rotation: 0,
+    x: -emojiSliderWidth / 2
+  };
+  let group = new Konva.Group(originalAttrs);
+
+  let textNode
+  if (text) {
+    textNode = new Konva.Text({
+      text,
+      fontSize: 20,
+      fill: colorProps.textColor,
+      width: emojiSliderWidth - 35,
+      y: 20,
+      align: "right",
+      x: 17.5,
+      lineHeight: 1.2
+    })
+  }
+
+  const backgroundRect = new Konva.Rect({
+    width: emojiSliderWidth,
+    height: emojiSliderHeight + 25 + (textNode?.height() || 0),
+    fill: colorProps.backgroundColor,
+    cornerRadius: 17,
+  })
+  group.add(backgroundRect)
+  textNode && group.add(textNode)
+
+  const rangeWidth = emojiSliderWidth - 45
+  const rangeTrackNode = new Konva.Rect({
+    width: rangeWidth,
+    height: 9,
+    fill: colorProps.rangeTrackColor,
+    cornerRadius: 20,
+    y: (backgroundRect.height() - 45),
+    x: 22.5
+  })
+  group.add(rangeTrackNode)
+
+  const gradientPoints = degreeToKonva(180, emojiSliderWidth / 2, 10)
+  const sliderWidth = percent * rangeWidth / 100
+  const rangeSliderNode = new Konva.Rect({
+    width: sliderWidth,
+    height: 9,
+    ...(colorProps.isGradient ? {
+      fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
+      fillLinearGradientEndPoint: { x: gradientPoints.x2, y: gradientPoints.y2 },
+      fillLinearGradientColorStops: colorProps.rangeSliderColor as any,
+    } : { fill: colorProps.rangeSliderColor as any }),
+    cornerRadius: 20,
+    y: rangeTrackNode.y(),
+    x: 22.5
+  })
+  group.add(rangeSliderNode)
+
+  const emojiNode = new Konva.Text({
+    text: emoji,
+    fontSize: 33,
+    x: rangeSliderNode.x() + sliderWidth,
+  })
+  emojiNode.y(rangeSliderNode.y() + (rangeSliderNode.height() / 2) - (emojiNode.height() / 2))
+  emojiNode.x(rangeSliderNode.x() + sliderWidth - (emojiNode.width() / 2))
+  group.add(emojiNode)
 
   return group
 }

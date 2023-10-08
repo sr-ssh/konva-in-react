@@ -11,6 +11,7 @@ import {
 import {
 	addBackgroundImage,
 	drawColorPickerShape,
+	drawEmojiSlider,
 	drawHashtag,
 	drawLine,
 	drawLink,
@@ -31,6 +32,7 @@ import { Shape } from "konva/lib/Shape";
 import { EventType, useEvent } from "../hooks/useEvent";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import {
+	emojiSliderColors,
 	hashtagColors,
 	linkColors,
 	mentionColors,
@@ -647,11 +649,22 @@ export const StoryContextProvider = memo(
 			addInteractivity(poll, "poll", () => {});
 		};
 
+		const addEmojiSlider = () => {
+			const emojiSlider = drawEmojiSlider(
+				emojiSliderColors[0],
+				60,
+				"😍",
+				"sdfsdf df sjdhfjhd داب قنتل منبت منبل مقنلت "
+			);
+			addInteractivity(emojiSlider, "emoji-slider", () => {});
+		};
+
 		const drawWidgets = () => {
 			// addHashtag();
 			// addMention();
 			// addLink();
-			addPoll();
+			// addPoll();
+			addEmojiSlider();
 		};
 
 		useEffect(() => {
