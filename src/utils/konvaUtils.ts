@@ -628,3 +628,13 @@ export const drawClock = (timestamp: number, type: ClockEnum) => {
     return drawRoundClock(hours, minutes)
   }
 }
+
+export const drawEmoji = (emoji: string) => {
+  const emojiNode = new Konva.Text({
+    text: emoji,
+    fontSize: 30,
+  })
+  const group = new Konva.Group({ x: -emojiNode.width() / 2 })
+  group.add(emojiNode)
+  return group
+}

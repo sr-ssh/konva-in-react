@@ -12,6 +12,7 @@ import {
 	addBackgroundImage,
 	drawClock,
 	drawColorPickerShape,
+	drawEmoji,
 	drawEmojiSlider,
 	drawHashtag,
 	drawLine,
@@ -726,13 +727,19 @@ export const StoryContextProvider = memo(
 			);
 		};
 
+		const addEmoji = () => {
+			const emoji = drawEmoji("😍");
+			addInteractivity(emoji, "emoji", () => {});
+		};
+
 		const drawWidgets = () => {
 			// addHashtag();
 			// addMention();
 			// addLink();
 			// addPoll();
 			// addEmojiSlider();
-			addClock(ClockEnum.Card);
+			// addClock(ClockEnum.Card);
+			// addEmoji();
 		};
 
 		useEffect(() => {
