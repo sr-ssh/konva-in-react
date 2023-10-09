@@ -683,9 +683,9 @@ export const StoryContextProvider = memo(
 
 		const addPoll = () => {
 			const poll = drawPoll(
-				" سینت ینتس؟",
-				"lksdjfksdjfskd f",
-				"fsdjhfjksdhfskdj ldksjf sdfj"
+				" سینت ینتس؟"
+				// "lksdjfksdjfskd jff",
+				// "fsdjhfjksdhjgjh gjhg hdfsdfdufhdsjg  sdfj"
 			);
 			addInteractivity(poll, "poll", () => {});
 		};
@@ -736,7 +736,7 @@ export const StoryContextProvider = memo(
 			// addHashtag();
 			// addMention();
 			// addLink();
-			// addPoll();
+			addPoll();
 			// addEmojiSlider();
 			// addClock(ClockEnum.Card);
 			// addEmoji();

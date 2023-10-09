@@ -284,6 +284,7 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     name: hashtagTextName,
     offsetX: -10,
     offsetY: -5,
+    fontFamily: "AvenyTRegular",
   });
   group.add(text);
   let rect = new Konva.Rect({
@@ -344,34 +345,39 @@ const drawPollOptions = (text: string, gradientColor: any, gradientPoints: {
   x2: number;
   y2: number;
 }, fontSize: number, pollWidth: number, optionsHeight: number, offsetX?: number) => {
+  const optionWidth = pollWidth / 2 - 12
   let optionNode = new Konva.Text({
     text,
     fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
     fillLinearGradientEndPoint: { x: gradientPoints.x2, y: gradientPoints.y2 },
     fillLinearGradientColorStops: gradientColor,
-    align: "center",
-    justify: "center",
+    align: "left",
+    verticalAlign: "center",
     fontSize: fontSize,
-    width: pollWidth / 2,
+    width: optionWidth,
     textWrap: 'word', // Enable word wrapping
-    textWrapWidth: pollWidth / 2,// Set the initial wrap width
+    textWrapWidth: optionWidth,// Set the initial wrap width
     offsetX,
+    fontFamily: "AvenyTRegular",
   });
-  let tmp = new Konva.Text({ text, fontSize })
-  while (tmp.width() > pollWidth) {
+  let tmp = new Konva.Text({
+    text, fontSize, width: optionWidth,
+    fontFamily: "AvenyTRegular",
+  })
+  while (tmp.width() > pollWidth - 12 || tmp.height() > optionsHeight - 6) {
     fontSize--; // Decrease the font size
     optionNode.fontSize(fontSize);
     tmp.fontSize(fontSize)
   }
   // it needs the exact font family to be accurate
-  optionNode.offsetY((-optionsHeight + optionNode.height()) / 2)
+  optionNode.offsetY((-optionsHeight + optionNode.height()) / 2 - 6)
   return optionNode
 }
 
 export const drawPoll = (question: string, leftOption: string = "YES", rightOption: string = "NO") => {
   const pollWidth = width * 3 / 5
   const optionsHeight = 65;
-  let fontSize = 35
+  let fontSize = 40
 
   let originalAttrs = {
     x: -pollWidth / 2
@@ -417,8 +423,8 @@ export const drawPoll = (question: string, leftOption: string = "YES", rightOpti
 
   const gradientPoints = degreeToKonva(90, pollWidth / 2, optionsHeight)
 
-  group.add(drawPollOptions(leftOption, optionLeftGradient, gradientPoints, fontSize, pollWidth, optionsHeight));
-  group.add(drawPollOptions(rightOption, optionRightGradient, gradientPoints, fontSize, pollWidth, optionsHeight, -pollWidth / 2));
+  group.add(drawPollOptions(leftOption, optionLeftGradient, gradientPoints, fontSize, pollWidth, optionsHeight, -6));
+  group.add(drawPollOptions(rightOption, optionRightGradient, gradientPoints, fontSize, pollWidth, optionsHeight, -pollWidth / 2 - 6));
 
   return group
 }
