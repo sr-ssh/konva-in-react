@@ -10,6 +10,7 @@ import {
 } from "../@types/drawType";
 import {
 	addBackgroundImage,
+	drawClock,
 	drawColorPickerShape,
 	drawEmojiSlider,
 	drawHashtag,
@@ -37,6 +38,7 @@ import {
 	linkColors,
 	mentionColors,
 } from "../utils/widgetColors";
+import { ClockEnum } from "../@types/widgetType";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -106,6 +108,7 @@ export const StoryContextProvider = memo(
 		let stageRef = useRef<Stage>();
 		let layerRef = useRef<Layer>();
 		let drawLayerRef = useRef<Layer>();
+		let clockLayerRef = useRef<Layer>();
 		let isDrawModeOn = useRef<boolean>(false);
 		let isDrawing = useRef<boolean>(false);
 		let isEyeDropping = useRef<boolean>(false);
@@ -186,6 +189,16 @@ export const StoryContextProvider = memo(
 			}
 			drawLayerRef.current.listening(false);
 			return drawLayerRef.current;
+		};
+
+		const getClockLayer = () => {
+			if (!clockLayerRef.current) {
+				clockLayerRef.current = new Konva.Layer();
+				const stage = getStage();
+				stage.add(clockLayerRef.current);
+				return clockLayerRef.current;
+			}
+			return clockLayerRef.current;
 		};
 
 		const addStoryImage = () => {
@@ -485,10 +498,16 @@ export const StoryContextProvider = memo(
 		const addInteractivity = (
 			shape: Shape | Group,
 			name: string,
-			tabHandler: (ev: Event) => void
+			tabHandler: (ev: Event) => void,
+			customLayer?: Layer
 		) => {
 			Konva.capturePointerEventsEnabled = true;
-			const layer = getLayer();
+			let layer: Layer;
+			if (customLayer) {
+				layer = customLayer;
+			} else {
+				layer = getLayer();
+			}
 			const stage = getStage();
 			const currentEditingShape = currentEditingShapeRef.current;
 
@@ -659,12 +678,21 @@ export const StoryContextProvider = memo(
 			addInteractivity(emojiSlider, "emoji-slider", () => {});
 		};
 
+		const addClock = () => {
+			if (clockLayerRef.current) return;
+			const clock = drawClock(Date.now(), ClockEnum.Card);
+			const clockLayer = getClockLayer();
+			console.log("clock");
+			addInteractivity(clock as Group, "clock", () => {}, clockLayer);
+		};
+
 		const drawWidgets = () => {
-			addHashtag();
-			addMention();
-			addLink();
-			addPoll();
-			addEmojiSlider();
+			// addHashtag();
+			// addMention();
+			// addLink();
+			// addPoll();
+			// addEmojiSlider();
+			addClock();
 		};
 
 		useEffect(() => {

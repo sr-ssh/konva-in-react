@@ -5,6 +5,7 @@ import { generateRandomNumber } from "./random";
 import { Vector2d } from "konva/lib/types";
 import { BrushConfigType } from "../contexts/StoryContextProvider";
 import { EmojiSliderColorsType, optionLeftGradient, optionRightGradient } from "./widgetColors";
+import { ClockEnum } from "../@types/widgetType";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -491,4 +492,79 @@ export const drawEmojiSlider = (colorProps: EmojiSliderColorsType, percent: numb
   group.add(emojiNode)
 
   return group
+}
+
+const drawNormalClock = (hour: number, minute: number) => {
+
+  const text = new Konva.Text({
+    text: `${hour}:${minute}`,
+    fontSize: 80,
+    fill: "#ffffff",
+    fontFamily: "AvenyTRegular"
+  })
+  const clockWidth = text.width()
+
+  const group = new Konva.Group({ x: -clockWidth / 2 })
+  group.add(text)
+
+  return group
+}
+
+const drawOneCardClock = (time: number, cardWidth: number, x: number) => {
+  const text = new Konva.Text({
+    text: time.toString(),
+    fontSize: 80,
+    fill: "#ffffff",
+    fontFamily: "AvenyTRegular",
+    height: 76,
+    width: cardWidth,
+    align: "center",
+    verticalAlign: "center"
+  })
+
+  const textBackground = new Konva.Rect({
+    height: 76,
+    width: cardWidth,
+    fill: "rgba(143, 143, 143, 0.319)",
+    cornerRadius: 10,
+    offsetY: 5
+  })
+
+  const group = new Konva.Group({ x })
+  group.add(textBackground)
+  group.add(text)
+
+  return group
+}
+
+const drawCardClock = (hour: number, minute: number) => {
+  const cardWidth = 50
+  const group = new Konva.Group({})
+  group.add(drawOneCardClock(Math.floor(hour / 10), cardWidth, -cardWidth * 2 - 4))
+  group.add(drawOneCardClock(Math.floor(hour % 10), cardWidth, -cardWidth - 3))
+  group.add(drawOneCardClock(Math.floor(minute / 10), cardWidth, 3))
+  group.add(drawOneCardClock(Math.floor(minute % 10), cardWidth, cardWidth + 4))
+
+  let line = new Konva.Line({
+    stroke: "#ffffff",
+    strokeWidth: 2,
+    globalCompositeOperation: "destination-out",
+    points: [-(cardWidth * 2 + 4), 76 / 2 - 6, cardWidth * 2 + 4, 76 / 2 - 6]
+  })
+  group.add(line)
+
+  return group
+}
+
+export const drawClock = (timestamp: number, type: ClockEnum) => {
+
+  const date = new Date(timestamp);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  if (type === ClockEnum.Normal) {
+    return drawNormalClock(hours, minutes)
+  } else if (type === ClockEnum.Card) {
+    return drawCardClock(hours, minutes)
+  }
 }

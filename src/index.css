@@ -23,3 +23,11 @@ body {
 #container {
 	background-color: black;
 }
+
+@font-face {
+	font-family: AvenyTRegular;
+	font-style: normal;
+	font-weight: 500;
+	/* src: url("assets/fonts/Aveny-T-Regular.ttf"); */
+	src: url("/public/assets/fonts/Aveny-T-Regular.ttf") format("truetype");
+}
