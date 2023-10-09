@@ -273,6 +273,14 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
 
   const gradientPoints = degreeToKonva(90, textWidth, textHeight)
 
+  let rect = new Konva.Rect({
+    width: textWidth,
+    height: textHeight + 10,
+    fill: background,
+    cornerRadius: 5,
+    name: hashtagBackgroundName
+  });
+  group.add(rect);
   let text = new Konva.Text({
     text: defaultText,
     fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
@@ -287,21 +295,8 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     fontFamily: "AvenyTRegular",
   });
   group.add(text);
-  let rect = new Konva.Rect({
-    width: textWidth,
-    height: textHeight + 10,
-    fill: background,
-    // offsetX: textWidth / 2,
-    // offsetY: textHeight / 2,
-    cornerRadius: 5,
-    name: hashtagBackgroundName
-  });
-  group.add(rect);
 
   tmp.destroy()
-
-  text.zIndex(2)
-
   return group
 }
 
