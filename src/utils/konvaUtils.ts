@@ -497,7 +497,7 @@ export const drawEmojiSlider = (colorProps: EmojiSliderColorsType, percent: numb
 const drawNormalClock = (hour: number, minute: number) => {
 
   const text = new Konva.Text({
-    text: `${hour}:${minute}`,
+    text: `${Math.floor(hour / 10)}${Math.floor(hour % 10)}:${Math.floor(minute / 10)}${Math.floor(minute % 10)}`,
     fontSize: 80,
     fill: "#ffffff",
     fontFamily: "AvenyTRegular"
@@ -555,6 +555,64 @@ const drawCardClock = (hour: number, minute: number) => {
 
   return group
 }
+const degreesToRadians = (degrees: number) => {
+  var pi = Math.PI;
+  return degrees * (pi / 180);
+}
+
+const drawRoundClock = (hour: number, minute: number) => {
+  const group = new Konva.Group({})
+
+  const circle = new Konva.Circle({
+    radius: 90,
+    fill: "rgba(143, 143, 143, 0.319)",
+    x: 8,
+    y: 8
+  })
+  group.add(circle)
+
+  const startRadian = 1.0472
+  const diffRad = 0.523599
+  for (let i = 1; i <= 12; i++) {
+    const clockNumber = new Konva.Text({
+      text: i.toString(),
+      fill: "#ffffff",
+      x: Math.cos(startRadian - ((i - 1) * diffRad)) * 70,
+      y: -Math.sin(startRadian - ((i - 1) * diffRad)) * 70,
+      fontFamily: "AvenyTRegular",
+      fontSize: 25
+    })
+    group.add(clockNumber)
+  }
+
+  const clockCenter = new Konva.Circle({
+    radius: 4,
+    fill: "#ffffff",
+    x: 8,
+    y: 8
+  })
+  group.add(clockCenter)
+
+  const hourHandAngle = degreesToRadians((hour * -30) + 90 - (minute / 2))
+  const hourHand = new Konva.Line({
+    stroke: "#ffffff",
+    strokeWidth: 3,
+    lineCap: "round",
+    points: [8, 8, Math.cos(hourHandAngle) * 15, -Math.sin(hourHandAngle) * 15]
+  })
+  group.add(hourHand)
+
+  const minuteHandAngle = degreesToRadians((minute * -6) + 90)
+  const minuteHand = new Konva.Line({
+    stroke: "#ffffff",
+    strokeWidth: 3,
+    lineCap: "round",
+    points: [8, 8, Math.cos(minuteHandAngle) * 50, -Math.sin(minuteHandAngle) * 50]
+  })
+  group.add(minuteHand)
+
+  return group
+}
 
 export const drawClock = (timestamp: number, type: ClockEnum) => {
 
@@ -566,5 +624,7 @@ export const drawClock = (timestamp: number, type: ClockEnum) => {
     return drawNormalClock(hours, minutes)
   } else if (type === ClockEnum.Card) {
     return drawCardClock(hours, minutes)
+  } else if (type === ClockEnum.Clock) {
+    return drawRoundClock(hours, minutes)
   }
 }

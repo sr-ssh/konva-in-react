@@ -130,6 +130,8 @@ export const StoryContextProvider = memo(
 		let textContainerRef = useRef<HTMLDivElement>();
 		let drawContainerSetColor = useRef<(newColor: string) => void>();
 		let currentEditingShapeRef = useRef<any>();
+		let clockAttrsRef = useRef<any>();
+
 		const { listenTap } = useEvent();
 		const { setMode } = usePageMangerContext();
 
@@ -499,7 +501,8 @@ export const StoryContextProvider = memo(
 			shape: Shape | Group,
 			name: string,
 			tabHandler: (ev: Event) => void,
-			customLayer?: Layer
+			customLayer?: Layer,
+			isClock?: boolean
 		) => {
 			Konva.capturePointerEventsEnabled = true;
 			let layer: Layer;
@@ -510,19 +513,34 @@ export const StoryContextProvider = memo(
 			}
 			const stage = getStage();
 			const currentEditingShape = currentEditingShapeRef.current;
+			const clockAttrs = clockAttrsRef.current;
 
 			let originalAttrs = {
-				x: stage.width() / 2,
-				y: stage.height() / 2,
-				scaleX: currentEditingShape?.scaleX || 1,
-				scaleY: currentEditingShape?.scaleY || 1,
+				...(isClock && clockAttrs
+					? {
+							scaleX: clockAttrs.scaleX,
+							scaleY: clockAttrs.scaleY,
+							rotation: clockAttrs.rotation,
+							x: clockAttrs.x,
+							y: clockAttrs.y,
+					  }
+					: currentEditingShape
+					? {
+							scaleX: currentEditingShape.scaleX,
+							scaleY: currentEditingShape.scaleY,
+							rotation: currentEditingShape.rotation,
+							x: currentEditingShape.x,
+							y: currentEditingShape.y,
+					  }
+					: {
+							scaleX: 1,
+							scaleY: 1,
+							rotation: 0,
+							x: stage.width() / 2,
+							y: stage.height() / 2,
+					  }),
 				draggable: true,
-				rotation: currentEditingShape?.rotation || 0,
 				name,
-				...(currentEditingShape && {
-					x: currentEditingShape.x,
-					y: currentEditingShape.y,
-				}),
 			};
 
 			let group = new Konva.Group(originalAttrs);
@@ -577,6 +595,9 @@ export const StoryContextProvider = memo(
 
 			if (currentEditingShape) {
 				currentEditingShapeRef.current = null;
+			}
+			if (isClock) {
+				clockAttrsRef.current = null;
 			}
 		};
 
@@ -678,12 +699,31 @@ export const StoryContextProvider = memo(
 			addInteractivity(emojiSlider, "emoji-slider", () => {});
 		};
 
-		const addClock = () => {
-			if (clockLayerRef.current) return;
-			const clock = drawClock(Date.now(), ClockEnum.Card);
+		const addClock = (type: ClockEnum) => {
+			let clockType = type;
+			const clock = drawClock(Date.now(), type);
 			const clockLayer = getClockLayer();
-			console.log("clock");
-			addInteractivity(clock as Group, "clock", () => {}, clockLayer);
+			clockLayer.children?.forEach((node) => node.remove());
+			addInteractivity(
+				clock as Group,
+				"clock",
+				() => {
+					clockLayer.children?.forEach((node) => {
+						clockAttrsRef.current = node.getAttrs();
+						node.remove();
+					});
+					if (clockType === ClockEnum.Card) {
+						clockType = ClockEnum.Clock;
+					} else if (clockType === ClockEnum.Clock) {
+						clockType = ClockEnum.Normal;
+					} else if (clockType === ClockEnum.Normal) {
+						clockType = ClockEnum.Card;
+					}
+					addClock(clockType);
+				},
+				clockLayer,
+				true
+			);
 		};
 
 		const drawWidgets = () => {
@@ -692,7 +732,7 @@ export const StoryContextProvider = memo(
 			// addLink();
 			// addPoll();
 			// addEmojiSlider();
-			addClock();
+			addClock(ClockEnum.Card);
 		};
 
 		useEffect(() => {
