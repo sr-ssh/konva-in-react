@@ -58,6 +58,7 @@ export enum StoryContextModes {
 	IsEditingText = "isEditingText",
 	IsDrawing = "isDrawing",
 	IsPainting = "isPainting",
+	IsHashtagEditing = "isHashtagEditing",
 }
 interface StoryContextType {
 	startDrawMode: () => void;
@@ -79,6 +80,7 @@ interface StoryContextType {
 		handleText: (text: string, color: string) => void
 	) => void;
 	getBrushColor: string;
+	addHashtag: (text?: string) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -101,6 +103,7 @@ export const StoryContext = createContext<StoryContextType>({
 		handleText: (text: string, color: string) => void
 	) => {},
 	getBrushColor: "",
+	addHashtag: (text?: string) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -647,17 +650,22 @@ export const StoryContextProvider = memo(
 			};
 		};
 
-		const addHashtag = () => {
+		const addHashtag = (text?: string) => {
 			let i = 0;
-			const hashtag = drawHashtag(
-				hashtagColors[i].color,
-				hashtagColors[i].fill
-			);
-			addInteractivity(
-				hashtag,
-				"hashtag",
-				changeWidgetColor(hashtag, hashtagColors, 0)
-			);
+			// setMode(StoryContextModes.IsHashtagEditing, true);
+			if (text) {
+				const hashtag = drawHashtag(
+					text,
+					hashtagColors[i].color,
+					hashtagColors[i].fill
+				);
+				addInteractivity(
+					hashtag,
+					"hashtag",
+					changeWidgetColor(hashtag, hashtagColors, 0)
+				);
+			}
+			setMode(StoryContextModes.IsHashtagEditing, false);
 		};
 
 		const addMention = () => {
@@ -736,7 +744,7 @@ export const StoryContextProvider = memo(
 			// addHashtag();
 			// addMention();
 			// addLink();
-			addPoll();
+			// addPoll();
 			// addEmojiSlider();
 			// addClock(ClockEnum.Card);
 			// addEmoji();
@@ -775,6 +783,7 @@ export const StoryContextProvider = memo(
 					registerTextContainer,
 					registerStoryContainer,
 					getBrushColor: brushConfig.current.stroke,
+					addHashtag,
 				}}
 			>
 				{children}

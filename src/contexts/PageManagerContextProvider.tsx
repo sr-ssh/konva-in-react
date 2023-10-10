@@ -16,6 +16,7 @@ interface PageManagerContextType {
 		handlePage: TextPageHandlerType
 	) => void;
 	registerDrawPage: (listener: PageListenerType) => void;
+	registerHashtagPage: (listener: PageListenerType) => void;
 	registerDefaultPage: (listener: PageListenerType) => void;
 }
 
@@ -31,6 +32,7 @@ export const PageManagerContext = createContext<PageManagerContextType>({
 	) => {},
 	registerDrawPage: (listener: PageListenerType) => {},
 	registerDefaultPage: (listener: PageListenerType) => {},
+	registerHashtagPage: (listener: PageListenerType) => {},
 });
 
 export const PageManagerContextProvider = memo(
@@ -38,6 +40,7 @@ export const PageManagerContextProvider = memo(
 		let defaultPageListenerRef = useRef<PageListenerType>();
 		let drawPageListenerRef = useRef<PageListenerType>();
 		let textPageListenerRef = useRef<PageListenerType>();
+		let HashtagPageListenerRef = useRef<PageListenerType>();
 		let textPageHandlerRef = useRef<TextPageHandlerType>();
 
 		const registerTextPage = (
@@ -54,6 +57,10 @@ export const PageManagerContextProvider = memo(
 
 		const registerDrawPage = (listener: PageListenerType) => {
 			drawPageListenerRef.current = listener;
+		};
+
+		const registerHashtagPage = (listener: PageListenerType) => {
+			HashtagPageListenerRef.current = listener;
 		};
 
 		const showNoPage = () => {
@@ -104,6 +111,9 @@ export const PageManagerContextProvider = memo(
 			}
 			if (drawPageListenerRef.current) {
 				drawPageListenerRef.current(false);
+			}
+			if (HashtagPageListenerRef.current) {
+				HashtagPageListenerRef.current(false);
 			}
 		};
 
@@ -175,6 +185,13 @@ export const PageManagerContextProvider = memo(
 					}
 					break;
 
+				case StoryContextModes.IsHashtagEditing:
+					if (status) {
+					} else {
+						showDefaultPage();
+					}
+					break;
+
 				default:
 					break;
 			}
@@ -186,6 +203,7 @@ export const PageManagerContextProvider = memo(
 					registerTextPage,
 					registerDefaultPage,
 					registerDrawPage,
+					registerHashtagPage,
 				}}
 			>
 				{children}

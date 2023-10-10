@@ -260,7 +260,10 @@ const degreeToKonva = (degree: number, width: number, height: number) => {
 
 const drawTextWithBackground = (gradient: any, defaultText: string, background: string) => {
 
-  let tmp = new Konva.Text({ text: `#${defaultText}`, fontSize: 40, })
+  let tmp = new Konva.Text({
+    text: defaultText, fontSize: 40,
+    fontFamily: "AvenyTRegular",
+  })
 
   const textWidth = tmp.width()
   const textHeight = tmp.height()
@@ -274,8 +277,8 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
   const gradientPoints = degreeToKonva(90, textWidth, textHeight)
 
   let rect = new Konva.Rect({
-    width: textWidth,
-    height: textHeight + 10,
+    width: textWidth + 5,
+    height: textHeight + 8,
     fill: background,
     cornerRadius: 5,
     name: hashtagBackgroundName
@@ -290,8 +293,8 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     justify: "center",
     fontSize: 40,
     name: hashtagTextName,
-    offsetX: -10,
-    offsetY: -5,
+    offsetX: -2,
+    offsetY: -6,
     fontFamily: "AvenyTRegular",
   });
   group.add(text);
@@ -300,9 +303,8 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
   return group
 }
 
-export const drawHashtag = (gradient: any, background: string) => {
-  let defaultText = "هشتگ سمپل"
-  return drawTextWithBackground(gradient, '#' + defaultText, background)
+export const drawHashtag = (text: string, gradient: any, background: string) => {
+  return drawTextWithBackground(gradient, text, background)
 }
 
 export const drawMention = (gradient: any, background: string) => {

@@ -3,6 +3,8 @@ import TextPage from "./TextPage";
 import { useStoryContext } from "../hooks/useStoryContext";
 import DrawPage from "./DrawPage";
 import DefaultPage from "./DefaultPage";
+import EditWidgetLayout from "../sections/widgetsPage/EditWidgetLayout";
+import HashtagPage from "./widgetsPage/HashtagPage";
 
 function StoryPage() {
 	const [isDrawing, setIsDrawing] = React.useState(false);
@@ -24,6 +26,7 @@ function StoryPage() {
 	return (
 		<>
 			<TextPage close={closeAddText} />
+			<HashtagPage />
 			<DrawPage setIsDrawing={setIsDrawing} />
 			<div ref={storyPageRef}>
 				<DefaultPage />

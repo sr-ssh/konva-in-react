@@ -1,8 +1,6 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import TextPage from "./TextPage";
 import { useStoryContext } from "../hooks/useStoryContext";
-import DrawPage from "./DrawPage";
 import { HeaderStyle } from "../components/Header";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import { StoryContextModes } from "../contexts/StoryContextProvider";
@@ -39,18 +37,11 @@ const CloseIcon = styled(IconsStyle)({
 });
 
 const DefaultPage = () => {
-	let [show, setShow] = useState(true);
+	let [show, setShow] = useState(false);
 
-	const { startDrawMode, downloadStage, addText, registerStoryContainer } =
-		useStoryContext();
+	const { startDrawMode, downloadStage } = useStoryContext();
 
 	const { setMode, registerDefaultPage } = usePageMangerContext();
-
-	// const closeAddText = (text?: string, color?: string) => {
-	// 	// setTextView(false);
-	// 	// setStoryView(true);
-	// 	addText(text, color);
-	// };
 
 	const listen = (showPage: boolean) => {
 		setShow(showPage);
@@ -70,10 +61,7 @@ const DefaultPage = () => {
 				<div>
 					<WriteIcon
 						onClick={() => {
-							// setTextView(true);
-							// setStoryView(false);
 							setMode(StoryContextModes.IsAddingText, true);
-							// startTextMode();
 						}}
 					/>
 					<img
@@ -82,7 +70,6 @@ const DefaultPage = () => {
 						width={44}
 						height={44}
 						onClick={() => {
-							// setIsDrawing(true);
 							startDrawMode();
 						}}
 					/>
