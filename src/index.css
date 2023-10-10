@@ -31,3 +31,8 @@ body {
 	/* src: url("assets/fonts/Aveny-T-Regular.ttf"); */
 	src: url("/public/assets/fonts/Aveny-T-Regular.ttf") format("truetype");
 }
+
+#root {
+	height: 100%;
+	touch-action: none;
+}

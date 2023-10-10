@@ -23,6 +23,7 @@ const ColorsStyle = styled.div<ColorStyleProps>((props) => ({
 	},
 	msOverflowStyle: "none",
 	scrollbarWidth: "none",
+	touchAction: "pan-x",
 }));
 const ColorStyle = styled.div(({ color }) => ({
 	backgroundColor: color,
