@@ -21,7 +21,7 @@ export const optionLeftGradient = [0, "#16AAF8", 1, "#1FC47E"];
 export const optionRightGradient = [0, "#F87036", 1, "#FA3F6D"];
 
 const round = "#fff";
-const roundFrost = "rgba(143, 143, 143, 0.5)";
+export const roundFrost = "rgba(143, 143, 143, 0.5)";
 
 export const hashtagColors = [
 	{ color: twoColorPink, fill: round },

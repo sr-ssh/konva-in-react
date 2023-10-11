@@ -8,6 +8,7 @@ import TextSection, {
 } from "../sections/textPage/TextSection";
 import { useStoryContext } from "../hooks/useStoryContext";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
+import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
 
 type ContainerStyleProps = { height: string };
 const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
@@ -38,7 +39,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 	});
 
 	const { registerTextContainer } = useStoryContext();
-	const { registerTextPage } = usePageMangerContext();
+	const { registerPage } = usePageMangerContext();
 
 	window.addEventListener("resize", () => {
 		const height = window.visualViewport?.height;
@@ -58,11 +59,11 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 			textRef.current?.focus();
 		};
 		textRef.current?.focus();
-		registerTextPage(listen, handleText);
+		registerPage(PageTypeEnum.Text, listen, handleText);
 		if (textPageRef.current) {
 			registerTextContainer(textPageRef.current, handleText);
 		}
-	}, [registerTextContainer, registerTextPage, textPageRef, textStyle]);
+	}, [registerTextContainer, registerPage, textPageRef, textStyle]);
 
 	// useEffect(() => {
 	// 	textRef.current?.focus();

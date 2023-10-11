@@ -4,6 +4,7 @@ import { useStoryContext } from "../hooks/useStoryContext";
 import { HeaderStyle } from "../components/Header";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import { StoryContextModes } from "../contexts/StoryContextProvider";
+import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
 
 const FooterStyle = styled.div({
 	position: "absolute",
@@ -41,15 +42,15 @@ const DefaultPage = () => {
 
 	const { startDrawMode, downloadStage } = useStoryContext();
 
-	const { setMode, registerDefaultPage } = usePageMangerContext();
+	const { setMode, registerPage } = usePageMangerContext();
 
 	const listen = (showPage: boolean) => {
 		setShow(showPage);
 	};
 
 	useEffect(() => {
-		registerDefaultPage(listen);
-	}, [registerDefaultPage]);
+		registerPage(PageTypeEnum.Default, listen);
+	}, [registerPage]);
 
 	if (!show) {
 		return <></>;

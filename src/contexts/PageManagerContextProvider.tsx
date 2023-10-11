@@ -11,13 +11,12 @@ interface PageManagerContextType {
 		status: boolean,
 		config?: PageAttrs
 	) => void;
-	registerTextPage: (
+	registerPage: (
+		pageType: PageTypeEnum,
+
 		listener: PageListenerType,
-		handlePage: TextPageHandlerType
+		handlePage?: TextPageHandlerType
 	) => void;
-	registerDrawPage: (listener: PageListenerType) => void;
-	registerHashtagPage: (listener: PageListenerType) => void;
-	registerDefaultPage: (listener: PageListenerType) => void;
 }
 
 export const PageManagerContext = createContext<PageManagerContextType>({
@@ -26,107 +25,72 @@ export const PageManagerContext = createContext<PageManagerContextType>({
 		status: boolean,
 		config?: PageAttrs
 	) => {},
-	registerTextPage: (
+	registerPage: (
+		pageType: PageTypeEnum,
 		listener: PageListenerType,
-		handlePage: TextPageHandlerType
+		handlePage?: TextPageHandlerType
 	) => {},
-	registerDrawPage: (listener: PageListenerType) => {},
-	registerDefaultPage: (listener: PageListenerType) => {},
-	registerHashtagPage: (listener: PageListenerType) => {},
 });
+
+export enum PageTypeEnum {
+	Text = "TEXT",
+	Default = "DEFAULT",
+	Draw = "DRAW",
+	Hashtag = "HASHTAG",
+}
+
+export type PageRefType = {
+	[pageType: string]: {
+		pageListener: PageListenerType;
+		pageHandler?: TextPageHandlerType;
+	};
+};
 
 export const PageManagerContextProvider = memo(
 	({ children }: { children: ReactNode }) => {
-		let defaultPageListenerRef = useRef<PageListenerType>();
-		let drawPageListenerRef = useRef<PageListenerType>();
-		let textPageListenerRef = useRef<PageListenerType>();
-		let HashtagPageListenerRef = useRef<PageListenerType>();
-		let textPageHandlerRef = useRef<TextPageHandlerType>();
+		let pagesRef = useRef<PageRefType>({});
 
-		const registerTextPage = (
+		const registerPage = (
+			pageType: PageTypeEnum,
 			listener: PageListenerType,
-			handlePage: TextPageHandlerType
+			handlePage?: TextPageHandlerType
 		) => {
-			textPageListenerRef.current = listener;
-			textPageHandlerRef.current = handlePage;
-		};
-
-		const registerDefaultPage = (listener: PageListenerType) => {
-			defaultPageListenerRef.current = listener;
-		};
-
-		const registerDrawPage = (listener: PageListenerType) => {
-			drawPageListenerRef.current = listener;
-		};
-
-		const registerHashtagPage = (listener: PageListenerType) => {
-			HashtagPageListenerRef.current = listener;
+			pagesRef.current[pageType] = {
+				pageListener: listener,
+				pageHandler: handlePage,
+			};
 		};
 
 		const showNoPage = () => {
-			if (textPageListenerRef.current) {
-				textPageListenerRef.current(false);
-			}
-			if (defaultPageListenerRef.current) {
-				defaultPageListenerRef.current(false);
-			}
-			if (drawPageListenerRef.current) {
-				drawPageListenerRef.current(false);
+			for (const property in pagesRef.current) {
+				pagesRef.current[property]?.pageListener(false);
 			}
 		};
 
-		const showTextPage = () => {
-			if (textPageListenerRef.current) {
-				textPageListenerRef.current(true);
-			}
-			if (defaultPageListenerRef.current) {
-				defaultPageListenerRef.current(false);
-			}
-			if (drawPageListenerRef.current) {
-				drawPageListenerRef.current(false);
+		const showThisPage = (pageType: PageTypeEnum) => {
+			for (const property in pagesRef.current) {
+				if (property === pageType) {
+					pagesRef.current[property]?.pageListener(true);
+				} else {
+					pagesRef.current[property]?.pageListener(false);
+				}
 			}
 		};
 
 		const showTextPageWithAttrs = (config?: PageAttrs) => {
-			if (textPageListenerRef.current) {
-				if (config && config.color && config.text) {
-					textPageHandlerRef.current?.(config.text, config.color);
+			for (const property in pagesRef.current) {
+				if (
+					property === PageTypeEnum.Text &&
+					config?.color &&
+					config?.text
+				) {
+					pagesRef.current[property].pageHandler?.(
+						config.text,
+						config.color
+					);
 				}
-				textPageListenerRef.current(true);
 			}
-			if (defaultPageListenerRef.current) {
-				defaultPageListenerRef.current(false);
-			}
-			if (drawPageListenerRef.current) {
-				drawPageListenerRef.current(false);
-			}
-		};
-
-		const showDefaultPage = () => {
-			if (defaultPageListenerRef.current) {
-				defaultPageListenerRef.current(true);
-			}
-			if (textPageListenerRef.current) {
-				textPageListenerRef.current(false);
-			}
-			if (drawPageListenerRef.current) {
-				drawPageListenerRef.current(false);
-			}
-			if (HashtagPageListenerRef.current) {
-				HashtagPageListenerRef.current(false);
-			}
-		};
-
-		const showDrawPage = () => {
-			if (drawPageListenerRef.current) {
-				drawPageListenerRef.current(true);
-			}
-			if (defaultPageListenerRef.current) {
-				defaultPageListenerRef.current(false);
-			}
-			if (textPageListenerRef.current) {
-				textPageListenerRef.current(false);
-			}
+			showThisPage(PageTypeEnum.Text);
 		};
 
 		const setMode = (
@@ -143,15 +107,15 @@ export const PageManagerContextProvider = memo(
 
 				case StoryContextModes.IsAddingText:
 					if (status) {
-						showTextPage();
+						showThisPage(PageTypeEnum.Text);
 					} else {
-						showDefaultPage();
+						showThisPage(PageTypeEnum.Default);
 					}
 					break;
 
 				case StoryContextModes.IsDefault:
 					if (status) {
-						showDefaultPage();
+						showThisPage(PageTypeEnum.Default);
 					}
 					break;
 
@@ -159,7 +123,7 @@ export const PageManagerContextProvider = memo(
 					if (status) {
 						showNoPage();
 					} else {
-						showDefaultPage();
+						showThisPage(PageTypeEnum.Default);
 					}
 					break;
 
@@ -171,9 +135,9 @@ export const PageManagerContextProvider = memo(
 
 				case StoryContextModes.IsDrawing:
 					if (status) {
-						showDrawPage();
+						showThisPage(PageTypeEnum.Draw);
 					} else {
-						showDefaultPage();
+						showThisPage(PageTypeEnum.Default);
 					}
 					break;
 
@@ -181,14 +145,14 @@ export const PageManagerContextProvider = memo(
 					if (status) {
 						showNoPage();
 					} else {
-						showDrawPage();
+						showThisPage(PageTypeEnum.Draw);
 					}
 					break;
 
 				case StoryContextModes.IsHashtagEditing:
 					if (status) {
 					} else {
-						showDefaultPage();
+						showThisPage(PageTypeEnum.Default);
 					}
 					break;
 
@@ -200,10 +164,7 @@ export const PageManagerContextProvider = memo(
 			<PageManagerContext.Provider
 				value={{
 					setMode,
-					registerTextPage,
-					registerDefaultPage,
-					registerDrawPage,
-					registerHashtagPage,
+					registerPage,
 				}}
 			>
 				{children}

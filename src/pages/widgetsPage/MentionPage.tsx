@@ -2,26 +2,25 @@ import { useEffect, useRef, useState } from "react";
 import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
-import { hashtagColors } from "../../utils/widgetColors";
+import { mentionColors } from "../../utils/widgetColors";
 import { getGradient } from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
-import HashtagSearchSection from "../../sections/widgetsPage/HashtagSearchSection";
 
-const HashtagStyle = styled.div({
+const MentionStyle = styled.div({
 	justifySelf: "center",
 	alignSelf: "center",
 	borderRadius: 5,
 	padding: "5px 8px",
-	backgroundColor: hashtagColors[0].fill,
+	backgroundColor: mentionColors[0].fill,
 });
 
-type HashtagTextStyleType = {
+type MentionTextStyleType = {
 	fontSize: number;
 };
-const HashtagTextStyle = styled.div<HashtagTextStyleType>(({ fontSize }) => ({
+const MentionTextStyle = styled.div<MentionTextStyleType>(({ fontSize }) => ({
 	outline: "none",
-	backgroundImage: getGradient(hashtagColors[0].color),
+	backgroundImage: getGradient(mentionColors[0].color),
 	backgroundSize: "100%",
 	backgroundRepeat: "repeat",
 	WebkitBackgroundClip: "text",
@@ -39,10 +38,9 @@ const HashtagTextStyle = styled.div<HashtagTextStyleType>(({ fontSize }) => ({
 }));
 
 // TODO add api of hashtag
-const HashtagPage = () => {
+const MentionPage = () => {
 	const [show, setShow] = useState(true);
 	const [fontSize, setFontSize] = useState(40);
-	const [text, setText] = useState("");
 	const textRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
@@ -98,26 +96,18 @@ const HashtagPage = () => {
 
 	return (
 		<EditWidgetLayout handleClose={handleClose}>
-			<HashtagStyle onClick={(e) => e.stopPropagation()}>
-				<HashtagTextStyle
+			<MentionStyle onClick={(e) => e.stopPropagation()}>
+				<MentionTextStyle
 					contentEditable
 					ref={textRef}
 					data-text="#HASHTAG"
 					onInput={handleTextChange}
 					dir="auto"
 					fontSize={fontSize}
-				>
-					{text}
-				</HashtagTextStyle>
-			</HashtagStyle>
-			<HashtagSearchSection
-				getItem={(item) => {
-					setText(item);
-					textRef.current?.focus();
-				}}
-			/>
+				></MentionTextStyle>
+			</MentionStyle>
 		</EditWidgetLayout>
 	);
 };
 
-export default HashtagPage;
+export default MentionPage;

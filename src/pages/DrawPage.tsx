@@ -4,17 +4,14 @@ import HeaderSection from "../sections/drawPage/HeaderSection";
 import ColorsSection from "../sections/drawPage/ColorsSection";
 import RangeInputSection from "../sections/drawPage/RangeInputSection";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
+import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
 
-type DrawPageTypes = {
-	setIsDrawing: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
+const DrawPage = () => {
 	let [show, setShow] = useState(false);
 	const drawPageRef = useRef(null);
 
 	const { isDrawing, registerDrawContainer } = useStoryContext();
-	const { registerDrawPage } = usePageMangerContext();
+	const { registerPage } = usePageMangerContext();
 
 	const listen = (showPage: boolean) => {
 		setShow(showPage);
@@ -24,8 +21,8 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 		if (drawPageRef.current) {
 			registerDrawContainer(drawPageRef.current);
 		}
-		registerDrawPage(listen);
-	}, [drawPageRef, registerDrawContainer, registerDrawPage]);
+		registerPage(PageTypeEnum.Draw, listen);
+	}, [drawPageRef, registerDrawContainer, registerPage]);
 
 	if (isDrawing) {
 		return <></>;
@@ -37,7 +34,7 @@ const DrawPage: FC<DrawPageTypes> = ({ setIsDrawing }) => {
 
 	return (
 		<div ref={drawPageRef}>
-			<HeaderSection setIsDrawing={setIsDrawing} />
+			<HeaderSection />
 			<ColorsSection />
 			<RangeInputSection />
 		</div>

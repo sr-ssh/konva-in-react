@@ -59,6 +59,7 @@ export enum StoryContextModes {
 	IsDrawing = "isDrawing",
 	IsPainting = "isPainting",
 	IsHashtagEditing = "isHashtagEditing",
+	IsMentionEditing = "isMentionEditing",
 }
 interface StoryContextType {
 	startDrawMode: () => void;

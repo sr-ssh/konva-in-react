@@ -40,11 +40,7 @@ const HeartStyle = styled.div<EraserStyleProps>((props) => ({
 	backgroundSize: 44,
 }));
 
-type HeaderSectionTypes = {
-	setIsDrawing: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const HeaderSection: FC<HeaderSectionTypes> = ({ setIsDrawing }) => {
+const HeaderSection = () => {
 	const [brush, setBrush] = React.useState<BrushModesEnum>(
 		BrushModesEnum.Pen
 	);
@@ -57,7 +53,6 @@ const HeaderSection: FC<HeaderSectionTypes> = ({ setIsDrawing }) => {
 				style={{ marginInline: 6 }}
 				onClick={() => {
 					stopDrawMode();
-					setIsDrawing(false);
 				}}
 			>
 				<img

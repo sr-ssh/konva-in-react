@@ -7,8 +7,6 @@ import EditWidgetLayout from "../sections/widgetsPage/EditWidgetLayout";
 import HashtagPage from "./widgetsPage/HashtagPage";
 
 function StoryPage() {
-	const [isDrawing, setIsDrawing] = React.useState(false);
-
 	const storyPageRef = useRef<HTMLDivElement>(null);
 
 	const { addText, registerStoryContainer } = useStoryContext();
@@ -27,7 +25,7 @@ function StoryPage() {
 		<>
 			<TextPage close={closeAddText} />
 			<HashtagPage />
-			<DrawPage setIsDrawing={setIsDrawing} />
+			<DrawPage />
 			<div ref={storyPageRef}>
 				<DefaultPage />
 			</div>
