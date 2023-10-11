@@ -3,8 +3,8 @@ import TextPage from "./TextPage";
 import { useStoryContext } from "../hooks/useStoryContext";
 import DrawPage from "./DrawPage";
 import DefaultPage from "./DefaultPage";
-import EditWidgetLayout from "../sections/widgetsPage/EditWidgetLayout";
 import HashtagPage from "./widgetsPage/HashtagPage";
+import MentionPage from "./widgetsPage/MentionPage";
 
 function StoryPage() {
 	const storyPageRef = useRef<HTMLDivElement>(null);
@@ -25,6 +25,7 @@ function StoryPage() {
 		<>
 			<TextPage close={closeAddText} />
 			<HashtagPage />
+			<MentionPage />
 			<DrawPage />
 			<div ref={storyPageRef}>
 				<DefaultPage />

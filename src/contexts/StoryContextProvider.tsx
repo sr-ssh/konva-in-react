@@ -82,6 +82,7 @@ interface StoryContextType {
 	) => void;
 	getBrushColor: string;
 	addHashtag: (text?: string) => void;
+	addMention: (text?: string) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -105,6 +106,7 @@ export const StoryContext = createContext<StoryContextType>({
 	) => {},
 	getBrushColor: "",
 	addHashtag: (text?: string) => {},
+	addMention: (text?: string) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -653,7 +655,6 @@ export const StoryContextProvider = memo(
 
 		const addHashtag = (text?: string) => {
 			let i = 0;
-			// setMode(StoryContextModes.IsHashtagEditing, true);
 			if (text) {
 				const hashtag = drawHashtag(
 					text,
@@ -669,16 +670,20 @@ export const StoryContextProvider = memo(
 			setMode(StoryContextModes.IsHashtagEditing, false);
 		};
 
-		const addMention = () => {
-			const mention = drawMention(
-				mentionColors[0].color,
-				mentionColors[0].fill
-			);
-			addInteractivity(
-				mention,
-				"mention",
-				changeWidgetColor(mention, mentionColors, 0)
-			);
+		const addMention = (text?: string) => {
+			if (text) {
+				const mention = drawMention(
+					text,
+					mentionColors[0].color,
+					mentionColors[0].fill
+				);
+				addInteractivity(
+					mention,
+					"mention",
+					changeWidgetColor(mention, mentionColors, 0)
+				);
+			}
+			setMode(StoryContextModes.IsMentionEditing, false);
 		};
 
 		const addLink = () => {
@@ -785,6 +790,7 @@ export const StoryContextProvider = memo(
 					registerStoryContainer,
 					getBrushColor: brushConfig.current.stroke,
 					addHashtag,
+					addMention,
 				}}
 			>
 				{children}

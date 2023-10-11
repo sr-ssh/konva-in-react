@@ -37,6 +37,7 @@ export enum PageTypeEnum {
 	Default = "DEFAULT",
 	Draw = "DRAW",
 	Hashtag = "HASHTAG",
+	Mention = "MENTION",
 }
 
 export type PageRefType = {
@@ -150,6 +151,7 @@ export const PageManagerContextProvider = memo(
 					break;
 
 				case StoryContextModes.IsHashtagEditing:
+				case StoryContextModes.IsMentionEditing:
 					if (status) {
 					} else {
 						showThisPage(PageTypeEnum.Default);

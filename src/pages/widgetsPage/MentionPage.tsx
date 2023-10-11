@@ -6,6 +6,7 @@ import { mentionColors } from "../../utils/widgetColors";
 import { getGradient } from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
+import MentionSearchSection from "../../sections/widgetsPage/MentionSearchSection";
 
 const MentionStyle = styled.div({
 	justifySelf: "center",
@@ -37,23 +38,24 @@ const MentionTextStyle = styled.div<MentionTextStyleType>(({ fontSize }) => ({
 	},
 }));
 
-// TODO add api of hashtag
+// TODO add api of mention
 const MentionPage = () => {
 	const [show, setShow] = useState(true);
 	const [fontSize, setFontSize] = useState(40);
+	const [text, setText] = useState("");
 	const textRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
-	const { addHashtag } = useStoryContext();
+	const { addMention } = useStoryContext();
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
 		if (event.target.innerText !== "") {
 			event.target.style.opacity = "1";
 
 			const newText = event.target.innerText
-				.replace("#", "")
+				.replace("@", "")
 				.replaceAll("\n", "");
-			event.target.innerText = `#${newText.toLocaleUpperCase()}`;
+			event.target.innerText = `@${newText.toLocaleUpperCase()}`;
 
 			let newFontSize = Number(fontSize || event.target.style.fontSize);
 			while (event.target.clientWidth > (window.innerWidth * 3) / 4) {
@@ -79,7 +81,7 @@ const MentionPage = () => {
 	};
 
 	const handleClose = () => {
-		addHashtag(textRef.current?.innerText);
+		addMention(textRef.current?.innerText);
 	};
 
 	useEffect(() => {
@@ -100,12 +102,20 @@ const MentionPage = () => {
 				<MentionTextStyle
 					contentEditable
 					ref={textRef}
-					data-text="#HASHTAG"
+					data-text="@MENTION"
 					onInput={handleTextChange}
 					dir="auto"
 					fontSize={fontSize}
-				></MentionTextStyle>
+				>
+					{text}
+				</MentionTextStyle>
 			</MentionStyle>
+			<MentionSearchSection
+				getItem={(item) => {
+					setText("@" + item);
+					textRef.current?.focus();
+				}}
+			/>
 		</EditWidgetLayout>
 	);
 };

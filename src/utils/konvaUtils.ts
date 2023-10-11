@@ -307,9 +307,8 @@ export const drawHashtag = (text: string, gradient: any, background: string) => 
   return drawTextWithBackground(gradient, text, background)
 }
 
-export const drawMention = (gradient: any, background: string) => {
-  let defaultText = "sdfesftewfe"
-  return drawTextWithBackground(gradient, '@' + defaultText, background)
+export const drawMention = (text: string, gradient: any, background: string) => {
+  return drawTextWithBackground(gradient, text, background)
 }
 
 export const drawLink = (gradient: any, background: string) => {

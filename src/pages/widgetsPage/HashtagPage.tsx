@@ -40,7 +40,7 @@ const HashtagTextStyle = styled.div<HashtagTextStyleType>(({ fontSize }) => ({
 
 // TODO add api of hashtag
 const HashtagPage = () => {
-	const [show, setShow] = useState(true);
+	const [show, setShow] = useState(false);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
 	const textRef = useRef<HTMLDivElement>(null);
