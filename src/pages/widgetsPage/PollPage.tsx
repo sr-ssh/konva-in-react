@@ -201,7 +201,6 @@ const PollPage = () => {
 				<OptionsStyle>
 					<RightOption
 						contentEditable
-						ref={textRef}
 						data-text="NO"
 						onInput={(e) =>
 							handleOption(
@@ -220,7 +219,6 @@ const PollPage = () => {
 					<OptionsHr />
 					<LeftOption
 						contentEditable
-						ref={textRef}
 						data-text="YES"
 						onInput={(e) =>
 							handleOption(
