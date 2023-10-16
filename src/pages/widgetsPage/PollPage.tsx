@@ -32,13 +32,16 @@ const OptionsStyle = styled.div({
 	height: optionsHeight,
 	alignItems: "center",
 });
-const QuestionStyle = styled.div({
+type QuestionStyleType = {
+	question?: string;
+};
+const QuestionStyle = styled.div<QuestionStyleType>(({ question }) => ({
 	outline: "none",
 	fontSize: 22,
 	color: "#ffffff",
 	fontWeight: "bold",
 	textAlign: "center",
-	opacity: 0.6,
+	opacity: question ? 1 : 0.6,
 	flex: 1,
 	maxHeight: 100,
 	overflowY: "scroll",
@@ -52,7 +55,7 @@ const QuestionStyle = styled.div({
 	"::-webkit-scrollbar": {
 		display: "none",
 	},
-});
+}));
 const OptionsHr = styled.hr({
 	height: "100%",
 	width: 3,
@@ -62,9 +65,10 @@ const OptionsHr = styled.hr({
 type PollTextStyleType = {
 	fontSize: number;
 	backgroundImage: string;
+	text?: string;
 };
 const PollTextStyle = styled.div<PollTextStyleType>(
-	({ fontSize, backgroundImage }) => ({
+	({ fontSize, backgroundImage, text }) => ({
 		outline: "none",
 		backgroundImage: backgroundImage,
 		backgroundSize: "100%",
@@ -76,7 +80,7 @@ const PollTextStyle = styled.div<PollTextStyleType>(
 		fontFamily: "AvenyTRegular",
 		fontSize: fontSize,
 		textAlign: "start",
-		opacity: 0.6,
+		opacity: text ? 1 : 0.6,
 		flex: 1,
 		padding: 8,
 		display: "flex",
@@ -98,11 +102,15 @@ const PollPage = () => {
 	const [show, setShow] = useState(true);
 	const [leftOptionFontSize, setLeftOptionFontSize] = useState(40);
 	const [rightOptionFontSize, setRightOptionFontSize] = useState(40);
-	const [text, setText] = useState("");
-	const textRef = useRef<HTMLDivElement>(null);
+	const [question, setQuestion] = useState("");
+	const [leftOption, setLeftOption] = useState("");
+	const [rightOption, setRightOption] = useState("");
+	const questionRef = useRef<HTMLDivElement>(null);
+	const leftOptionRef = useRef<HTMLDivElement>(null);
+	const rightOptionRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
-	// const { addPoll } = useStoryContext();
+	const { addPoll } = useStoryContext();
 
 	const handleOption = (
 		event: React.ChangeEvent<HTMLDivElement>,
@@ -170,15 +178,35 @@ const PollPage = () => {
 		}
 	};
 	const handleClose = () => {
-		// addPoll(textRef.current?.innerText);
+		addPoll(
+			questionRef.current?.innerText,
+			leftOptionRef.current?.innerText,
+			rightOptionRef.current?.innerText
+		);
 	};
 
 	const listen = (status: boolean) => {
 		setShow(status);
 	};
+	const handlePage = ({
+		question,
+		leftOption,
+		rightOption,
+	}: {
+		question?: string;
+		leftOption?: string;
+		rightOption?: string;
+	}) => {
+		if (question && leftOption && rightOption) {
+			setQuestion(question);
+			setLeftOption(leftOption);
+			setRightOption(rightOption);
+			questionRef.current?.focus();
+		}
+	};
 	useEffect(() => {
-		textRef.current?.focus();
-		// registerPage(PageTypeEnum.Poll, listen);
+		questionRef.current?.focus();
+		registerPage(PageTypeEnum.Poll, listen, handlePage);
 	}, [registerPage]);
 
 	if (!show) {
@@ -190,16 +218,18 @@ const PollPage = () => {
 			<PollStyle onClick={(e) => e.stopPropagation()}>
 				<QuestionStyle
 					contentEditable
-					ref={textRef}
+					ref={questionRef}
 					data-text="Ask a question..."
 					onInput={handleQuestionChange}
 					dir="auto"
 					suppressContentEditableWarning={true}
+					question={question}
 				>
-					{text}
+					{question}
 				</QuestionStyle>
 				<OptionsStyle>
 					<RightOption
+						ref={rightOptionRef}
 						contentEditable
 						data-text="NO"
 						onInput={(e) =>
@@ -213,11 +243,13 @@ const PollPage = () => {
 						fontSize={rightOptionFontSize}
 						backgroundImage={getGradient(optionRightGradient)}
 						suppressContentEditableWarning={true}
+						text={rightOption}
 					>
-						{text}
+						{rightOption}
 					</RightOption>
 					<OptionsHr />
 					<LeftOption
+						ref={leftOptionRef}
 						contentEditable
 						data-text="YES"
 						onInput={(e) =>
@@ -231,8 +263,9 @@ const PollPage = () => {
 						fontSize={leftOptionFontSize}
 						backgroundImage={getGradient(optionLeftGradient)}
 						suppressContentEditableWarning={true}
+						text={leftOption}
 					>
-						{text}
+						{leftOption}
 					</LeftOption>
 				</OptionsStyle>
 			</PollStyle>

@@ -61,6 +61,7 @@ export enum StoryContextModes {
 	IsHashtagEditing = "isHashtagEditing",
 	IsMentionEditing = "isMentionEditing",
 	IsEmojiSliderEditing = "isEmojiSliderEditing",
+	IsPollEditing = "isPollEditing",
 }
 interface StoryContextType {
 	startDrawMode: () => void;
@@ -71,7 +72,6 @@ interface StoryContextType {
 	undoDraw: () => void;
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => void;
 	isDrawing: boolean;
-
 	registerDrawContainerSetColor: (setColor: (color: string) => void) => void;
 	toggleEyeDropper: () => void;
 	downloadStage: () => void;
@@ -85,6 +85,11 @@ interface StoryContextType {
 		defaultValue?: number,
 		colorsIndex?: number
 	) => void;
+	addPoll: (
+		question?: string,
+		leftOption?: string,
+		rightOption?: string
+	) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -96,12 +101,10 @@ export const StoryContext = createContext<StoryContextType>({
 	undoDraw: () => {},
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => {},
 	isDrawing: false,
-
 	registerDrawContainerSetColor: (setColor: (color: string) => void) => {},
 	toggleEyeDropper: () => {},
 	downloadStage: () => {},
 	addText: (defaultText?: string, color?: string) => {},
-
 	getBrushColor: "",
 	addHashtag: (text?: string) => {},
 	addMention: (text?: string) => {},
@@ -110,6 +113,11 @@ export const StoryContext = createContext<StoryContextType>({
 		emoji?: string,
 		defaultValue?: number,
 		colorsIndex?: number
+	) => {},
+	addPoll: (
+		question?: string,
+		leftOption?: string,
+		rightOption?: string
 	) => {},
 });
 
@@ -678,13 +686,27 @@ export const StoryContextProvider = memo(
 			);
 		};
 
-		const addPoll = () => {
+		const addPoll = (
+			question?: string,
+			leftOption?: string,
+			rightOption?: string
+		) => {
+			const name = new Date().toISOString();
+
 			const poll = drawPoll(
-				" سینت ینتس؟"
-				// "lksdjfksdjfskd jff",
-				// "fsdjhfjksdhjgjh gjhg hdfsdfdufhdsjg  sdfj"
+				question || "",
+				leftOption || "YES",
+				rightOption || "NO"
 			);
-			addInteractivity(poll, "poll", () => {});
+			addInteractivity(poll, name, () => {
+				currentEditingShapeRef.current = popShape(name);
+				setMode(StoryContextModes.IsPollEditing, true, {
+					question,
+					leftOption: leftOption || "YES",
+					rightOption: rightOption || "NO",
+				});
+			});
+			setMode(StoryContextModes.IsPollEditing, false);
 		};
 
 		const addEmojiSlider = (
@@ -789,6 +811,7 @@ export const StoryContextProvider = memo(
 					addHashtag,
 					addMention,
 					addEmojiSlider,
+					addPoll,
 				}}
 			>
 				{children}

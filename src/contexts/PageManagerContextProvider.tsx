@@ -8,6 +8,9 @@ type PageAttrs = {
 	defaultValue: number;
 	emoji: string;
 	colorsIndex: number;
+	question: string;
+	leftOption: string;
+	rightOption: string;
 };
 type PageHandlerType = (config: Partial<PageAttrs>) => void;
 
@@ -44,6 +47,7 @@ export enum PageTypeEnum {
 	Hashtag = "HASHTAG",
 	Mention = "MENTION",
 	EmojiSlider = "EMOJI_SLIDER",
+	Poll = "POLL",
 }
 
 export type PageRefType = {
@@ -119,6 +123,24 @@ export const PageManagerContextProvider = memo(
 			showThisPage(PageTypeEnum.EmojiSlider);
 		};
 
+		const showPollPageWithAttrs = (config?: Partial<PageAttrs>) => {
+			for (const property in pagesRef.current) {
+				if (
+					property === PageTypeEnum.Poll &&
+					config?.question &&
+					config?.leftOption !== undefined &&
+					config.rightOption !== undefined
+				) {
+					pagesRef.current[property].pageHandler?.({
+						question: config.question,
+						leftOption: config.leftOption,
+						rightOption: config.rightOption,
+					});
+				}
+			}
+			showThisPage(PageTypeEnum.Poll);
+		};
+
 		const setMode = (
 			mode: StoryContextModes,
 			status: boolean,
@@ -186,6 +208,13 @@ export const PageManagerContextProvider = memo(
 				case StoryContextModes.IsEmojiSliderEditing:
 					if (status) {
 						showEmojiSlidePageWithAttrs(config);
+					} else {
+						showThisPage(PageTypeEnum.Default);
+					}
+					break;
+				case StoryContextModes.IsPollEditing:
+					if (status) {
+						showPollPageWithAttrs(config);
 					} else {
 						showThisPage(PageTypeEnum.Default);
 					}

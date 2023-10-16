@@ -34,9 +34,6 @@ const EditWidgetLayout: FC<EditWidgetLayoutType> = ({
 	return (
 		<div
 			ref={textPageRef}
-			onClick={() => {
-				handleClose();
-			}}
 			style={{
 				background: "rgba(0, 0, 0, .5)",
 				border: "none",
