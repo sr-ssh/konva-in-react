@@ -88,57 +88,16 @@ export const PageManagerContextProvider = memo(
 			}
 		};
 
-		const showTextPageWithAttrs = (config?: Partial<PageAttrs>) => {
+		const showPageWithAttrs = (
+			pageType: PageTypeEnum,
+			config?: Partial<PageAttrs>
+		) => {
 			for (const property in pagesRef.current) {
-				if (
-					property === PageTypeEnum.Text &&
-					config?.color &&
-					config?.text
-				) {
-					pagesRef.current[property].pageHandler?.({
-						text: config.text,
-						color: config.color,
-					});
+				if (property === pageType && config) {
+					pagesRef.current[property].pageHandler?.(config);
 				}
 			}
-			showThisPage(PageTypeEnum.Text);
-		};
-
-		const showEmojiSlidePageWithAttrs = (config?: Partial<PageAttrs>) => {
-			for (const property in pagesRef.current) {
-				if (
-					property === PageTypeEnum.EmojiSlider &&
-					config?.emoji &&
-					config?.defaultValue !== undefined &&
-					config.colorsIndex !== undefined
-				) {
-					pagesRef.current[property].pageHandler?.({
-						text: config.text,
-						emoji: config.emoji,
-						defaultValue: config.defaultValue,
-						colorsIndex: config.colorsIndex,
-					});
-				}
-			}
-			showThisPage(PageTypeEnum.EmojiSlider);
-		};
-
-		const showPollPageWithAttrs = (config?: Partial<PageAttrs>) => {
-			for (const property in pagesRef.current) {
-				if (
-					property === PageTypeEnum.Poll &&
-					config?.question &&
-					config?.leftOption !== undefined &&
-					config.rightOption !== undefined
-				) {
-					pagesRef.current[property].pageHandler?.({
-						question: config.question,
-						leftOption: config.leftOption,
-						rightOption: config.rightOption,
-					});
-				}
-			}
-			showThisPage(PageTypeEnum.Poll);
+			showThisPage(pageType);
 		};
 
 		const setMode = (
@@ -177,7 +136,7 @@ export const PageManagerContextProvider = memo(
 
 				case StoryContextModes.IsEditingText:
 					if (status) {
-						showTextPageWithAttrs(config);
+						showPageWithAttrs(PageTypeEnum.Text, config);
 					}
 					break;
 
@@ -207,14 +166,14 @@ export const PageManagerContextProvider = memo(
 
 				case StoryContextModes.IsEmojiSliderEditing:
 					if (status) {
-						showEmojiSlidePageWithAttrs(config);
+						showPageWithAttrs(PageTypeEnum.EmojiSlider, config);
 					} else {
 						showThisPage(PageTypeEnum.Default);
 					}
 					break;
 				case StoryContextModes.IsPollEditing:
 					if (status) {
-						showPollPageWithAttrs(config);
+						showPageWithAttrs(PageTypeEnum.Poll, config);
 					} else {
 						showThisPage(PageTypeEnum.Default);
 					}

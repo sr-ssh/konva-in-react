@@ -99,7 +99,7 @@ const RightOption = styled(PollTextStyle)({
 });
 
 const PollPage = () => {
-	const [show, setShow] = useState(true);
+	const [show, setShow] = useState(false);
 	const [leftOptionFontSize, setLeftOptionFontSize] = useState(40);
 	const [rightOptionFontSize, setRightOptionFontSize] = useState(40);
 	const [question, setQuestion] = useState("");
