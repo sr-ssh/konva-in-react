@@ -41,7 +41,6 @@ const DefaultPage = () => {
 	let [show, setShow] = useState(true);
 
 	const { startDrawMode, downloadStage } = useStoryContext();
-
 	const { setMode, registerPage } = usePageMangerContext();
 
 	const listen = (showPage: boolean) => {

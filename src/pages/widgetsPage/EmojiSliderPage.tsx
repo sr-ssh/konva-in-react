@@ -6,7 +6,10 @@ import {
 	EmojiSliderColorsType,
 	emojiSliderColors,
 } from "../../utils/widgetColors";
-import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
+import {
+	PageAttrs,
+	PageTypeEnum,
+} from "../../contexts/PageManagerContextProvider";
 import EmojisSection from "../../sections/widgetsPage/EmojisSection";
 import EmojiSlider from "../../components/widgets/EmojiSlider";
 import { useStoryContext } from "../../hooks/useStoryContext";
@@ -111,18 +114,12 @@ const EmojiSliderPage = () => {
 			emoji,
 			defaultValue,
 			colorsIndex,
-		}: {
-			text?: string;
-			emoji?: string;
-			defaultValue?: number;
-			colorsIndex?: number;
-		}) => {
+		}: Partial<PageAttrs>) => {
 			if (
 				emoji &&
 				defaultValue !== undefined &&
 				colorsIndex !== undefined
 			) {
-				console.log(text);
 				setText(text || "");
 				setEmoji(emoji);
 				setRate(defaultValue);

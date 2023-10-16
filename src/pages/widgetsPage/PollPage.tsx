@@ -10,7 +10,10 @@ import {
 } from "../../utils/widgetColors";
 import { getGradient } from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
-import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
+import {
+	PageAttrs,
+	PageTypeEnum,
+} from "../../contexts/PageManagerContextProvider";
 
 const optionsHeight = 75;
 const optionsWidth = (window.innerWidth * 2) / 3;
@@ -91,12 +94,6 @@ const PollTextStyle = styled.div<PollTextStyleType>(
 		},
 	})
 );
-const LeftOption = styled(PollTextStyle)({
-	// borderRight: "1.5px solid #e0e0e0",
-});
-const RightOption = styled(PollTextStyle)({
-	// borderLeft: "1.5px solid #e0e0e0",
-});
 
 const PollPage = () => {
 	const [show, setShow] = useState(false);
@@ -192,11 +189,7 @@ const PollPage = () => {
 		question,
 		leftOption,
 		rightOption,
-	}: {
-		question?: string;
-		leftOption?: string;
-		rightOption?: string;
-	}) => {
+	}: Partial<PageAttrs>) => {
 		if (question && leftOption && rightOption) {
 			setQuestion(question);
 			setLeftOption(leftOption);
@@ -204,6 +197,7 @@ const PollPage = () => {
 			questionRef.current?.focus();
 		}
 	};
+
 	useEffect(() => {
 		questionRef.current?.focus();
 		registerPage(PageTypeEnum.Poll, listen, handlePage);
@@ -228,7 +222,7 @@ const PollPage = () => {
 					{question}
 				</QuestionStyle>
 				<OptionsStyle>
-					<RightOption
+					<PollTextStyle
 						ref={rightOptionRef}
 						contentEditable
 						data-text="NO"
@@ -246,9 +240,9 @@ const PollPage = () => {
 						text={rightOption}
 					>
 						{rightOption}
-					</RightOption>
+					</PollTextStyle>
 					<OptionsHr />
-					<LeftOption
+					<PollTextStyle
 						ref={leftOptionRef}
 						contentEditable
 						data-text="YES"
@@ -266,7 +260,7 @@ const PollPage = () => {
 						text={leftOption}
 					>
 						{leftOption}
-					</LeftOption>
+					</PollTextStyle>
 				</OptionsStyle>
 			</PollStyle>
 		</EditWidgetLayout>

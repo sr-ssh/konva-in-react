@@ -7,7 +7,10 @@ import TextSection, {
 	PInputStylePropsType,
 } from "../sections/textPage/TextSection";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
-import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
+import {
+	PageAttrs,
+	PageTypeEnum,
+} from "../contexts/PageManagerContextProvider";
 
 type ContainerStyleProps = { height: string };
 const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
@@ -48,14 +51,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 	};
 
 	useEffect(() => {
-		const handleText = ({
-			text,
-			color,
-		}: {
-			text?: string;
-			color?: string;
-		}) => {
-			console.log(color);
+		const handleText = ({ text, color }: Partial<PageAttrs>) => {
 			if (text && color) {
 				setText(text);
 				setTextStyle({ ...textStyle, color: color });

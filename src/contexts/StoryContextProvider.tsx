@@ -127,6 +127,7 @@ export const StoryContextProvider = memo(
 		let stageRef = useRef<Stage>();
 		let layerRef = useRef<Layer>();
 		let drawLayerRef = useRef<Layer>();
+		let backgroundLayerRef = useRef<Layer>();
 		let clockLayerRef = useRef<Layer>();
 		let isDrawModeOn = useRef<boolean>(false);
 		let isDrawing = useRef<boolean>(false);
@@ -172,11 +173,23 @@ export const StoryContextProvider = memo(
 				layerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(layerRef.current);
-				// layerRef.current.listening(false);
+				console.log(stage.children);
 				return layerRef.current;
 			}
-			// layerRef.current.listening(false);
 			return layerRef.current;
+		};
+
+		const getBackgroundLayer = () => {
+			if (!backgroundLayerRef.current) {
+				backgroundLayerRef.current = new Konva.Layer();
+				const stage = getStage();
+				stage.add(backgroundLayerRef.current);
+				console.log(stage.children);
+				backgroundLayerRef.current.listening(false);
+				return backgroundLayerRef.current;
+			}
+			backgroundLayerRef.current.listening(false);
+			return backgroundLayerRef.current;
 		};
 
 		const getDrawLayer = () => {
@@ -184,6 +197,7 @@ export const StoryContextProvider = memo(
 				drawLayerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(drawLayerRef.current);
+				console.log(stage.children);
 				drawLayerRef.current.listening(false);
 				return drawLayerRef.current;
 			}
@@ -202,7 +216,7 @@ export const StoryContextProvider = memo(
 		};
 
 		const addStoryImage = () => {
-			const layer = getLayer();
+			const layer = getBackgroundLayer();
 			layer.add(addBackgroundImage());
 		};
 

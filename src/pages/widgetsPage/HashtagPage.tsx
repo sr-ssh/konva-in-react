@@ -87,6 +87,7 @@ const HashtagPage = () => {
 	const listen = (status: boolean) => {
 		setShow(status);
 	};
+
 	useEffect(() => {
 		textRef.current?.focus();
 		registerPage(PageTypeEnum.Hashtag, listen);

@@ -23,9 +23,7 @@ function StoryPage() {
 			<EmojiSliderPage />
 			<PollPage />
 			<DrawPage />
-			<div>
-				<DefaultPage />
-			</div>
+			<DefaultPage />
 		</>
 	);
 }

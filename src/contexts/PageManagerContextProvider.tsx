@@ -2,7 +2,7 @@ import { ReactNode, createContext, memo, useRef } from "react";
 import { StoryContextModes } from "./StoryContextProvider";
 
 type PageListenerType = (showPage: boolean) => void;
-type PageAttrs = {
+export type PageAttrs = {
 	text: string;
 	color: string;
 	defaultValue: number;
