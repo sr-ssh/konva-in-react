@@ -40,7 +40,7 @@ const QuestionStyle = styled.div<QuestionStyleType>(({ question }) => ({
 	fontSize: 22,
 	color: "#ffffff",
 	fontWeight: "bold",
-	textAlign: "center",
+	textAlign: question ? "start" : "center",
 	opacity: question ? 1 : 0.6,
 	flex: 1,
 	maxHeight: 100,

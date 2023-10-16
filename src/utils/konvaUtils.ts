@@ -395,7 +395,7 @@ export const drawPoll = (question: string, leftOption: string = "YES", rightOpti
   })
   group.add(line)
 
-  const tmp = new Konva.Text({ text: question, fontSize: 20 })
+  const tmp = new Konva.Text({ text: question, fontSize: 30 })
   const questionTexWidth = tmp.width()
   let conditionalOffsetX = 0
   if (pollWidth - 36 >= questionTexWidth) {
@@ -408,7 +408,7 @@ export const drawPoll = (question: string, leftOption: string = "YES", rightOpti
     }
   const questionNode = new Konva.Text({
     text: question,
-    fontSize: 20,
+    fontSize: 30,
     fill: "#fff",
     align: "right",
     width: width - 50,
