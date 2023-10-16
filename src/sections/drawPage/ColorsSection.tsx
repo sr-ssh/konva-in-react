@@ -83,10 +83,7 @@ const ColorsSection: FC<ColorsSectionPropsType> = ({ position, getColor }) => {
 
 	useEffect(() => {
 		setColor(getBrushColor);
-		console.log("getBrushColor", getBrushColor);
 	}, [getBrushColor]);
-
-	console.log("color", color, colorRef.current);
 
 	return (
 		<>

@@ -171,7 +171,6 @@ export const StoryContextProvider = memo(
 				layerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(layerRef.current);
-				console.log(stage.children);
 				return layerRef.current;
 			}
 			return layerRef.current;
@@ -182,7 +181,6 @@ export const StoryContextProvider = memo(
 				backgroundLayerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(backgroundLayerRef.current);
-				console.log(stage.children);
 				backgroundLayerRef.current.listening(false);
 				return backgroundLayerRef.current;
 			}
@@ -195,7 +193,6 @@ export const StoryContextProvider = memo(
 				drawLayerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(drawLayerRef.current);
-				console.log(stage.children);
 				drawLayerRef.current.listening(false);
 				return drawLayerRef.current;
 			}
@@ -342,16 +339,12 @@ export const StoryContextProvider = memo(
 				isEyeDropping.current = false;
 				brushConfig.current.stroke =
 					colorPickerSVG.current?.color || brushConfig.current.stroke;
-				console.log(
-					colorPickerSVG.current?.color,
+				if (
+					colorPickerSVG.current?.color &&
 					drawContainerSetColor?.current
-				);
-				debugger;
-				colorPickerSVG.current?.color &&
-					drawContainerSetColor?.current &&
-					drawContainerSetColor.current(
-						colorPickerSVG.current?.color
-					);
+				) {
+					drawContainerSetColor.current(colorPickerSVG.current.color);
+				}
 				if (isDrawModeOn.current) {
 					startDrawMode();
 				}
