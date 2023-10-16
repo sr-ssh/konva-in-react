@@ -36,3 +36,38 @@ body {
 	height: 100%;
 	touch-action: none;
 }
+
+@keyframes floatAnimation {
+	0% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(
+			-20px
+		); /* Adjust the value to control the amount of upward movement */
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+
+@keyframes goUpAnimation {
+	0% {
+		transform: translateY(0);
+	}
+	100% {
+		transform: translateY(-100vh);
+	}
+}
+
+@keyframes scale {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(0.95);
+	}
+	100% {
+		transform: scale(1);
+	}
+}

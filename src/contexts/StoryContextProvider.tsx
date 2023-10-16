@@ -60,6 +60,7 @@ export enum StoryContextModes {
 	IsPainting = "isPainting",
 	IsHashtagEditing = "isHashtagEditing",
 	IsMentionEditing = "isMentionEditing",
+	IsEmojiSliderEditing = "isEmojiSliderEditing",
 }
 interface StoryContextType {
 	startDrawMode: () => void;
@@ -70,19 +71,20 @@ interface StoryContextType {
 	undoDraw: () => void;
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => void;
 	isDrawing: boolean;
-	registerDrawContainer: (ref: HTMLDivElement) => void;
-	registerStoryContainer: (ref: HTMLDivElement) => void;
+
 	registerDrawContainerSetColor: (setColor: (color: string) => void) => void;
 	toggleEyeDropper: () => void;
 	downloadStage: () => void;
 	addText: (defaultText?: string, color?: string) => void;
-	registerTextContainer: (
-		ref: HTMLDivElement,
-		handleText: (text: string, color: string) => void
-	) => void;
 	getBrushColor: string;
 	addHashtag: (text?: string) => void;
 	addMention: (text?: string) => void;
+	addEmojiSlider: (
+		text?: string,
+		emoji?: string,
+		defaultValue?: number,
+		colorsIndex?: number
+	) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -94,19 +96,21 @@ export const StoryContext = createContext<StoryContextType>({
 	undoDraw: () => {},
 	setBrushStrokeWidth: (strokeWidth: OneToTwentyType) => {},
 	isDrawing: false,
-	registerDrawContainer: (ref: HTMLDivElement) => {},
-	registerStoryContainer: (ref: HTMLDivElement) => {},
+
 	registerDrawContainerSetColor: (setColor: (color: string) => void) => {},
 	toggleEyeDropper: () => {},
 	downloadStage: () => {},
 	addText: (defaultText?: string, color?: string) => {},
-	registerTextContainer: (
-		ref: HTMLDivElement,
-		handleText: (text: string, color: string) => void
-	) => {},
+
 	getBrushColor: "",
 	addHashtag: (text?: string) => {},
 	addMention: (text?: string) => {},
+	addEmojiSlider: (
+		text?: string,
+		emoji?: string,
+		defaultValue?: number,
+		colorsIndex?: number
+	) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -119,8 +123,6 @@ export const StoryContextProvider = memo(
 		let isDrawModeOn = useRef<boolean>(false);
 		let isDrawing = useRef<boolean>(false);
 		let isEyeDropping = useRef<boolean>(false);
-		let showTextContainerRef =
-			useRef<(text: string, color: string) => void>();
 		const colorPickerSVG = useRef<{
 			group: Group;
 			path: Path;
@@ -132,31 +134,12 @@ export const StoryContextProvider = memo(
 			strokeWidth: 10,
 			stroke: BrushColorEnum.White,
 		});
-		let storyContainerRef = useRef<HTMLDivElement>();
-		let drawContainerRef = useRef<HTMLDivElement>();
-		let textContainerRef = useRef<HTMLDivElement>();
 		let drawContainerSetColor = useRef<(newColor: string) => void>();
 		let currentEditingShapeRef = useRef<any>();
 		let clockAttrsRef = useRef<any>();
 
 		const { listenTap } = useEvent();
 		const { setMode } = usePageMangerContext();
-
-		const registerStoryContainer = (ref: HTMLDivElement) => {
-			storyContainerRef.current = ref;
-		};
-
-		const registerDrawContainer = (ref: HTMLDivElement) => {
-			drawContainerRef.current = ref;
-		};
-
-		const registerTextContainer = (
-			ref: HTMLDivElement,
-			handleText: (text: string, color: string) => void
-		) => {
-			showTextContainerRef.current = handleText;
-			textContainerRef.current = ref;
-		};
 
 		const registerDrawContainerSetColor = (
 			setColor: (color: string) => void
@@ -704,14 +687,31 @@ export const StoryContextProvider = memo(
 			addInteractivity(poll, "poll", () => {});
 		};
 
-		const addEmojiSlider = () => {
-			const emojiSlider = drawEmojiSlider(
-				emojiSliderColors[0],
-				60,
-				"😍",
-				"sdfsdf df sjdhfjhd داب قنتل منبت منبل مقنلت "
-			);
-			addInteractivity(emojiSlider, "emoji-slider", () => {});
+		const addEmojiSlider = (
+			text?: string,
+			emoji?: string,
+			defaultValue?: number,
+			colorsIndex?: number
+		) => {
+			const name = new Date().toISOString();
+			if (emoji && defaultValue && colorsIndex !== undefined) {
+				const emojiSlider = drawEmojiSlider(
+					emojiSliderColors[colorsIndex],
+					defaultValue,
+					emoji,
+					text
+				);
+				addInteractivity(emojiSlider, name, () => {
+					currentEditingShapeRef.current = popShape(name);
+					setMode(StoryContextModes.IsEmojiSliderEditing, true, {
+						text,
+						emoji,
+						defaultValue,
+						colorsIndex,
+					});
+				});
+			}
+			setMode(StoryContextModes.IsEmojiSliderEditing, false);
 		};
 
 		const addClock = (type: ClockEnum) => {
@@ -781,16 +781,14 @@ export const StoryContextProvider = memo(
 					undoDraw,
 					setBrushStrokeWidth,
 					isDrawing: isDrawing.current,
-					registerDrawContainer,
 					toggleEyeDropper,
 					downloadStage,
 					registerDrawContainerSetColor,
 					addText,
-					registerTextContainer,
-					registerStoryContainer,
 					getBrushColor: brushConfig.current.stroke,
 					addHashtag,
 					addMention,
+					addEmojiSlider,
 				}}
 			>
 				{children}

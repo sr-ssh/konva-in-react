@@ -84,10 +84,10 @@ const HashtagPage = () => {
 		addHashtag(textRef.current?.innerText);
 	};
 
+	const listen = (status: boolean) => {
+		setShow(status);
+	};
 	useEffect(() => {
-		const listen = (status: boolean) => {
-			setShow(status);
-		};
 		textRef.current?.focus();
 		registerPage(PageTypeEnum.Hashtag, listen);
 	}, [registerPage]);

@@ -2,20 +2,25 @@ import { ReactNode, createContext, memo, useRef } from "react";
 import { StoryContextModes } from "./StoryContextProvider";
 
 type PageListenerType = (showPage: boolean) => void;
-type TextPageHandlerType = (text: string, color: string) => void;
-type PageAttrs = { text?: string; color?: string };
+type PageAttrs = {
+	text: string;
+	color: string;
+	defaultValue: number;
+	emoji: string;
+	colorsIndex: number;
+};
+type PageHandlerType = (config: Partial<PageAttrs>) => void;
 
 interface PageManagerContextType {
 	setMode: (
 		mode: StoryContextModes,
 		status: boolean,
-		config?: PageAttrs
+		config?: Partial<PageAttrs>
 	) => void;
 	registerPage: (
 		pageType: PageTypeEnum,
-
 		listener: PageListenerType,
-		handlePage?: TextPageHandlerType
+		handlePage?: PageHandlerType
 	) => void;
 }
 
@@ -23,12 +28,12 @@ export const PageManagerContext = createContext<PageManagerContextType>({
 	setMode: (
 		mode: StoryContextModes,
 		status: boolean,
-		config?: PageAttrs
+		config?: Partial<PageAttrs>
 	) => {},
 	registerPage: (
 		pageType: PageTypeEnum,
 		listener: PageListenerType,
-		handlePage?: TextPageHandlerType
+		handlePage?: PageHandlerType
 	) => {},
 });
 
@@ -38,12 +43,13 @@ export enum PageTypeEnum {
 	Draw = "DRAW",
 	Hashtag = "HASHTAG",
 	Mention = "MENTION",
+	EmojiSlider = "EMOJI_SLIDER",
 }
 
 export type PageRefType = {
 	[pageType: string]: {
 		pageListener: PageListenerType;
-		pageHandler?: TextPageHandlerType;
+		pageHandler?: PageHandlerType;
 	};
 };
 
@@ -54,7 +60,7 @@ export const PageManagerContextProvider = memo(
 		const registerPage = (
 			pageType: PageTypeEnum,
 			listener: PageListenerType,
-			handlePage?: TextPageHandlerType
+			handlePage?: PageHandlerType
 		) => {
 			pagesRef.current[pageType] = {
 				pageListener: listener,
@@ -78,26 +84,45 @@ export const PageManagerContextProvider = memo(
 			}
 		};
 
-		const showTextPageWithAttrs = (config?: PageAttrs) => {
+		const showTextPageWithAttrs = (config?: Partial<PageAttrs>) => {
 			for (const property in pagesRef.current) {
 				if (
 					property === PageTypeEnum.Text &&
 					config?.color &&
 					config?.text
 				) {
-					pagesRef.current[property].pageHandler?.(
-						config.text,
-						config.color
-					);
+					pagesRef.current[property].pageHandler?.({
+						text: config.text,
+						color: config.color,
+					});
 				}
 			}
 			showThisPage(PageTypeEnum.Text);
 		};
 
+		const showEmojiSlidePageWithAttrs = (config?: Partial<PageAttrs>) => {
+			for (const property in pagesRef.current) {
+				if (
+					property === PageTypeEnum.EmojiSlider &&
+					config?.emoji &&
+					config?.defaultValue !== undefined &&
+					config.colorsIndex !== undefined
+				) {
+					pagesRef.current[property].pageHandler?.({
+						text: config.text,
+						emoji: config.emoji,
+						defaultValue: config.defaultValue,
+						colorsIndex: config.colorsIndex,
+					});
+				}
+			}
+			showThisPage(PageTypeEnum.EmojiSlider);
+		};
+
 		const setMode = (
 			mode: StoryContextModes,
 			status: boolean,
-			config?: PageAttrs
+			config?: Partial<PageAttrs>
 		) => {
 			switch (mode) {
 				case StoryContextModes.IsColorPicking:
@@ -153,6 +178,14 @@ export const PageManagerContextProvider = memo(
 				case StoryContextModes.IsHashtagEditing:
 				case StoryContextModes.IsMentionEditing:
 					if (status) {
+					} else {
+						showThisPage(PageTypeEnum.Default);
+					}
+					break;
+
+				case StoryContextModes.IsEmojiSliderEditing:
+					if (status) {
+						showEmojiSlidePageWithAttrs(config);
 					} else {
 						showThisPage(PageTypeEnum.Default);
 					}

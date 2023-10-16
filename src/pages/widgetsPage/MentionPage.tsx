@@ -40,7 +40,7 @@ const MentionTextStyle = styled.div<MentionTextStyleType>(({ fontSize }) => ({
 
 // TODO add api of mention
 const MentionPage = () => {
-	const [show, setShow] = useState(true);
+	const [show, setShow] = useState(false);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
 	const textRef = useRef<HTMLDivElement>(null);
@@ -89,7 +89,7 @@ const MentionPage = () => {
 			setShow(status);
 		};
 		textRef.current?.focus();
-		registerPage(PageTypeEnum.Hashtag, listen);
+		registerPage(PageTypeEnum.Mention, listen);
 	}, [registerPage]);
 
 	if (!show) {

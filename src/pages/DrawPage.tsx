@@ -8,9 +8,8 @@ import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
 
 const DrawPage = () => {
 	let [show, setShow] = useState(false);
-	const drawPageRef = useRef(null);
 
-	const { isDrawing, registerDrawContainer } = useStoryContext();
+	const { isDrawing } = useStoryContext();
 	const { registerPage } = usePageMangerContext();
 
 	const listen = (showPage: boolean) => {
@@ -18,11 +17,8 @@ const DrawPage = () => {
 	};
 
 	useEffect(() => {
-		if (drawPageRef.current) {
-			registerDrawContainer(drawPageRef.current);
-		}
 		registerPage(PageTypeEnum.Draw, listen);
-	}, [drawPageRef, registerDrawContainer, registerPage]);
+	}, [registerPage]);
 
 	if (isDrawing) {
 		return <></>;
@@ -33,7 +29,7 @@ const DrawPage = () => {
 	}
 
 	return (
-		<div ref={drawPageRef}>
+		<div>
 			<HeaderSection />
 			<ColorsSection />
 			<RangeInputSection />

@@ -38,7 +38,8 @@ const HeaderSection: FC<HeaderSectionPropsType> = ({
 		<ContainerStyle>
 			<div
 				style={{ marginInline: 6, justifySelf: "start" }}
-				onClick={() => {
+				onClick={(e) => {
+					e.stopPropagation();
 					handleClose();
 					inputRef.current?.focus();
 				}}

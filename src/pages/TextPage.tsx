@@ -6,7 +6,6 @@ import { BrushColorEnum } from "../@types/drawType";
 import TextSection, {
 	PInputStylePropsType,
 } from "../sections/textPage/TextSection";
-import { useStoryContext } from "../hooks/useStoryContext";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
 
@@ -25,9 +24,6 @@ type AddTextProps = {
 };
 
 const TextPage: FC<AddTextProps> = ({ close }) => {
-	const textRef = React.useRef<HTMLSpanElement>(null);
-	const textPageRef = React.useRef<HTMLDivElement>(null);
-
 	let [dynamicHeight, setDynamicHeight] = useState("100%");
 	let [show, setShow] = useState(false);
 	let [text, setText] = useState("");
@@ -38,7 +34,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 		hasOpacity: false,
 	});
 
-	const { registerTextContainer } = useStoryContext();
+	const textRef = React.useRef<HTMLSpanElement>(null);
 	const { registerPage } = usePageMangerContext();
 
 	window.addEventListener("resize", () => {
@@ -52,22 +48,23 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 	};
 
 	useEffect(() => {
-		const handleText = (text: string, color: string) => {
+		const handleText = ({
+			text,
+			color,
+		}: {
+			text?: string;
+			color?: string;
+		}) => {
 			console.log(color);
-			setText(text);
-			setTextStyle({ ...textStyle, color: color });
-			textRef.current?.focus();
+			if (text && color) {
+				setText(text);
+				setTextStyle({ ...textStyle, color: color });
+				textRef.current?.focus();
+			}
 		};
 		textRef.current?.focus();
 		registerPage(PageTypeEnum.Text, listen, handleText);
-		if (textPageRef.current) {
-			registerTextContainer(textPageRef.current, handleText);
-		}
-	}, [registerTextContainer, registerPage, textPageRef, textStyle]);
-
-	// useEffect(() => {
-	// 	textRef.current?.focus();
-	// }, [textRef.current]);
+	}, [registerPage, textStyle]);
 
 	if (!show) {
 		return <></>;
@@ -75,7 +72,6 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 
 	return (
 		<div
-			ref={textPageRef}
 			onClick={() => {
 				close(textRef.current?.innerText, textStyle.color);
 			}}
