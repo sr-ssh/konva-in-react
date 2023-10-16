@@ -76,7 +76,6 @@ const ColorsSection: FC<ColorsSectionPropsType> = ({ position, getColor }) => {
 
 	useEffect(() => {
 		registerDrawContainerSetColor((newColor) => {
-			console.log("new color", newColor);
 			setColor(newColor);
 			colorRef.current = newColor;
 		});

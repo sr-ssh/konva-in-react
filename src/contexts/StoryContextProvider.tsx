@@ -65,7 +65,6 @@ export enum StoryContextModes {
 }
 interface StoryContextType {
 	startDrawMode: () => void;
-	startTextMode: () => void;
 	stopDrawMode: () => void;
 	setBrushColor: (color: BrushColorEnum | string) => void;
 	setBrushMode: (mode: BrushModesEnum) => void;
@@ -94,7 +93,6 @@ interface StoryContextType {
 
 export const StoryContext = createContext<StoryContextType>({
 	startDrawMode: () => {},
-	startTextMode: () => {},
 	stopDrawMode: () => {},
 	setBrushColor: (color: BrushColorEnum | string) => {},
 	setBrushMode: (mode: BrushModesEnum) => {},
@@ -810,7 +808,6 @@ export const StoryContextProvider = memo(
 			<StoryContext.Provider
 				value={{
 					startDrawMode,
-					startTextMode,
 					stopDrawMode,
 					setBrushColor,
 					setBrushMode,
