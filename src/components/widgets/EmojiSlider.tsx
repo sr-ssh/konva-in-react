@@ -113,6 +113,7 @@ const EmojiSlider = ({ emoji, rate, colors, getRate }: EmojiSliderProps) => {
 	);
 
 	const handleRangeStart = () => {
+		clearTimeout(animationTimeoutRef.current);
 		setShowThumbImage(true);
 		setThumbImageAnimation(floatAnimation);
 	};

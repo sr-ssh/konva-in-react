@@ -557,6 +557,7 @@ const drawCardClock = (hour: number, minute: number) => {
 
   return group
 }
+
 const degreesToRadians = (degrees: number) => {
   var pi = Math.PI;
   return degrees * (pi / 180);
