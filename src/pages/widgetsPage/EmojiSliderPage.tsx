@@ -13,6 +13,7 @@ import {
 import EmojisSection from "../../sections/widgetsPage/EmojisSection";
 import EmojiSlider from "../../components/widgets/EmojiSlider";
 import { useStoryContext } from "../../hooks/useStoryContext";
+import { placeCursorAtTheEnd } from "../../utils/widgetUtils";
 
 type EmojiSliderStyleType = {
 	colors: EmojiSliderColorsType;
@@ -82,14 +83,8 @@ const EmojiSliderPage = () => {
 				const content = div.innerText;
 				div.innerText = content.slice(0, content.length - 1);
 			}
-			const selection = window.getSelection();
-			if (selection) {
-				const range = document.createRange();
-				range.selectNodeContents(event.target);
-				range.collapse(false);
-				selection.removeAllRanges();
-				selection.addRange(range);
-			}
+
+			placeCursorAtTheEnd(event);
 		} else {
 			event.target.style.opacity = ".3";
 		}

@@ -1,8 +1,6 @@
 import React, { FC, memo } from "react";
 import styled from "@emotion/styled";
-import { useStoryContext } from "../../hooks/useStoryContext";
 import { FontFamiliesObjectType } from "../../@types/textType";
-import { FontFamilies } from "../../components/TextPage/FontFamilies";
 import { PInputStylePropsType } from "./TextSection";
 import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import { StoryContextModes } from "../../contexts/StoryContextProvider";

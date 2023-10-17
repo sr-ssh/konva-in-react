@@ -1,4 +1,4 @@
-import React, { FC, memo } from "react";
+import React, { memo } from "react";
 import styled from "@emotion/styled";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { BrushModesEnum } from "../../@types/drawType";

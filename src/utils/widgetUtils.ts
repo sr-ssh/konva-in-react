@@ -14,3 +14,14 @@ export const getGradient = (gradient: (string | number)[], angle: string = "to r
   gradientString += ")";
   return gradientString;
 }
+
+export const placeCursorAtTheEnd = (event: React.ChangeEvent<HTMLDivElement>) => {
+  const selection = window.getSelection();
+  if (selection) {
+    const range = document.createRange();
+    range.selectNodeContents(event.target);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+}

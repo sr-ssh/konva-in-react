@@ -1,4 +1,4 @@
-import React, { FC, memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useStoryContext } from "../hooks/useStoryContext";
 import HeaderSection from "../sections/drawPage/HeaderSection";
 import ColorsSection from "../sections/drawPage/ColorsSection";

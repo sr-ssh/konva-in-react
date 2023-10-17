@@ -38,7 +38,7 @@ const CloseIcon = styled(IconsStyle)({
 });
 
 const DefaultPage = () => {
-	let [show, setShow] = useState(true);
+	let [show, setShow] = useState(false);
 
 	const { startDrawMode, downloadStage } = useStoryContext();
 	const { setMode, registerPage } = usePageMangerContext();

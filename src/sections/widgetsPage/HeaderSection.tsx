@@ -1,8 +1,6 @@
 import React, { FC, memo } from "react";
 import styled from "@emotion/styled";
 import { FontFamiliesObjectType } from "../../@types/textType";
-import { usePageMangerContext } from "../../hooks/usePageMangerContext";
-import { StoryContextModes } from "../../contexts/StoryContextProvider";
 
 const ContainerStyle = styled.div({
 	position: "absolute",

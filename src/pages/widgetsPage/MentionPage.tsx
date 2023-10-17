@@ -3,7 +3,7 @@ import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
 import { mentionColors } from "../../utils/widgetColors";
-import { getGradient } from "../../utils/widgetUtils";
+import { getGradient, placeCursorAtTheEnd } from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import MentionSearchSection from "../../sections/widgetsPage/MentionSearchSection";
@@ -64,15 +64,7 @@ const MentionPage = () => {
 			}
 			setFontSize(newFontSize);
 
-			// Place the cursor at the end of the text
-			const selection = window.getSelection();
-			if (selection) {
-				const range = document.createRange();
-				range.selectNodeContents(event.target);
-				range.collapse(false);
-				selection.removeAllRanges();
-				selection.addRange(range);
-			}
+			placeCursorAtTheEnd(event);
 		} else {
 			event.target.style.opacity = ".6";
 			event.target.style.fontSize = "40px";

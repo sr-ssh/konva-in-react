@@ -6,9 +6,8 @@ import {
 	hashtagColors,
 	optionLeftGradient,
 	optionRightGradient,
-	roundFrost,
 } from "../../utils/widgetColors";
-import { getGradient } from "../../utils/widgetUtils";
+import { getGradient, placeCursorAtTheEnd } from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import {
 	PageAttrs,
@@ -96,7 +95,7 @@ const PollTextStyle = styled.div<PollTextStyleType>(
 );
 
 const PollPage = () => {
-	const [show, setShow] = useState(false);
+	const [show, setShow] = useState(true);
 	const [leftOptionFontSize, setLeftOptionFontSize] = useState(40);
 	const [rightOptionFontSize, setRightOptionFontSize] = useState(40);
 	const [question, setQuestion] = useState("");
@@ -139,15 +138,7 @@ const PollPage = () => {
 				div.innerText = content.slice(0, content.length - 1);
 			}
 
-			// Place the cursor at the end of the text
-			const selection = window.getSelection();
-			if (selection) {
-				const range = document.createRange();
-				range.selectNodeContents(div);
-				range.collapse(false);
-				selection.removeAllRanges();
-				selection.addRange(range);
-			}
+			placeCursorAtTheEnd(event);
 		} else {
 			div.style.opacity = ".6";
 			div.style.fontSize = "40px";
@@ -160,20 +151,12 @@ const PollPage = () => {
 			const div = event.target;
 			div.style.opacity = "1";
 			div.style.textAlign = "start";
-			// Place the cursor at the end of the text
-			const selection = window.getSelection();
-			if (selection) {
-				const range = document.createRange();
-				range.selectNodeContents(event.target);
-				range.collapse(false);
-				selection.removeAllRanges();
-				selection.addRange(range);
-			}
 		} else {
 			event.target.style.opacity = ".6";
 			event.target.style.textAlign = "center";
 		}
 	};
+
 	const handleClose = () => {
 		addPoll(
 			questionRef.current?.innerText,
@@ -185,6 +168,7 @@ const PollPage = () => {
 	const listen = (status: boolean) => {
 		setShow(status);
 	};
+
 	const handlePage = ({
 		question,
 		leftOption,
