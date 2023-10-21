@@ -601,7 +601,7 @@ const drawRoundClock = (hour: number, minute: number) => {
     stroke: "#ffffff",
     strokeWidth: 3,
     lineCap: "round",
-    points: [8, 8, Math.cos(hourHandAngle) * 15, -Math.sin(hourHandAngle) * 15]
+    points: [8, 8, Math.cos(hourHandAngle) * 30, -Math.sin(hourHandAngle) * 30]
   })
   group.add(hourHand)
 
