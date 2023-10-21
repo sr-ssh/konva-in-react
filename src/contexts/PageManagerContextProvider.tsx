@@ -11,6 +11,7 @@ export type PageAttrs = {
 	question: string;
 	leftOption: string;
 	rightOption: string;
+	status: boolean;
 };
 type PageHandlerType = (config: Partial<PageAttrs>) => void;
 
@@ -48,6 +49,7 @@ export enum PageTypeEnum {
 	Mention = "MENTION",
 	EmojiSlider = "EMOJI_SLIDER",
 	Poll = "POLL",
+	Trash = "TRASH",
 }
 
 export type PageRefType = {
@@ -100,6 +102,17 @@ export const PageManagerContextProvider = memo(
 			showThisPage(pageType);
 		};
 
+		const callPageHandler = (
+			pageType: PageTypeEnum,
+			config?: Partial<PageAttrs>
+		) => {
+			for (const property in pagesRef.current) {
+				if (property === pageType && config) {
+					pagesRef.current[property].pageHandler?.(config);
+				}
+			}
+		};
+
 		const setMode = (
 			mode: StoryContextModes,
 			status: boolean,
@@ -128,7 +141,16 @@ export const PageManagerContextProvider = memo(
 
 				case StoryContextModes.IsDragging:
 					if (status) {
-						showNoPage();
+						showThisPage(PageTypeEnum.Trash);
+					} else {
+						showThisPage(PageTypeEnum.Default);
+					}
+					break;
+
+				case StoryContextModes.IsInTrash:
+					if (status) {
+						showThisPage(PageTypeEnum.Trash);
+						callPageHandler(PageTypeEnum.Trash, config);
 					} else {
 						showThisPage(PageTypeEnum.Default);
 					}

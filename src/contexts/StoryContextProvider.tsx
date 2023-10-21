@@ -40,6 +40,8 @@ import {
 	mentionColors,
 } from "../utils/widgetColors";
 import { ClockEnum } from "../@types/widgetType";
+import { trashBottom, trashHeight, trashWidth } from "../pages/TrashPage";
+import { useAnimate } from "../hooks/useAnimate";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -62,6 +64,7 @@ export enum StoryContextModes {
 	IsMentionEditing = "isMentionEditing",
 	IsEmojiSliderEditing = "isEmojiSliderEditing",
 	IsPollEditing = "isPollEditing",
+	IsInTrash = "isInTrash",
 }
 interface StoryContextType {
 	startDrawMode: () => void;
@@ -144,9 +147,17 @@ export const StoryContextProvider = memo(
 		let drawContainerSetColor = useRef<(newColor: string) => void>();
 		let currentEditingShapeRef = useRef<any>();
 		let clockAttrsRef = useRef<any>();
+		let draggingNode = useRef<any>();
+		let tweenRef = useRef<string>("");
+		let isInTrashRef = useRef<boolean>(false);
+		let diffRef = useRef<{ x: number; y: number }>();
+		let cancelAnimation = useRef<() => void>();
+		let lastScaleRef = useRef<number>(1);
+		let maxScaleRef = useRef<number>(1);
 
 		const { listenTap } = useEvent();
 		const { setMode } = usePageMangerContext();
+		const { requestAnimate, cancelAnimate } = useAnimate();
 
 		const registerDrawContainerSetColor = (
 			setColor: (color: string) => void
@@ -450,6 +461,7 @@ export const StoryContextProvider = memo(
 
 		const startDrawMode = () => {
 			isDrawModeOn.current = true;
+			getLayer().listening(false);
 			setMode(StoryContextModes.IsDrawing, true);
 		};
 
@@ -462,6 +474,7 @@ export const StoryContextProvider = memo(
 
 		const stopDrawMode = () => {
 			isDrawModeOn.current = false;
+			getLayer().listening(true);
 			setMode(StoryContextModes.IsDrawing, false);
 		};
 
@@ -498,6 +511,32 @@ export const StoryContextProvider = memo(
 			downloadLink.href = dataURL;
 			downloadLink.download = "story_image.png"; // Specify the desired filename
 			downloadLink.click();
+		};
+
+		const isInTrash = (pos: Vector2d) => {
+			console.log(
+				pos.x,
+				width,
+				trashWidth,
+				pos.y > height - trashHeight - trashBottom,
+				pos.y < height - trashBottom,
+				trashBottom,
+				pos.y,
+				trashHeight
+			);
+			if (
+				pos.x > (width - trashWidth) / 2 &&
+				pos.x < (width + trashWidth) / 2 &&
+				pos.y > height - trashHeight - trashBottom &&
+				pos.y < height - trashBottom
+			) {
+				setMode(StoryContextModes.IsInTrash, true, { status: true });
+				console.log("true");
+				return true;
+			}
+			setMode(StoryContextModes.IsInTrash, true, { status: false });
+
+			return false;
 		};
 
 		const addInteractivity = (
@@ -542,7 +581,6 @@ export const StoryContextProvider = memo(
 							x: stage.width() / 2,
 							y: stage.height() / 2,
 					  }),
-				draggable: true,
 				name,
 			};
 
@@ -557,13 +595,9 @@ export const StoryContextProvider = memo(
 
 			let oldRotation = 0;
 			let startScaleX = 0;
-			let startScaleY = 0;
 			group.on("rotatestart", function (ev) {
 				oldRotation = ev.evt.gesture.rotation;
 				startScaleX = group.scaleX();
-				startScaleY = group.scaleY();
-				group.stopDrag();
-				group.draggable(false);
 			});
 
 			group.on("rotate", function (ev) {
@@ -576,23 +610,112 @@ export const StoryContextProvider = memo(
 
 				const gestureScale = ev.evt.gesture.scale;
 				if (gestureScale !== 1) {
-					group.scaleX(startScaleX * gestureScale);
-					group.scaleY(startScaleY * gestureScale);
+					const scale = startScaleX * gestureScale;
+					group.scaleX(scale);
+					group.scaleY(scale);
+					lastScaleRef.current = scale;
+					maxScaleRef.current = scale;
 				}
 			});
 
-			group.on("rotateend rotatecancel", function (ev) {
-				group.draggable(true);
-			});
-
-			group.on("dragstart", function (ev) {
+			group.on("touchstart mousedown", function (ev) {
+				stageRef.current?.on("touchmove mousemove", touchMove);
+				let pos = stageRef.current?.getPointerPosition();
 				group.zIndex(layer.getChildren().length - 1);
 				setMode(StoryContextModes.IsDragging, true);
+				draggingNode.current = group;
+				diffRef.current = {
+					x: pos!.x - group.x(),
+					y: pos!.y - group.y(),
+				};
 			});
 
-			group.on("dragend", function (ev) {
+			group.on("touchend mouseup", function (ev) {
+				stageRef.current?.off("touchmove mousemove", touchMove);
+				if (draggingNode.current) {
+					let pos = stageRef.current?.getPointerPosition();
+					if (pos && isInTrash(pos)) {
+						draggingNode.current.remove();
+					}
+				}
+				diffRef.current = undefined;
+				draggingNode.current = null;
 				setMode(StoryContextModes.IsDragging, false);
 			});
+
+			const touchMove = (e: any) => {
+				if (!draggingNode.current) {
+					return;
+				}
+				let startPos = stageRef.current?.getPointerPosition()!;
+				const inTrash = isInTrash(startPos);
+				if (
+					!isInTrashRef.current &&
+					inTrash &&
+					tweenRef.current !== "scaleIn"
+				) {
+					isInTrashRef.current = true;
+					if (cancelAnimation.current) {
+						cancelAnimate(cancelAnimation.current);
+					}
+					tweenRef.current = "scaleIn";
+					let lastScale = lastScaleRef.current;
+					cancelAnimation.current = requestAnimate(
+						150,
+						(t: number) => {
+							let pos = stageRef.current?.getPointerPosition();
+							const scale = 0.2 + (1 - t) * (lastScale - 0.2);
+							lastScaleRef.current = scale;
+							console.log("scaling", group.getAttrs());
+							group.setAttrs({
+								scaleX: scale,
+								scaleY: scale,
+								x: pos!.x - diffRef.current!.x * scale, //(width - trashWidth) / 2,
+								y: pos!.y - diffRef.current!.y * scale,
+							});
+						},
+						() => {
+							tweenRef.current = "";
+						}
+					);
+				} else if (
+					isInTrashRef.current &&
+					!inTrash &&
+					tweenRef.current !== "scaleOut"
+				) {
+					isInTrashRef.current = false;
+					tweenRef.current = "scaleOut";
+					if (cancelAnimation.current) {
+						cancelAnimate(cancelAnimation.current);
+					}
+					let lastScale = lastScaleRef.current;
+					cancelAnimation.current = requestAnimate(
+						150,
+						(t: number) => {
+							let pos = stageRef.current?.getPointerPosition();
+							const scale =
+								lastScale +
+								t * (maxScaleRef.current - lastScale);
+							lastScaleRef.current = scale;
+							group.setAttrs({
+								scaleX: scale,
+								scaleY: scale,
+								x: pos!.x - diffRef.current!.x * scale, //(width - trashWidth) / 2,
+								y: pos!.y - diffRef.current!.y * scale,
+							});
+						},
+						() => {
+							tweenRef.current = "";
+						}
+					);
+				} else if (tweenRef.current === "") {
+					let pos = stageRef.current?.getPointerPosition();
+					group.setAttrs({
+						x: pos!.x - diffRef.current!.x * group.scaleX(),
+						y: pos!.y - diffRef.current!.y * group.scaleY(),
+					});
+				}
+			};
 
 			listenTap(group as any, EventType.Tap, tabHandler);
 
@@ -721,6 +844,7 @@ export const StoryContextProvider = memo(
 			colorsIndex?: number
 		) => {
 			const name = new Date().toISOString();
+			console.log(name);
 			if (emoji && defaultValue && colorsIndex !== undefined) {
 				const emojiSlider = drawEmojiSlider(
 					emojiSliderColors[colorsIndex],
