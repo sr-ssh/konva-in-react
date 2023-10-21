@@ -79,7 +79,7 @@ const EmojiSliderPage = () => {
 			const div = event.target;
 
 			const maxHeight = 28 * 3;
-			if (div.offsetHeight > maxHeight) {
+			while (div.offsetHeight > maxHeight) {
 				const content = div.innerText;
 				div.innerText = content.slice(0, content.length - 1);
 			}

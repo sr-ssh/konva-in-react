@@ -454,7 +454,6 @@ export const drawEmojiSlider = (colorProps: EmojiSliderColorsType, percent: numb
     fill: colorProps.backgroundColor,
     cornerRadius: 17,
   })
-  console.log(backgroundRect.height(), backgroundRect.width())
   group.add(backgroundRect)
   textNode && group.add(textNode)
 
