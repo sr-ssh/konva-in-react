@@ -8,7 +8,7 @@ import { useStoryContext } from "../../hooks/useStoryContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import HashtagSearchSection from "../../sections/widgetsPage/HashtagSearchSection";
 
-const HashtagStyle = styled.div({
+export const HashtagStyle = styled.div({
 	justifySelf: "center",
 	alignSelf: "center",
 	borderRadius: 5,
@@ -19,28 +19,30 @@ const HashtagStyle = styled.div({
 type HashtagTextStyleType = {
 	fontSize: number;
 };
-const HashtagTextStyle = styled.div<HashtagTextStyleType>(({ fontSize }) => ({
-	outline: "none",
-	backgroundImage: getGradient(hashtagColors[0].color),
-	backgroundSize: "100%",
-	backgroundRepeat: "repeat",
-	WebkitBackgroundClip: "text",
-	WebkitTextFillColor: "transparent",
-	MozBackgroundClip: "text",
-	MozTextFillColor: "transparent",
-	fontFamily: "AvenyTRegular",
-	fontSize: fontSize,
-	fontWeight: "bold",
-	textAlign: "left",
-	opacity: 0.6,
-	":empty:before": {
-		content: "attr(data-text)",
-	},
-}));
+export const HashtagTextStyle = styled.div<HashtagTextStyleType>(
+	({ fontSize }) => ({
+		outline: "none",
+		backgroundImage: getGradient(hashtagColors[0].color),
+		backgroundSize: "100%",
+		backgroundRepeat: "repeat",
+		WebkitBackgroundClip: "text",
+		WebkitTextFillColor: "transparent",
+		MozBackgroundClip: "text",
+		MozTextFillColor: "transparent",
+		fontFamily: "AvenyTRegular",
+		fontSize: fontSize,
+		fontWeight: "bold",
+		textAlign: "left",
+		opacity: 0.6,
+		":empty:before": {
+			content: "attr(data-text)",
+		},
+	})
+);
 
 // TODO add api of hashtag
 const HashtagPage = () => {
-	const [show, setShow] = useState(true);
+	const [show, setShow] = useState(false);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
 	const textRef = useRef<HTMLDivElement>(null);

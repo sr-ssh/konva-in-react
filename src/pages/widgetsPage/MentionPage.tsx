@@ -8,7 +8,7 @@ import { useStoryContext } from "../../hooks/useStoryContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import MentionSearchSection from "../../sections/widgetsPage/MentionSearchSection";
 
-const MentionStyle = styled.div({
+export const MentionStyle = styled.div({
 	justifySelf: "center",
 	alignSelf: "center",
 	borderRadius: 5,
@@ -19,24 +19,26 @@ const MentionStyle = styled.div({
 type MentionTextStyleType = {
 	fontSize: number;
 };
-const MentionTextStyle = styled.div<MentionTextStyleType>(({ fontSize }) => ({
-	outline: "none",
-	backgroundImage: getGradient(mentionColors[0].color),
-	backgroundSize: "100%",
-	backgroundRepeat: "repeat",
-	WebkitBackgroundClip: "text",
-	WebkitTextFillColor: "transparent",
-	MozBackgroundClip: "text",
-	MozTextFillColor: "transparent",
-	fontFamily: "AvenyTRegular",
-	fontSize: fontSize,
-	fontWeight: "bold",
-	textAlign: "left",
-	opacity: 0.6,
-	":empty:before": {
-		content: "attr(data-text)",
-	},
-}));
+export const MentionTextStyle = styled.div<MentionTextStyleType>(
+	({ fontSize }) => ({
+		outline: "none",
+		backgroundImage: getGradient(mentionColors[0].color),
+		backgroundSize: "100%",
+		backgroundRepeat: "repeat",
+		WebkitBackgroundClip: "text",
+		WebkitTextFillColor: "transparent",
+		MozBackgroundClip: "text",
+		MozTextFillColor: "transparent",
+		fontFamily: "AvenyTRegular",
+		fontSize: fontSize,
+		fontWeight: "bold",
+		textAlign: "left",
+		opacity: 0.6,
+		":empty:before": {
+			content: "attr(data-text)",
+		},
+	})
+);
 
 // TODO add api of mention
 const MentionPage = () => {

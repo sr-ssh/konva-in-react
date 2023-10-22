@@ -5,6 +5,7 @@ import { HeaderStyle } from "../components/Header";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import { StoryContextModes } from "../contexts/StoryContextProvider";
 import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
+import ChooseWidget from "./widgetsPage/ChooseWidget";
 
 const FooterStyle = styled.div({
 	position: "absolute",
@@ -38,7 +39,8 @@ const CloseIcon = styled(IconsStyle)({
 });
 
 const DefaultPage = () => {
-	let [show, setShow] = useState(false);
+	const [show, setShow] = useState(true);
+	const [showWidgetPage, setShowWidgetPage] = useState(false);
 
 	const { startDrawMode, downloadStage } = useStoryContext();
 	const { setMode, registerPage } = usePageMangerContext();
@@ -73,13 +75,14 @@ const DefaultPage = () => {
 							startDrawMode();
 						}}
 					/>
-					<WidgetIcon />
+					<WidgetIcon onClick={() => setShowWidgetPage(true)} />
 				</div>
 				<CloseIcon />
 			</HeaderStyle>
 			<FooterStyle onClick={() => downloadStage()}>
 				add to your story +
 			</FooterStyle>
+			{showWidgetPage && <ChooseWidget />}
 		</>
 	);
 };

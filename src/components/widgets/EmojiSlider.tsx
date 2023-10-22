@@ -73,7 +73,7 @@ type ThumbImageStyleType = {
 	left: number;
 	animation: string;
 };
-const ThumbImageStyle = styled.div<ThumbImageStyleType>(
+export const ThumbImageStyle = styled.div<ThumbImageStyleType>(
 	({ left, animation }) => ({
 		position: "absolute",
 		bottom: 27,
