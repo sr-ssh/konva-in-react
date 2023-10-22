@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { FC, memo } from "react";
 import styled from "@emotion/styled";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { BrushModesEnum } from "../../@types/drawType";
@@ -40,7 +40,10 @@ const HeartStyle = styled.div<EraserStyleProps>((props) => ({
 	backgroundSize: 44,
 }));
 
-const HeaderSection = () => {
+type HeaderSectionType = {
+	showUndo: boolean;
+};
+const HeaderSection: FC<HeaderSectionType> = ({ showUndo }) => {
 	const [brush, setBrush] = React.useState<BrushModesEnum>(
 		BrushModesEnum.Pen
 	);
@@ -101,13 +104,18 @@ const HeaderSection = () => {
 					/>
 				</BrushSection>
 			</div>
-			<div style={{ marginInline: 6 }} onClick={() => undoDraw()}>
-				<img
-					src="assets/images/undo.png"
-					alt="undo"
-					width={39}
-					height={39}
-				/>
+			<div
+				style={{ marginInline: 6, width: 39 }}
+				onClick={() => undoDraw()}
+			>
+				{showUndo && (
+					<img
+						src="assets/images/undo.png"
+						alt="undo"
+						width={39}
+						height={39}
+					/>
+				)}
 			</div>
 		</HeaderStyle>
 	);

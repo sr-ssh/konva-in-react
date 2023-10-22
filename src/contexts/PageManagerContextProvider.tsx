@@ -12,6 +12,7 @@ export type PageAttrs = {
 	leftOption: string;
 	rightOption: string;
 	status: boolean;
+	hasLine: boolean;
 };
 type PageHandlerType = (config: Partial<PageAttrs>) => void;
 
@@ -164,7 +165,11 @@ export const PageManagerContextProvider = memo(
 
 				case StoryContextModes.IsDrawing:
 					if (status) {
-						showThisPage(PageTypeEnum.Draw);
+						if (config) {
+							callPageHandler(PageTypeEnum.Draw, config);
+						} else {
+							showThisPage(PageTypeEnum.Draw);
+						}
 					} else {
 						showThisPage(PageTypeEnum.Default);
 					}

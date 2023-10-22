@@ -426,6 +426,11 @@ export const StoryContextProvider = memo(
 				) {
 					drawShapeRef.current.push(group);
 				} else {
+					if (!drawShapeRef.current.length) {
+						setMode(StoryContextModes.IsDrawing, true, {
+							hasLine: true,
+						});
+					}
 					drawShapeRef.current.push(lastLine);
 				}
 			});
@@ -496,6 +501,9 @@ export const StoryContextProvider = memo(
 			}
 			drawShapeRef.current[drawShapeRef.current.length - 1].remove();
 			drawShapeRef.current.splice(drawShapeRef.current.length - 1, 1);
+			if (drawShapeRef.current.length === 0) {
+				setMode(StoryContextModes.IsDrawing, true, { hasLine: false });
+			}
 		};
 
 		const downloadStage = () => {

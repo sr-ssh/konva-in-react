@@ -4,10 +4,14 @@ import HeaderSection from "../sections/drawPage/HeaderSection";
 import ColorsSection from "../sections/drawPage/ColorsSection";
 import RangeInputSection from "../sections/drawPage/RangeInputSection";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
-import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
+import {
+	PageAttrs,
+	PageTypeEnum,
+} from "../contexts/PageManagerContextProvider";
 
 const DrawPage = () => {
-	let [show, setShow] = useState(false);
+	const [show, setShow] = useState(false);
+	const [hasLine, setHasLine] = useState(false);
 
 	const { isDrawing } = useStoryContext();
 	const { registerPage } = usePageMangerContext();
@@ -15,9 +19,14 @@ const DrawPage = () => {
 	const listen = (showPage: boolean) => {
 		setShow(showPage);
 	};
+	const handlePage = ({ hasLine }: Partial<PageAttrs>) => {
+		if (hasLine !== undefined) {
+			setHasLine(hasLine);
+		}
+	};
 
 	useEffect(() => {
-		registerPage(PageTypeEnum.Draw, listen);
+		registerPage(PageTypeEnum.Draw, listen, handlePage);
 	}, [registerPage]);
 
 	if (isDrawing) {
@@ -30,7 +39,7 @@ const DrawPage = () => {
 
 	return (
 		<div>
-			<HeaderSection />
+			<HeaderSection showUndo={hasLine} />
 			<ColorsSection />
 			<RangeInputSection />
 		</div>
