@@ -40,7 +40,7 @@ const HashtagTextStyle = styled.div<HashtagTextStyleType>(({ fontSize }) => ({
 
 // TODO add api of hashtag
 const HashtagPage = () => {
-	const [show, setShow] = useState(false);
+	const [show, setShow] = useState(true);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
 	const textRef = useRef<HTMLDivElement>(null);
@@ -73,7 +73,17 @@ const HashtagPage = () => {
 	};
 
 	const handleClose = () => {
-		addHashtag(textRef.current?.innerText);
+		let str = textRef.current?.innerText || "";
+		// const isEnglish = /^[A-Za-z\s]+$/.test(str);
+		// let modifiedStr;
+		// if (isEnglish) {
+		// 	modifiedStr = str.substring(1);
+		// 	modifiedStr.concat(str.charAt(0));
+		// } else {
+		// 	modifiedStr = str;
+		// }
+		// console.log(str, modifiedStr, str.substring(1), str.charAt(0), " ");
+		addHashtag(str);
 	};
 
 	const listen = (status: boolean) => {
@@ -99,6 +109,7 @@ const HashtagPage = () => {
 					onInput={handleTextChange}
 					dir="auto"
 					fontSize={fontSize}
+					suppressContentEditableWarning={true}
 				>
 					{text}
 				</HashtagTextStyle>

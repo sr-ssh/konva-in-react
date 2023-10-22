@@ -284,7 +284,6 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     name: hashtagBackgroundName
   });
   group.add(rect);
-  console.log(defaultText)
   let text = new Konva.Text({
     text: defaultText,
     fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
