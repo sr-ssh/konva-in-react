@@ -45,7 +45,7 @@ type EmojiSliderTextStyleType = {
 	colors: EmojiSliderColorsType;
 	text?: string;
 };
-const EmojiSliderTextStyle = styled.div<EmojiSliderTextStyleType>(
+export const EmojiSliderTextStyle = styled.div<EmojiSliderTextStyleType>(
 	({ colors, text }) => ({
 		outline: "none",
 		fontWeight: "bold",
