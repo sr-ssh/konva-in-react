@@ -632,10 +632,12 @@ export const StoryContextProvider = memo(
 				group.zIndex(layer.getChildren().length - 1);
 				setMode(StoryContextModes.IsDragging, true);
 				draggingNode.current = group;
-				diffRef.current = {
-					x: pos!.x - group.x(),
-					y: pos!.y - group.y(),
-				};
+				if (pos) {
+					diffRef.current = {
+						x: pos.x - group.x(),
+						y: pos.y - group.y(),
+					};
+				}
 			});
 
 			group.on("touchend mouseup", function (ev) {
@@ -675,12 +677,18 @@ export const StoryContextProvider = memo(
 							const scale = 0.2 + (1 - t) * (lastScale - 0.2);
 							lastScaleRef.current = scale;
 							console.log("scaling", group.getAttrs());
-							group.setAttrs({
-								scaleX: scale,
-								scaleY: scale,
-								x: pos!.x - diffRef.current!.x * scale, //(width - trashWidth) / 2,
-								y: pos!.y - diffRef.current!.y * scale,
-							});
+							if (pos) {
+								group.setAttrs({
+									scaleX: scale,
+									scaleY: scale,
+									x:
+										pos.x -
+										(diffRef.current?.x || 0) * scale, //(width - trashWidth) / 2,
+									y:
+										pos.y -
+										(diffRef.current?.y || 0) * scale,
+								});
+							}
 						},
 						() => {
 							tweenRef.current = "";
@@ -705,12 +713,18 @@ export const StoryContextProvider = memo(
 								lastScale +
 								t * (maxScaleRef.current - lastScale);
 							lastScaleRef.current = scale;
-							group.setAttrs({
-								scaleX: scale,
-								scaleY: scale,
-								x: pos!.x - diffRef.current!.x * scale, //(width - trashWidth) / 2,
-								y: pos!.y - diffRef.current!.y * scale,
-							});
+							if (pos) {
+								group.setAttrs({
+									scaleX: scale,
+									scaleY: scale,
+									x:
+										pos.x -
+										(diffRef.current?.x || 0) * scale,
+									y:
+										pos.y -
+										(diffRef.current?.y || 0) * scale,
+								});
+							}
 						},
 						() => {
 							tweenRef.current = "";
@@ -718,10 +732,16 @@ export const StoryContextProvider = memo(
 					);
 				} else if (tweenRef.current === "") {
 					let pos = stageRef.current?.getPointerPosition();
-					group.setAttrs({
-						x: pos!.x - diffRef.current!.x * group.scaleX(),
-						y: pos!.y - diffRef.current!.y * group.scaleY(),
-					});
+					if (pos) {
+						group.setAttrs({
+							x:
+								pos.x -
+								(diffRef.current?.x || 0) * group.scaleX(),
+							y:
+								pos.y -
+								(diffRef.current?.y || 0) * group.scaleY(),
+						});
+					}
 				}
 			};
 
