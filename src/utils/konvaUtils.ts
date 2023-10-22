@@ -284,6 +284,7 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     name: hashtagBackgroundName
   });
   group.add(rect);
+  console.log(defaultText)
   let text = new Konva.Text({
     text: defaultText,
     fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
@@ -297,6 +298,7 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     offsetY: -6,
     fontFamily: "AvenyTRegular",
   });
+
   group.add(text);
 
   tmp.destroy()
@@ -342,12 +344,14 @@ const drawPollOptions = (text: string, gradientColor: any, gradientPoints: {
   y2: number;
 }, fontSize: number, pollWidth: number, optionsHeight: number, offsetX?: number) => {
   const optionWidth = pollWidth / 2 - 12
+  const isEnglish = /^[A-Za-z\s]+$/.test(text);
+
   let optionNode = new Konva.Text({
     text,
     fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
     fillLinearGradientEndPoint: { x: gradientPoints.x2, y: gradientPoints.y2 },
     fillLinearGradientColorStops: gradientColor,
-    align: "left",
+    align: isEnglish ? "left" : "right",
     verticalAlign: "center",
     fontSize: fontSize,
     width: optionWidth,
@@ -398,19 +402,32 @@ export const drawPoll = (question: string, leftOption: string = "YES", rightOpti
   const tmp = new Konva.Text({ text: question, fontSize: 30 })
   const questionTexWidth = tmp.width()
   let conditionalOffsetX = 0
+  const isEnglish = /^[A-Za-z\s]+$/.test(question);
   if (pollWidth - 36 >= questionTexWidth) {
-    conditionalOffsetX = 135
+    if (isEnglish) {
+      conditionalOffsetX = -50
+    } else {
+      conditionalOffsetX = 135
+    }
   } else
     if (pollWidth - 36 < questionTexWidth && questionTexWidth < width - 50) {
-      conditionalOffsetX = (width + 50 - questionTexWidth) / 2
+      if (isEnglish) {
+        conditionalOffsetX = 50
+      } else {
+        conditionalOffsetX = (width + 50 - questionTexWidth) / 2
+      }
     } else if (questionTexWidth >= width - 50) {
-      conditionalOffsetX = 50
+      if (isEnglish) {
+        conditionalOffsetX = 50
+      } else {
+        conditionalOffsetX = 50
+      }
     }
   const questionNode = new Konva.Text({
     text: question,
     fontSize: 30,
     fill: "#fff",
-    align: "right",
+    align: isEnglish ? "left" : "right",
     width: width - 50,
     offsetX: conditionalOffsetX,
   })
