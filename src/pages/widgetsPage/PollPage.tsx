@@ -50,6 +50,7 @@ const QuestionStyle = styled.div<QuestionStyleType>(({ question }) => ({
 	msOverflowStyle: "none",
 	scrollbarWidth: "none",
 	maxWidth: window.innerWidth - 40,
+	whiteSpace: "pre-wrap",
 	marginBottom: 18,
 	":empty:before": {
 		content: "attr(data-text)",
@@ -88,6 +89,7 @@ const PollTextStyle = styled.div<PollTextStyleType>(
 		display: "flex",
 		alignItems: "center",
 		wordBreak: "break-all",
+		whiteSpace: "pre-wrap",
 		":empty:before": {
 			content: "attr(data-text)",
 		},
@@ -95,7 +97,7 @@ const PollTextStyle = styled.div<PollTextStyleType>(
 );
 
 const PollPage = () => {
-	const [show, setShow] = useState(true);
+	const [show, setShow] = useState(false);
 	const [leftOptionFontSize, setLeftOptionFontSize] = useState(40);
 	const [rightOptionFontSize, setRightOptionFontSize] = useState(40);
 	const [question, setQuestion] = useState("");

@@ -453,13 +453,14 @@ export const drawEmojiSlider = (colorProps: EmojiSliderColorsType, percent: numb
 
   let textNode
   if (text) {
+    const isEnglish = /^[A-Za-z\s]+$/.test(text);
     textNode = new Konva.Text({
       text,
       fontSize: 20,
       fill: colorProps.textColor,
       width: emojiSliderWidth - 35,
       y: 20,
-      align: "right",
+      align: isEnglish ? "left" : "right",
       x: 17.5,
       lineHeight: 1.2
     })
