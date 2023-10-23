@@ -630,7 +630,6 @@ export const StoryContextProvider = memo(
 				stageRef.current?.on("touchmove mousemove", touchMove);
 				let pos = stageRef.current?.getPointerPosition();
 				group.zIndex(layer.getChildren().length - 1);
-				setMode(StoryContextModes.IsDragging, true);
 				draggingNode.current = group;
 				if (pos) {
 					diffRef.current = {
@@ -654,6 +653,7 @@ export const StoryContextProvider = memo(
 			});
 
 			const touchMove = (e: any) => {
+				setMode(StoryContextModes.IsDragging, true);
 				if (!draggingNode.current) {
 					return;
 				}
