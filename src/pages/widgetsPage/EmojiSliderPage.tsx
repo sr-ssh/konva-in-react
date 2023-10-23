@@ -75,7 +75,7 @@ const EmojiSliderPlaceHolderStyle = styled.div<EmojiSliderTextStyleType>(
 );
 
 const EmojiSliderPage = () => {
-	const [show, setShow] = useState(true);
+	const [show, setShow] = useState(false);
 	const [emoji, setEmoji] = useState("😍");
 	const [colorsIndex, setColorsIndex] = useState(0);
 	const [text, setText] = useState("");

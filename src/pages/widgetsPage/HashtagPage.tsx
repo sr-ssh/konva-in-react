@@ -18,8 +18,27 @@ export const HashtagStyle = styled.div({
 
 type HashtagTextStyleType = {
 	fontSize: number;
+	text?: string;
 };
 export const HashtagTextStyle = styled.div<HashtagTextStyleType>(
+	({ fontSize, text }) => ({
+		outline: "none",
+		backgroundImage: getGradient(hashtagColors[0].color),
+		backgroundSize: "100%",
+		backgroundRepeat: "repeat",
+		WebkitBackgroundClip: "text",
+		WebkitTextFillColor: "transparent",
+		MozBackgroundClip: "text",
+		MozTextFillColor: "transparent",
+		fontFamily: "AvenyTRegular",
+		fontSize: fontSize,
+		fontWeight: "bold",
+		textAlign: "left",
+		opacity: 0,
+		minWidth: text ? "auto" : 157,
+	})
+);
+export const HashtagPlaceHolderStyle = styled.div<HashtagTextStyleType>(
 	({ fontSize }) => ({
 		outline: "none",
 		backgroundImage: getGradient(hashtagColors[0].color),
@@ -34,42 +53,51 @@ export const HashtagTextStyle = styled.div<HashtagTextStyleType>(
 		fontWeight: "bold",
 		textAlign: "left",
 		opacity: 0.6,
-		":empty:before": {
-			content: "attr(data-text)",
-		},
 	})
 );
 
 // TODO add api of hashtag
 const HashtagPage = () => {
-	const [show, setShow] = useState(false);
+	const [show, setShow] = useState(true);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
+
 	const textRef = useRef<HTMLDivElement>(null);
+	const textPlaceHolderRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addHashtag } = useStoryContext();
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
-		if (event.target.innerText !== "") {
-			event.target.style.opacity = "1";
+		const div = event.target;
+		if (div.innerText.trim() !== "") {
+			if (textPlaceHolderRef.current) {
+				textPlaceHolderRef.current.style.opacity = "0";
+			}
+			div.style.opacity = "1";
+			div.style.minWidth = "auto";
+			if (div.parentElement) div.parentElement.style.opacity = "1";
 
-			const newText = event.target.innerText
-				.replace("#", "")
-				.replaceAll("\n", "");
-			event.target.innerText = `#${newText.toLocaleUpperCase()}`;
+			const newText = div.innerText.replace("#", "").replaceAll("\n", "");
+			div.innerText = `#${newText.toLocaleUpperCase()}`;
 
-			let newFontSize = Number(fontSize || event.target.style.fontSize);
-			while (event.target.clientWidth > (window.innerWidth * 3) / 4) {
-				event.target.style.fontSize = `${newFontSize - 1}px`;
+			let newFontSize = Number(fontSize || div.style.fontSize);
+			while (div.clientWidth > (window.innerWidth * 3) / 4) {
+				div.style.fontSize = `${newFontSize - 1}px`;
 				newFontSize--;
 			}
 			setFontSize(newFontSize);
 
 			placeCursorAtTheEnd(event);
 		} else {
-			event.target.style.opacity = ".6";
-			event.target.style.fontSize = "40px";
+			if (textPlaceHolderRef.current) {
+				textPlaceHolderRef.current.style.opacity = "1";
+			}
+			div.style.opacity = ".6";
+			if (div.parentElement) div.parentElement.style.opacity = "0";
+
+			div.style.minWidth = "157px";
+			div.style.fontSize = "40px";
 			setFontSize(40);
 		}
 	};
@@ -103,18 +131,41 @@ const HashtagPage = () => {
 
 	return (
 		<EditWidgetLayout handleClose={handleClose}>
-			<HashtagStyle onClick={(e) => e.stopPropagation()}>
+			<HashtagStyle
+				style={{
+					position: "relative",
+					zIndex: 1,
+					opacity: text ? 1 : 0,
+				}}
+				onClick={(e) => e.stopPropagation()}
+			>
 				<HashtagTextStyle
-					contentEditable
 					ref={textRef}
-					data-text="#HASHTAG"
+					contentEditable
 					onInput={handleTextChange}
 					dir="auto"
 					fontSize={fontSize}
-					suppressContentEditableWarning={true}
+					text={text}
 				>
 					{text}
 				</HashtagTextStyle>
+			</HashtagStyle>
+			<HashtagStyle
+				ref={textPlaceHolderRef}
+				style={{
+					position: "absolute",
+					zIndex: 0,
+					opacity: text ? 0 : 1,
+				}}
+				onClick={(e) => e.stopPropagation()}
+			>
+				<HashtagPlaceHolderStyle
+					dir="auto"
+					fontSize={fontSize}
+					text={text}
+				>
+					#HASHTAG
+				</HashtagPlaceHolderStyle>
 			</HashtagStyle>
 			<HashtagSearchSection
 				getItem={(item) => {
