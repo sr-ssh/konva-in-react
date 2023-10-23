@@ -56,26 +56,43 @@ export const EmojiSliderTextStyle = styled.div<EmojiSliderTextStyleType>(
 		width: (window.innerWidth * 3) / 5,
 		marginBottom: 17,
 		whiteSpace: "pre-wrap",
-		":empty:before": {
-			content: "attr(data-text)",
-		},
+		position: "relative",
+		zIndex: 1,
+	})
+);
+const EmojiSliderPlaceHolderStyle = styled.div<EmojiSliderTextStyleType>(
+	({ colors, text }) => ({
+		position: "absolute",
+		zIndex: 0,
+		fontWeight: "bold",
+		textAlign: "start",
+		fontSize: 20,
+		opacity: text ? 0 : 0.3,
+		color: colors.textColor,
+		width: (window.innerWidth * 3) / 5,
+		marginBottom: 17,
 	})
 );
 
 const EmojiSliderPage = () => {
-	const [show, setShow] = useState(false);
+	const [show, setShow] = useState(true);
 	const [emoji, setEmoji] = useState("😍");
 	const [colorsIndex, setColorsIndex] = useState(0);
 	const [text, setText] = useState("");
 	const [rate, setRate] = useState(10);
 	const [isScaled, setIsScaled] = useState(false);
+
 	const textRef = useRef<HTMLDivElement>(null);
+	const textPlaceHolderRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addEmojiSlider } = useStoryContext();
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
-		if (event.target.innerText !== "") {
+		if (event.target.innerText.trim() !== "") {
+			if (textPlaceHolderRef.current) {
+				textPlaceHolderRef.current.style.opacity = "0";
+			}
 			event.target.style.opacity = "1";
 			const div = event.target;
 
@@ -87,6 +104,9 @@ const EmojiSliderPage = () => {
 
 			placeCursorAtTheEnd(event);
 		} else {
+			if (textPlaceHolderRef.current) {
+				textPlaceHolderRef.current.style.opacity = ".3";
+			}
 			event.target.style.opacity = ".3";
 		}
 	};
@@ -153,7 +173,6 @@ const EmojiSliderPage = () => {
 				<EmojiSliderTextStyle
 					contentEditable
 					ref={textRef}
-					data-text="Ask a question..."
 					onInput={handleTextChange}
 					dir="auto"
 					colors={emojiSliderColors[colorsIndex]}
@@ -162,6 +181,14 @@ const EmojiSliderPage = () => {
 				>
 					{text}
 				</EmojiSliderTextStyle>
+				<EmojiSliderPlaceHolderStyle
+					ref={textPlaceHolderRef}
+					text={text}
+					dir="auto"
+					colors={emojiSliderColors[colorsIndex]}
+				>
+					Ask a question...
+				</EmojiSliderPlaceHolderStyle>
 				<EmojiSlider
 					emoji={emoji}
 					rate={rate}
