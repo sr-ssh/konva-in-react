@@ -58,7 +58,7 @@ export const HashtagPlaceHolderStyle = styled.div<HashtagTextStyleType>(
 
 // TODO add api of hashtag
 const HashtagPage = () => {
-	const [show, setShow] = useState(true);
+	const [show, setShow] = useState(false);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
 

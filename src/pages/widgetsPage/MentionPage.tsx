@@ -18,9 +18,10 @@ export const MentionStyle = styled.div({
 
 type MentionTextStyleType = {
 	fontSize: number;
+	text?: string;
 };
 export const MentionTextStyle = styled.div<MentionTextStyleType>(
-	({ fontSize }) => ({
+	({ fontSize, text }) => ({
 		outline: "none",
 		backgroundImage: getGradient(mentionColors[0].color),
 		backgroundSize: "100%",
@@ -33,26 +34,48 @@ export const MentionTextStyle = styled.div<MentionTextStyleType>(
 		fontSize: fontSize,
 		fontWeight: "bold",
 		textAlign: "left",
+		opacity: 0,
+		minWidth: text ? "auto" : 157,
+	})
+);
+export const MentionPlaceHolderStyle = styled.div<MentionTextStyleType>(
+	({ fontSize }) => ({
+		backgroundImage: getGradient(mentionColors[0].color),
+		backgroundSize: "100%",
+		backgroundRepeat: "repeat",
+		WebkitBackgroundClip: "text",
+		WebkitTextFillColor: "transparent",
+		MozBackgroundClip: "text",
+		MozTextFillColor: "transparent",
+		fontFamily: "AvenyTRegular",
+		fontSize: fontSize,
+		fontWeight: "bold",
+		textAlign: "left",
 		opacity: 0.6,
-		":empty:before": {
-			content: "attr(data-text)",
-		},
 	})
 );
 
 // TODO add api of mention
 const MentionPage = () => {
-	const [show, setShow] = useState(false);
+	const [show, setShow] = useState(true);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
+
 	const textRef = useRef<HTMLDivElement>(null);
+	const placeHolderRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addMention } = useStoryContext();
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
-		if (event.target.innerText !== "") {
-			event.target.style.opacity = "1";
+		const div = event.target;
+		if (event.target.innerText.trim() !== "") {
+			if (placeHolderRef.current) {
+				placeHolderRef.current.style.opacity = "0";
+			}
+			div.style.opacity = "1";
+			div.style.minWidth = "auto";
+			if (div.parentElement) div.parentElement.style.opacity = "1";
 
 			const newText = event.target.innerText
 				.replace("@", "")
@@ -68,7 +91,13 @@ const MentionPage = () => {
 
 			placeCursorAtTheEnd(event);
 		} else {
-			event.target.style.opacity = ".6";
+			if (placeHolderRef.current) {
+				placeHolderRef.current.style.opacity = "1";
+			}
+			div.style.opacity = ".6";
+			if (div.parentElement) div.parentElement.style.opacity = "0";
+
+			div.style.minWidth = "157px";
 			event.target.style.fontSize = "40px";
 			setFontSize(40);
 		}
@@ -92,17 +121,40 @@ const MentionPage = () => {
 
 	return (
 		<EditWidgetLayout handleClose={handleClose}>
-			<MentionStyle onClick={(e) => e.stopPropagation()}>
+			<MentionStyle
+				style={{
+					position: "relative",
+					zIndex: 1,
+					opacity: text ? 1 : 0,
+				}}
+				onClick={(e) => e.stopPropagation()}
+			>
 				<MentionTextStyle
 					contentEditable
 					ref={textRef}
-					data-text="@MENTION"
 					onInput={handleTextChange}
 					dir="auto"
 					fontSize={fontSize}
 				>
 					{text}
 				</MentionTextStyle>
+			</MentionStyle>
+			<MentionStyle
+				ref={placeHolderRef}
+				style={{
+					position: "absolute",
+					zIndex: 0,
+					opacity: text ? 0 : 1,
+				}}
+				onClick={(e) => e.stopPropagation()}
+			>
+				<MentionPlaceHolderStyle
+					dir="auto"
+					fontSize={fontSize}
+					text={text}
+				>
+					@MENTION
+				</MentionPlaceHolderStyle>
 			</MentionStyle>
 			<MentionSearchSection
 				getItem={(item) => {
