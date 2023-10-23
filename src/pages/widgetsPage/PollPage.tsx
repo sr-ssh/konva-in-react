@@ -50,15 +50,29 @@ const QuestionStyle = styled.div<QuestionStyleType>(({ question }) => ({
 	msOverflowStyle: "none",
 	scrollbarWidth: "none",
 	maxWidth: window.innerWidth - 40,
+	minWidth: 168,
 	whiteSpace: "pre-wrap",
 	marginBottom: 18,
-	":empty:before": {
-		content: "attr(data-text)",
-	},
+	zIndex: 1,
+	// ":empty:before": {
+	// 	content: "attr(data-text)",
+	// },
 	"::-webkit-scrollbar": {
 		display: "none",
 	},
 }));
+const QuestionPlaceHolderStyle = styled.div<QuestionStyleType>(
+	({ question }) => ({
+		position: "absolute",
+		fontSize: 22,
+		color: "#ffffff",
+		fontWeight: "bold",
+		textAlign: "center",
+		opacity: question ? 0 : 0.6,
+		marginBottom: 18,
+	})
+);
+const OptionStyle = styled.div({ flex: 1, position: "relative" });
 const OptionsHr = styled.hr({
 	height: "100%",
 	width: 3,
@@ -90,22 +104,49 @@ const PollTextStyle = styled.div<PollTextStyleType>(
 		alignItems: "center",
 		wordBreak: "break-all",
 		whiteSpace: "pre-wrap",
-		":empty:before": {
-			content: "attr(data-text)",
-		},
+		position: "relative",
+		zIndex: 1,
+	})
+);
+const PollPlaceHolderStyle = styled.div<PollTextStyleType>(
+	({ fontSize, backgroundImage, text }) => ({
+		position: "absolute",
+		top: 0,
+		left: 0,
+		backgroundImage: backgroundImage,
+		backgroundSize: "100%",
+		backgroundRepeat: "repeat",
+		WebkitBackgroundClip: "text",
+		WebkitTextFillColor: "transparent",
+		MozBackgroundClip: "text",
+		MozTextFillColor: "transparent",
+		fontFamily: "AvenyTRegular",
+		fontSize: fontSize,
+		textAlign: "start",
+		opacity: text ? 0 : 0.6,
+		flex: 1,
+		padding: 8,
+		display: "flex",
+		alignItems: "center",
+		wordBreak: "break-all",
+		whiteSpace: "pre-wrap",
+		zIndex: 0,
 	})
 );
 
 const PollPage = () => {
-	const [show, setShow] = useState(false);
+	const [show, setShow] = useState(true);
 	const [leftOptionFontSize, setLeftOptionFontSize] = useState(40);
 	const [rightOptionFontSize, setRightOptionFontSize] = useState(40);
 	const [question, setQuestion] = useState("");
 	const [leftOption, setLeftOption] = useState("");
 	const [rightOption, setRightOption] = useState("");
 	const questionRef = useRef<HTMLDivElement>(null);
+	const questionPlaceHolderRef = useRef<HTMLDivElement>(null);
 	const leftOptionRef = useRef<HTMLDivElement>(null);
+	const leftOptionPlaceHolderRef = useRef<HTMLDivElement>(null);
 	const rightOptionRef = useRef<HTMLDivElement>(null);
+	const rightOptionPlaceHolderRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addPoll } = useStoryContext();
@@ -113,12 +154,15 @@ const PollPage = () => {
 	const handleOption = (
 		event: React.ChangeEvent<HTMLDivElement>,
 		optionFontSize: number,
-		setOptionFontSize: (value: React.SetStateAction<number>) => void
+		setOptionFontSize: (value: React.SetStateAction<number>) => void,
+		placeholderRef: React.RefObject<HTMLDivElement>
 	) => {
 		const div = event.target;
-		if (div.innerText !== "") {
+		if (div.innerText.trim() !== "") {
 			div.style.opacity = "1";
-
+			if (placeholderRef.current) {
+				placeholderRef.current.style.opacity = "0";
+			}
 			const isEnglish = /^[A-Za-z\s]+$/.test(div.innerText);
 
 			const newText = div.innerText;
@@ -142,6 +186,9 @@ const PollPage = () => {
 
 			placeCursorAtTheEnd(event);
 		} else {
+			if (placeholderRef.current) {
+				placeholderRef.current.style.opacity = ".6";
+			}
 			div.style.opacity = ".6";
 			div.style.fontSize = "40px";
 			setOptionFontSize(40);
@@ -149,13 +196,21 @@ const PollPage = () => {
 	};
 
 	const handleQuestionChange = (event: React.ChangeEvent<HTMLDivElement>) => {
-		if (event.target.innerText !== "") {
+		if (event.target.innerText.trim() !== "") {
+			if (questionPlaceHolderRef.current) {
+				questionPlaceHolderRef.current.style.opacity = "0";
+			}
 			const div = event.target;
 			div.style.opacity = "1";
 			div.style.textAlign = "start";
+
+			placeCursorAtTheEnd(event);
 		} else {
 			event.target.style.opacity = ".6";
 			event.target.style.textAlign = "center";
+			if (questionPlaceHolderRef.current) {
+				questionPlaceHolderRef.current.style.opacity = ".6";
+			}
 		}
 	};
 
@@ -207,46 +262,77 @@ const PollPage = () => {
 				>
 					{question}
 				</QuestionStyle>
+				<QuestionPlaceHolderStyle
+					ref={questionPlaceHolderRef}
+					dir="auto"
+					question={question}
+				>
+					Ask a question...
+				</QuestionPlaceHolderStyle>
 				<OptionsStyle>
-					<PollTextStyle
-						ref={rightOptionRef}
-						contentEditable
-						data-text="NO"
-						onInput={(e) =>
-							handleOption(
-								e as ChangeEvent<HTMLDivElement>,
-								rightOptionFontSize,
-								setRightOptionFontSize
-							)
-						}
-						dir="auto"
-						fontSize={rightOptionFontSize}
-						backgroundImage={getGradient(optionRightGradient)}
-						suppressContentEditableWarning={true}
-						text={rightOption}
-					>
-						{rightOption}
-					</PollTextStyle>
+					<OptionStyle>
+						<PollTextStyle
+							ref={rightOptionRef}
+							contentEditable
+							data-text="NO"
+							onInput={(e) =>
+								handleOption(
+									e as ChangeEvent<HTMLDivElement>,
+									rightOptionFontSize,
+									setRightOptionFontSize,
+									rightOptionPlaceHolderRef
+								)
+							}
+							dir="auto"
+							fontSize={rightOptionFontSize}
+							backgroundImage={getGradient(optionRightGradient)}
+							suppressContentEditableWarning={true}
+							text={rightOption}
+						>
+							{rightOption}
+						</PollTextStyle>
+						<PollPlaceHolderStyle
+							ref={rightOptionPlaceHolderRef}
+							text={rightOption}
+							dir="auto"
+							fontSize={40}
+							backgroundImage={getGradient(optionRightGradient)}
+						>
+							NO
+						</PollPlaceHolderStyle>
+					</OptionStyle>
 					<OptionsHr />
-					<PollTextStyle
-						ref={leftOptionRef}
-						contentEditable
-						data-text="YES"
-						onInput={(e) =>
-							handleOption(
-								e as ChangeEvent<HTMLDivElement>,
-								leftOptionFontSize,
-								setLeftOptionFontSize
-							)
-						}
-						dir="auto"
-						fontSize={leftOptionFontSize}
-						backgroundImage={getGradient(optionLeftGradient)}
-						suppressContentEditableWarning={true}
-						text={leftOption}
-					>
-						{leftOption}
-					</PollTextStyle>
+					<OptionStyle>
+						<PollTextStyle
+							ref={leftOptionRef}
+							contentEditable
+							data-text="YES"
+							onInput={(e) =>
+								handleOption(
+									e as ChangeEvent<HTMLDivElement>,
+									leftOptionFontSize,
+									setLeftOptionFontSize,
+									leftOptionPlaceHolderRef
+								)
+							}
+							dir="auto"
+							fontSize={leftOptionFontSize}
+							backgroundImage={getGradient(optionLeftGradient)}
+							suppressContentEditableWarning={true}
+							text={leftOption}
+						>
+							{leftOption}
+						</PollTextStyle>
+						<PollPlaceHolderStyle
+							ref={leftOptionPlaceHolderRef}
+							text={leftOption}
+							dir="auto"
+							fontSize={40}
+							backgroundImage={getGradient(optionLeftGradient)}
+						>
+							YES
+						</PollPlaceHolderStyle>
+					</OptionStyle>
 				</OptionsStyle>
 			</PollStyle>
 		</EditWidgetLayout>
