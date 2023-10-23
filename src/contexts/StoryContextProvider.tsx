@@ -683,10 +683,14 @@ export const StoryContextProvider = memo(
 									scaleY: scale,
 									x:
 										pos.x -
-										(diffRef.current?.x || 0) * scale, //(width - trashWidth) / 2,
+										((diffRef.current?.x || 0) /
+											maxScaleRef.current) *
+											scale,
 									y:
 										pos.y -
-										(diffRef.current?.y || 0) * scale,
+										((diffRef.current?.y || 0) /
+											maxScaleRef.current) *
+											scale,
 								});
 							}
 						},
@@ -719,10 +723,14 @@ export const StoryContextProvider = memo(
 									scaleY: scale,
 									x:
 										pos.x -
-										(diffRef.current?.x || 0) * scale,
+										((diffRef.current?.x || 0) /
+											maxScaleRef.current) *
+											scale,
 									y:
 										pos.y -
-										(diffRef.current?.y || 0) * scale,
+										((diffRef.current?.y || 0) /
+											maxScaleRef.current) *
+											scale,
 								});
 							}
 						},
@@ -730,7 +738,11 @@ export const StoryContextProvider = memo(
 							tweenRef.current = "";
 						}
 					);
-				} else if (tweenRef.current === "") {
+				} else if (
+					isInTrashRef.current &&
+					inTrash &&
+					!tweenRef.current
+				) {
 					let pos = stageRef.current?.getPointerPosition();
 					if (pos) {
 						group.setAttrs({
@@ -739,7 +751,15 @@ export const StoryContextProvider = memo(
 								(diffRef.current?.x || 0) * group.scaleX(),
 							y:
 								pos.y -
-								(diffRef.current?.y || 0) * group.scaleY(),
+								(diffRef.current?.y || 0) * group.scaleX(),
+						});
+					}
+				} else if (tweenRef.current === "") {
+					let pos = stageRef.current?.getPointerPosition();
+					if (pos) {
+						group.setAttrs({
+							x: pos.x - (diffRef.current?.x || 0),
+							y: pos.y - (diffRef.current?.y || 0),
 						});
 					}
 				}
