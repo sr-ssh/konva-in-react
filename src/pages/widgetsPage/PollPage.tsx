@@ -142,14 +142,24 @@ const PollPage = () => {
 	const [leftOption, setLeftOption] = useState("");
 	const [rightOption, setRightOption] = useState("");
 	const questionRef = useRef<HTMLDivElement>(null);
+	const questionTextRef = useRef<string>("");
 	const questionPlaceHolderRef = useRef<HTMLDivElement>(null);
 	const leftOptionRef = useRef<HTMLDivElement>(null);
+	const leftOptionTextRef = useRef<string>("");
 	const leftOptionPlaceHolderRef = useRef<HTMLDivElement>(null);
 	const rightOptionRef = useRef<HTMLDivElement>(null);
+	const rightOptionTextRef = useRef<string>("");
 	const rightOptionPlaceHolderRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addPoll } = useStoryContext();
+
+	if (questionRef.current?.innerText)
+		questionTextRef.current = questionRef.current?.innerText;
+	if (leftOptionRef.current?.innerText)
+		leftOptionTextRef.current = leftOptionRef.current?.innerText;
+	if (rightOptionRef.current?.innerText)
+		rightOptionTextRef.current = rightOptionRef.current?.innerText;
 
 	const handleOption = (
 		event: React.ChangeEvent<HTMLDivElement>,
@@ -243,6 +253,18 @@ const PollPage = () => {
 		questionRef.current?.focus();
 		registerPage(PageTypeEnum.Poll, listen, handlePage);
 	}, [registerPage]);
+
+	useEffect(() => {
+		if (questionTextRef.current) {
+			setQuestion(questionTextRef.current);
+		}
+		if (leftOptionTextRef.current) {
+			setLeftOption(leftOptionTextRef.current);
+		}
+		if (rightOptionTextRef.current) {
+			setRightOption(rightOptionTextRef.current);
+		}
+	}, [show]);
 
 	if (!show) {
 		return <></>;

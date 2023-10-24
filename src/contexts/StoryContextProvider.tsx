@@ -160,7 +160,6 @@ export const StoryContextProvider = memo(
 		let cancelAnimation = useRef<() => void>();
 		let lastScaleRef = useRef<number>(1);
 		let maxScaleRef = useRef<number>(1);
-		let hashtagRef = useRef<any>();
 
 		const { listenTap } = useEvent();
 		const { setMode } = usePageMangerContext();
@@ -824,7 +823,6 @@ export const StoryContextProvider = memo(
 					hashtagColors[i].color,
 					hashtagColors[i].fill
 				);
-				hashtagRef.current = hashtag;
 				addInteractivity(
 					hashtag,
 					"hashtag",
@@ -864,15 +862,13 @@ export const StoryContextProvider = memo(
 			leftOption?: string,
 			rightOption?: string
 		) => {
-			const name = new Date().toISOString();
-
 			const poll = drawPoll(
 				question || "",
 				leftOption || "YES",
 				rightOption || "NO"
 			);
-			addInteractivity(poll, name, () => {
-				currentEditingShapeRef.current = popShape(name);
+			addInteractivity(poll, "poll", () => {
+				currentEditingShapeRef.current = popShape("poll");
 				setMode(StoryContextModes.IsPollEditing, true, {
 					question,
 					leftOption: leftOption || "YES",

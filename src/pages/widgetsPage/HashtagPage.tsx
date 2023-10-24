@@ -69,7 +69,6 @@ const HashtagPage = () => {
 	const { registerPage } = usePageMangerContext();
 	const { addHashtag } = useStoryContext();
 
-	console.log(textStrRef.current);
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
 		const div = event.target;
 		if (div.innerText.trim() !== "") {

@@ -1,5 +1,6 @@
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import { usePageMangerContext } from "../../hooks/usePageMangerContext";
+import { useStoryContext } from "../../hooks/useStoryContext";
 import {
 	MentionStyle,
 	MentionTextStyle,
@@ -9,9 +10,14 @@ import { getGradient } from "../../utils/widgetUtils";
 
 const PollPreview = () => {
 	const { openPage } = usePageMangerContext();
+	const { popShape } = useStoryContext();
+
 	return (
 		<div
-			onClick={() => openPage(PageTypeEnum.Poll)}
+			onClick={() => {
+				popShape("poll");
+				openPage(PageTypeEnum.Poll);
+			}}
 			style={{ minWidth: 80, marginBlock: 30 }}
 		>
 			<MentionStyle style={{ borderRadius: 10, paddingBlock: 6 }}>
