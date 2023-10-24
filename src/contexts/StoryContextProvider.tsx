@@ -94,6 +94,7 @@ interface StoryContextType {
 	) => void;
 	addClock: () => void;
 	addEmoji: (emoji: string) => void;
+	popShape: (name: string) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -124,6 +125,7 @@ export const StoryContext = createContext<StoryContextType>({
 	) => {},
 	addClock: () => {},
 	addEmoji: (emoji: string) => {},
+	popShape: (name: string) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -158,6 +160,7 @@ export const StoryContextProvider = memo(
 		let cancelAnimation = useRef<() => void>();
 		let lastScaleRef = useRef<number>(1);
 		let maxScaleRef = useRef<number>(1);
+		let hashtagRef = useRef<any>();
 
 		const { listenTap } = useEvent();
 		const { setMode } = usePageMangerContext();
@@ -821,6 +824,7 @@ export const StoryContextProvider = memo(
 					hashtagColors[i].color,
 					hashtagColors[i].fill
 				);
+				hashtagRef.current = hashtag;
 				addInteractivity(
 					hashtag,
 					"hashtag",
@@ -972,6 +976,7 @@ export const StoryContextProvider = memo(
 					addPoll,
 					addClock,
 					addEmoji,
+					popShape,
 				}}
 			>
 				{children}

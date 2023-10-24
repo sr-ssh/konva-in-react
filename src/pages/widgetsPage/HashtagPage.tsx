@@ -34,7 +34,7 @@ export const HashtagTextStyle = styled.div<HashtagTextStyleType>(
 		fontSize: fontSize,
 		fontWeight: "bold",
 		textAlign: "left",
-		opacity: 0,
+		opacity: text ? 1 : 0,
 		minWidth: text ? "auto" : 157,
 	})
 );
@@ -63,11 +63,13 @@ const HashtagPage = () => {
 	const [text, setText] = useState("");
 
 	const textRef = useRef<HTMLDivElement>(null);
+	const textStrRef = useRef<string>();
 	const textPlaceHolderRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addHashtag } = useStoryContext();
 
+	console.log(textStrRef.current);
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
 		const div = event.target;
 		if (div.innerText.trim() !== "") {
@@ -119,6 +121,15 @@ const HashtagPage = () => {
 	const listen = (status: boolean) => {
 		setShow(status);
 	};
+
+	if (textRef.current?.innerText)
+		textStrRef.current = textRef.current?.innerText;
+
+	useEffect(() => {
+		if (textStrRef.current) {
+			setText(textStrRef.current);
+		}
+	}, [show]);
 
 	useEffect(() => {
 		textRef.current?.focus();

@@ -1,5 +1,6 @@
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import { usePageMangerContext } from "../../hooks/usePageMangerContext";
+import { useStoryContext } from "../../hooks/useStoryContext";
 import {
 	HashtagStyle,
 	HashtagTextStyle,
@@ -7,11 +8,15 @@ import {
 
 const HashtagPreview = () => {
 	const { openPage } = usePageMangerContext();
+	const { popShape } = useStoryContext();
 
 	return (
 		<div
 			style={{ width: 100, marginBlock: 30 }}
-			onClick={() => openPage(PageTypeEnum.Hashtag)}
+			onClick={() => {
+				popShape("hashtag");
+				openPage(PageTypeEnum.Hashtag);
+			}}
 		>
 			<HashtagStyle style={{ borderRadius: 10, paddingInline: 8 }}>
 				<HashtagTextStyle
