@@ -57,7 +57,7 @@ export const MentionPlaceHolderStyle = styled.div<MentionTextStyleType>(
 
 // TODO add api of mention
 const MentionPage = () => {
-	const [show, setShow] = useState(true);
+	const [show, setShow] = useState(false);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
 

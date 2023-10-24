@@ -6,9 +6,17 @@ import {
 const HashtagPreview = () => {
 	return (
 		<div style={{ width: 100, marginBlock: 30 }}>
-			<HashtagStyle onClick={(e) => e.stopPropagation()}>
+			<HashtagStyle
+				style={{ borderRadius: 10, paddingInline: 8 }}
+				onClick={(e) => e.stopPropagation()}
+			>
 				<HashtagTextStyle
-					style={{ opacity: 1 }}
+					style={{
+						opacity: 1,
+						minWidth: "auto",
+						position: "relative",
+						top: 2,
+					}}
 					dir="auto"
 					fontSize={23}
 				>

@@ -21,6 +21,7 @@ type EmojiSliderStyleType = {
 };
 const EmojiSliderStyle = styled.div<EmojiSliderStyleType>(
 	({ colors, isScaled }) => ({
+		position: "relative",
 		justifySelf: "center",
 		alignSelf: "center",
 		borderRadius: 15,
@@ -63,6 +64,8 @@ export const EmojiSliderTextStyle = styled.div<EmojiSliderTextStyleType>(
 const EmojiSliderPlaceHolderStyle = styled.div<EmojiSliderTextStyleType>(
 	({ colors, text }) => ({
 		position: "absolute",
+		top: 25,
+		left: 15,
 		zIndex: 0,
 		fontWeight: "bold",
 		textAlign: "start",

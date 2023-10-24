@@ -4,6 +4,8 @@ import MentionPreview from "../../components/widgets/MentionPreview";
 import PollPreview from "../../components/widgets/PollPreview";
 import LinkPreview from "../../components/widgets/LinkPreview";
 import EmojiSliderPreview from "../../components/widgets/EmojiSliderPreview";
+import ClockPreview from "../../components/widgets/ClockPreview";
+import EmojisArray from "../../components/widgets/EmojisArray";
 
 const ContainerStyle = styled.div({
 	position: "absolute",
@@ -12,23 +14,30 @@ const ContainerStyle = styled.div({
 	width: "100%",
 	background: "black",
 	zIndex: 2,
+	overflowY: "scroll",
+	padding: 24,
+});
+const WidgetsStyle = styled.div({
 	display: "grid",
 	gridTemplateColumns: "repeat(3, 1fr)",
 	justifyItems: "center",
 	alignContent: "flex-start",
-	rowGap: 24,
-	paddingBlock: 24,
-	overflowY: "scroll",
+	alignItems: "center",
+	paddingBlockEnd: 20,
 });
 
 const ChooseWidget = () => {
 	return (
 		<ContainerStyle>
-			<HashtagPreview />
-			<MentionPreview />
-			<PollPreview />
-			<EmojiSliderPreview />
-			<LinkPreview />
+			<WidgetsStyle>
+				<HashtagPreview />
+				<MentionPreview />
+				<PollPreview />
+				<EmojiSliderPreview />
+				<LinkPreview />
+				<ClockPreview />
+			</WidgetsStyle>
+			<EmojisArray />
 		</ContainerStyle>
 	);
 };

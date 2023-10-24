@@ -7,16 +7,22 @@ import { getGradient } from "../../utils/widgetUtils";
 
 const PollPreview = () => {
 	return (
-		<div style={{ width: 80, marginBlock: 30 }}>
-			<MentionStyle onClick={(e) => e.stopPropagation()}>
+		<div style={{ minWidth: 80, marginBlock: 30 }}>
+			<MentionStyle
+				style={{ borderRadius: 10, paddingBlock: 6 }}
+				onClick={(e) => e.stopPropagation()}
+			>
 				<MentionTextStyle
 					style={{
 						opacity: 1,
 						backgroundImage: getGradient(optionLeftGradient),
+						minWidth: "auto",
+						fontWeight: "normal",
 					}}
 					dir="auto"
-					fontSize={23}
+					fontSize={30}
 				>
+					<img src="assets/images/poll.svg" alt="poll" />
 					POLL
 				</MentionTextStyle>
 			</MentionStyle>

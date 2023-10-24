@@ -44,7 +44,6 @@ const FakeThumbStyle = styled.div({
 });
 
 const EmojiSliderPreview = () => {
-	const width = 100;
 	return (
 		<div style={{ width: 100, position: "relative", marginBlock: 30 }}>
 			<EmojiSliderStyle>

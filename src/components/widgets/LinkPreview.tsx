@@ -5,10 +5,10 @@ import { getGradient } from "../../utils/widgetUtils";
 const ContainerStyle = styled.div({
 	justifySelf: "center",
 	alignSelf: "center",
-	borderRadius: 5,
-	padding: "5px 8px",
+	borderRadius: 10,
+	padding: "8px 10px",
 	backgroundColor: linkColors[0].fill,
-	width: 80,
+	minWidth: 80,
 	direction: "ltr",
 	marginBlock: 30,
 });
@@ -21,12 +21,16 @@ const TexStyle = styled.div({
 	MozBackgroundClip: "text",
 	MozTextFillColor: "transparent",
 	fontFamily: "AvenyTRegular",
-	fontSize: 23,
+	fontSize: 30,
 	fontWeight: "bold",
 	textAlign: "left",
+	display: "flex",
+	position: "relative",
+	top: 2,
 	span: {
 		WebkitTextFillColor: "black",
 		MozTextFillColor: "black",
+		fontSize: 20,
 	},
 });
 
