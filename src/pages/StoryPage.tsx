@@ -8,6 +8,7 @@ import MentionPage from "./widgetsPage/MentionPage";
 import EmojiSliderPage from "./widgetsPage/EmojiSliderPage";
 import PollPage from "./widgetsPage/PollPage";
 import TrashPage from "./TrashPage";
+import ChooseWidget from "./widgetsPage/ChooseWidget";
 
 function StoryPage() {
 	const { addText } = useStoryContext();
@@ -26,6 +27,7 @@ function StoryPage() {
 			<DrawPage />
 			<DefaultPage />
 			<TrashPage />
+			<ChooseWidget />
 		</>
 	);
 }

@@ -40,10 +40,9 @@ const CloseIcon = styled(IconsStyle)({
 
 const DefaultPage = () => {
 	const [show, setShow] = useState(true);
-	const [showWidgetPage, setShowWidgetPage] = useState(false);
 
 	const { startDrawMode, downloadStage } = useStoryContext();
-	const { setMode, registerPage } = usePageMangerContext();
+	const { setMode, registerPage, openPage } = usePageMangerContext();
 
 	const listen = (showPage: boolean) => {
 		setShow(showPage);
@@ -75,14 +74,15 @@ const DefaultPage = () => {
 							startDrawMode();
 						}}
 					/>
-					<WidgetIcon onClick={() => setShowWidgetPage(true)} />
+					<WidgetIcon
+						onClick={() => openPage(PageTypeEnum.Widgets)}
+					/>
 				</div>
 				<CloseIcon />
 			</HeaderStyle>
 			<FooterStyle onClick={() => downloadStage()}>
 				add to your story +
 			</FooterStyle>
-			{showWidgetPage && <ChooseWidget />}
 		</>
 	);
 };

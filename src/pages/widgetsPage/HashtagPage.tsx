@@ -146,6 +146,7 @@ const HashtagPage = () => {
 					dir="auto"
 					fontSize={fontSize}
 					text={text}
+					suppressContentEditableWarning={true}
 				>
 					{text}
 				</HashtagTextStyle>

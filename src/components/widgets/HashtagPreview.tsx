@@ -1,15 +1,19 @@
+import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
+import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import {
 	HashtagStyle,
 	HashtagTextStyle,
 } from "../../pages/widgetsPage/HashtagPage";
 
 const HashtagPreview = () => {
+	const { openPage } = usePageMangerContext();
+
 	return (
-		<div style={{ width: 100, marginBlock: 30 }}>
-			<HashtagStyle
-				style={{ borderRadius: 10, paddingInline: 8 }}
-				onClick={(e) => e.stopPropagation()}
-			>
+		<div
+			style={{ width: 100, marginBlock: 30 }}
+			onClick={() => openPage(PageTypeEnum.Hashtag)}
+		>
+			<HashtagStyle style={{ borderRadius: 10, paddingInline: 8 }}>
 				<HashtagTextStyle
 					style={{
 						opacity: 1,

@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { emojiSliderColors } from "../../utils/widgetColors";
 import { getGradient } from "../../utils/widgetUtils";
+import { usePageMangerContext } from "../../hooks/usePageMangerContext";
+import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 
 const EmojiSliderStyle = styled.div({
 	justifySelf: "center",
@@ -44,8 +46,12 @@ const FakeThumbStyle = styled.div({
 });
 
 const EmojiSliderPreview = () => {
+	const { openPage } = usePageMangerContext();
 	return (
-		<div style={{ width: 100, position: "relative", marginBlock: 30 }}>
+		<div
+			onClick={() => openPage(PageTypeEnum.EmojiSlider)}
+			style={{ width: 100, position: "relative", marginBlock: 30 }}
+		>
 			<EmojiSliderStyle>
 				<FakeRangeTrackStyle />
 				<FakeRangeStyle />

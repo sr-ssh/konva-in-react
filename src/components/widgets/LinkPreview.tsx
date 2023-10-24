@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { linkColors } from "../../utils/widgetColors";
 import { getGradient } from "../../utils/widgetUtils";
+import { usePageMangerContext } from "../../hooks/usePageMangerContext";
+import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 
 const ContainerStyle = styled.div({
 	justifySelf: "center",
@@ -35,8 +37,9 @@ const TexStyle = styled.div({
 });
 
 const LinkPreview = () => {
+	const { openPage } = usePageMangerContext();
 	return (
-		<ContainerStyle>
+		<ContainerStyle onClick={() => openPage(PageTypeEnum.Link)}>
 			<TexStyle>
 				<span>🔗</span> LINK
 			</TexStyle>

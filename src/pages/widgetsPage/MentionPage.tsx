@@ -135,6 +135,7 @@ const MentionPage = () => {
 					onInput={handleTextChange}
 					dir="auto"
 					fontSize={fontSize}
+					suppressContentEditableWarning={true}
 				>
 					{text}
 				</MentionTextStyle>

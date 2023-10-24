@@ -27,6 +27,7 @@ interface PageManagerContextType {
 		listener: PageListenerType,
 		handlePage?: PageHandlerType
 	) => void;
+	openPage: (pageType: PageTypeEnum) => void;
 }
 
 export const PageManagerContext = createContext<PageManagerContextType>({
@@ -40,6 +41,7 @@ export const PageManagerContext = createContext<PageManagerContextType>({
 		listener: PageListenerType,
 		handlePage?: PageHandlerType
 	) => {},
+	openPage: (pageType: PageTypeEnum) => {},
 });
 
 export enum PageTypeEnum {
@@ -51,6 +53,8 @@ export enum PageTypeEnum {
 	EmojiSlider = "EMOJI_SLIDER",
 	Poll = "POLL",
 	Trash = "TRASH",
+	Link = "LINK",
+	Widgets = "WIDGETS",
 }
 
 export type PageRefType = {
@@ -81,7 +85,7 @@ export const PageManagerContextProvider = memo(
 			}
 		};
 
-		const showThisPage = (pageType: PageTypeEnum) => {
+		const openPage = (pageType: PageTypeEnum) => {
 			for (const property in pagesRef.current) {
 				if (property === pageType) {
 					pagesRef.current[property]?.pageListener(true);
@@ -100,7 +104,7 @@ export const PageManagerContextProvider = memo(
 					pagesRef.current[property].pageHandler?.(config);
 				}
 			}
-			showThisPage(pageType);
+			openPage(pageType);
 		};
 
 		const callPageHandler = (
@@ -128,32 +132,32 @@ export const PageManagerContextProvider = memo(
 
 				case StoryContextModes.IsAddingText:
 					if (status) {
-						showThisPage(PageTypeEnum.Text);
+						openPage(PageTypeEnum.Text);
 					} else {
-						showThisPage(PageTypeEnum.Default);
+						openPage(PageTypeEnum.Default);
 					}
 					break;
 
 				case StoryContextModes.IsDefault:
 					if (status) {
-						showThisPage(PageTypeEnum.Default);
+						openPage(PageTypeEnum.Default);
 					}
 					break;
 
 				case StoryContextModes.IsDragging:
 					if (status) {
-						showThisPage(PageTypeEnum.Trash);
+						openPage(PageTypeEnum.Trash);
 					} else {
-						showThisPage(PageTypeEnum.Default);
+						openPage(PageTypeEnum.Default);
 					}
 					break;
 
 				case StoryContextModes.IsInTrash:
 					if (status) {
-						showThisPage(PageTypeEnum.Trash);
+						openPage(PageTypeEnum.Trash);
 						callPageHandler(PageTypeEnum.Trash, config);
 					} else {
-						showThisPage(PageTypeEnum.Default);
+						openPage(PageTypeEnum.Default);
 					}
 					break;
 
@@ -168,10 +172,10 @@ export const PageManagerContextProvider = memo(
 						if (config) {
 							callPageHandler(PageTypeEnum.Draw, config);
 						} else {
-							showThisPage(PageTypeEnum.Draw);
+							openPage(PageTypeEnum.Draw);
 						}
 					} else {
-						showThisPage(PageTypeEnum.Default);
+						openPage(PageTypeEnum.Default);
 					}
 					break;
 
@@ -179,7 +183,7 @@ export const PageManagerContextProvider = memo(
 					if (status) {
 						showNoPage();
 					} else {
-						showThisPage(PageTypeEnum.Draw);
+						openPage(PageTypeEnum.Draw);
 					}
 					break;
 
@@ -187,7 +191,7 @@ export const PageManagerContextProvider = memo(
 				case StoryContextModes.IsMentionEditing:
 					if (status) {
 					} else {
-						showThisPage(PageTypeEnum.Default);
+						openPage(PageTypeEnum.Default);
 					}
 					break;
 
@@ -195,14 +199,14 @@ export const PageManagerContextProvider = memo(
 					if (status) {
 						showPageWithAttrs(PageTypeEnum.EmojiSlider, config);
 					} else {
-						showThisPage(PageTypeEnum.Default);
+						openPage(PageTypeEnum.Default);
 					}
 					break;
 				case StoryContextModes.IsPollEditing:
 					if (status) {
 						showPageWithAttrs(PageTypeEnum.Poll, config);
 					} else {
-						showThisPage(PageTypeEnum.Default);
+						openPage(PageTypeEnum.Default);
 					}
 					break;
 
@@ -210,11 +214,13 @@ export const PageManagerContextProvider = memo(
 					break;
 			}
 		};
+
 		return (
 			<PageManagerContext.Provider
 				value={{
 					setMode,
 					registerPage,
+					openPage,
 				}}
 			>
 				{children}

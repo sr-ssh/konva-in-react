@@ -27,7 +27,7 @@ const TrashStyle = styled.img<TrashStyleType>(({ scale }) => ({
 
 const TrashPage = () => {
 	const [show, setShow] = useState(false);
-	const [scale, setScale] = useState(false);
+	const [scale, setScale] = useState<boolean>(false);
 
 	const { registerPage } = usePageMangerContext();
 

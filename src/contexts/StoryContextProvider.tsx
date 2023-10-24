@@ -92,6 +92,8 @@ interface StoryContextType {
 		leftOption?: string,
 		rightOption?: string
 	) => void;
+	addClock: () => void;
+	addEmoji: (emoji: string) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -120,6 +122,8 @@ export const StoryContext = createContext<StoryContextType>({
 		leftOption?: string,
 		rightOption?: string
 	) => {},
+	addClock: () => {},
+	addEmoji: (emoji: string) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -522,16 +526,6 @@ export const StoryContextProvider = memo(
 		};
 
 		const isInTrash = (pos: Vector2d) => {
-			console.log(
-				pos.x,
-				width,
-				trashWidth,
-				pos.y > height - trashHeight - trashBottom,
-				pos.y < height - trashBottom,
-				trashBottom,
-				pos.y,
-				trashHeight
-			);
 			if (
 				pos.x > (width - trashWidth) / 2 &&
 				pos.x < (width + trashWidth) / 2 &&
@@ -539,7 +533,6 @@ export const StoryContextProvider = memo(
 				pos.y < height - trashBottom
 			) {
 				setMode(StoryContextModes.IsInTrash, true, { status: true });
-				console.log("true");
 				return true;
 			}
 			setMode(StoryContextModes.IsInTrash, true, { status: false });
@@ -676,7 +669,7 @@ export const StoryContextProvider = memo(
 							let pos = stageRef.current?.getPointerPosition();
 							const scale = 0.2 + (1 - t) * (lastScale - 0.2);
 							lastScaleRef.current = scale;
-							console.log("scaling", group.getAttrs());
+
 							if (pos) {
 								group.setAttrs({
 									scaleX: scale,
@@ -892,7 +885,7 @@ export const StoryContextProvider = memo(
 			colorsIndex?: number
 		) => {
 			const name = new Date().toISOString();
-			console.log(name);
+
 			if (emoji && defaultValue && colorsIndex !== undefined) {
 				const emojiSlider = drawEmojiSlider(
 					emojiSliderColors[colorsIndex],
@@ -913,7 +906,7 @@ export const StoryContextProvider = memo(
 			setMode(StoryContextModes.IsEmojiSliderEditing, false);
 		};
 
-		const addClock = (type: ClockEnum) => {
+		const addClock = (type: ClockEnum = ClockEnum.Card) => {
 			let clockType = type;
 			const clock = drawClock(Date.now(), type);
 			const clockLayer = getClockLayer();
@@ -940,26 +933,15 @@ export const StoryContextProvider = memo(
 			);
 		};
 
-		const addEmoji = () => {
-			const emoji = drawEmoji("😍");
-			addInteractivity(emoji, "emoji", () => {});
-		};
-
-		const drawWidgets = () => {
-			// addHashtag();
-			// addMention();
-			// addLink();
-			// addPoll();
-			// addEmojiSlider();
-			// addClock(ClockEnum.Card);
-			// addEmoji();
+		const addEmoji = (emoji: string) => {
+			const emojiNode = drawEmoji(emoji);
+			addInteractivity(emojiNode, "emoji", () => {});
 		};
 
 		useEffect(() => {
 			stageRef.current = getStage();
 			addStoryImage();
 			draw();
-			drawWidgets();
 
 			return () => {
 				stageRef.current?.off("mousedown touchstart");
@@ -988,6 +970,8 @@ export const StoryContextProvider = memo(
 					addMention,
 					addEmojiSlider,
 					addPoll,
+					addClock,
+					addEmoji,
 				}}
 			>
 				{children}

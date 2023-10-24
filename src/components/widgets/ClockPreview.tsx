@@ -1,5 +1,8 @@
 import styled from "@emotion/styled";
 import { linkColors } from "../../utils/widgetColors";
+import { useStoryContext } from "../../hooks/useStoryContext";
+import { usePageMangerContext } from "../../hooks/usePageMangerContext";
+import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 
 const ContainerStyle = styled.div({
 	justifySelf: "center",
@@ -40,11 +43,20 @@ const HrStyle = styled.hr({
 });
 
 const ClockPreview = () => {
+	const { addClock } = useStoryContext();
+	const { openPage } = usePageMangerContext();
+
 	const date = new Date();
 	const hours = date.getHours();
 	const minutes = date.getMinutes();
+
 	return (
-		<ContainerStyle>
+		<ContainerStyle
+			onClick={() => {
+				addClock();
+				openPage(PageTypeEnum.Default);
+			}}
+		>
 			<ClockCard>
 				<p>{Math.floor(hours / 10)}</p>
 			</ClockCard>

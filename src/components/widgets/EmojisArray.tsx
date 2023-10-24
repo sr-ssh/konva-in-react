@@ -1,3 +1,7 @@
+import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
+import { usePageMangerContext } from "../../hooks/usePageMangerContext";
+import { useStoryContext } from "../../hooks/useStoryContext";
+
 const emojis = [
 	"😀",
 	"😃",
@@ -3446,6 +3450,9 @@ const emojis = [
 ];
 
 const EmojisArray = () => {
+	const { addEmoji } = useStoryContext();
+	const { openPage } = usePageMangerContext();
+
 	return (
 		<div
 			style={{
@@ -3458,7 +3465,15 @@ const EmojisArray = () => {
 			}}
 		>
 			{emojis.map((emoji) => (
-				<div style={{}}>{emoji}</div>
+				<div
+					key={emoji}
+					onClick={() => {
+						addEmoji(emoji);
+						openPage(PageTypeEnum.Default);
+					}}
+				>
+					{emoji}
+				</div>
 			))}
 		</div>
 	);
