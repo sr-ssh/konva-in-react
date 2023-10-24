@@ -884,8 +884,6 @@ export const StoryContextProvider = memo(
 			defaultValue?: number,
 			colorsIndex?: number
 		) => {
-			const name = new Date().toISOString();
-
 			if (emoji && defaultValue && colorsIndex !== undefined) {
 				const emojiSlider = drawEmojiSlider(
 					emojiSliderColors[colorsIndex],
@@ -893,8 +891,8 @@ export const StoryContextProvider = memo(
 					emoji,
 					text
 				);
-				addInteractivity(emojiSlider, name, () => {
-					currentEditingShapeRef.current = popShape(name);
+				addInteractivity(emojiSlider, "emoji-slider", () => {
+					currentEditingShapeRef.current = popShape("emoji-slider");
 					setMode(StoryContextModes.IsEmojiSliderEditing, true, {
 						text,
 						emoji,

@@ -87,9 +87,26 @@ const EmojiSliderPage = () => {
 
 	const textRef = useRef<HTMLDivElement>(null);
 	const textPlaceHolderRef = useRef<HTMLDivElement>(null);
+	const emojiRef = useRef<string>("");
+	const colorsIndexRef = useRef<number>(0);
+	const textStrRef = useRef<string>("");
+	const rateRef = useRef<number>(10);
 
 	const { registerPage } = usePageMangerContext();
 	const { addEmojiSlider } = useStoryContext();
+
+	if (emoji) {
+		emojiRef.current = emoji;
+	}
+	if (colorsIndex) {
+		colorsIndexRef.current = colorsIndex;
+	}
+	if (textRef.current?.innerText) {
+		textStrRef.current = textRef.current.innerText;
+	}
+	if (rate) {
+		rateRef.current = rate;
+	}
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
 		if (event.target.innerText.trim() !== "") {
@@ -148,6 +165,21 @@ const EmojiSliderPage = () => {
 		textRef.current?.focus();
 		registerPage(PageTypeEnum.EmojiSlider, listen, handlePage);
 	}, [registerPage]);
+
+	useEffect(() => {
+		if (emojiRef.current) {
+			setEmoji(emojiRef.current);
+		}
+		if (textStrRef.current) {
+			setText(textStrRef.current);
+		}
+		if (colorsIndexRef.current) {
+			setColorsIndex(colorsIndexRef.current);
+		}
+		if (rateRef.current) {
+			setRate(rateRef.current);
+		}
+	}, [show]);
 
 	if (!show) {
 		return <></>;

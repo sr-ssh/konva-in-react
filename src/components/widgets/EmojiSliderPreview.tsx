@@ -3,6 +3,7 @@ import { emojiSliderColors } from "../../utils/widgetColors";
 import { getGradient } from "../../utils/widgetUtils";
 import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
+import { useStoryContext } from "../../hooks/useStoryContext";
 
 const EmojiSliderStyle = styled.div({
 	justifySelf: "center",
@@ -47,9 +48,14 @@ const FakeThumbStyle = styled.div({
 
 const EmojiSliderPreview = () => {
 	const { openPage } = usePageMangerContext();
+	const { popShape } = useStoryContext();
+
 	return (
 		<div
-			onClick={() => openPage(PageTypeEnum.EmojiSlider)}
+			onClick={() => {
+				popShape("emoji-slider");
+				openPage(PageTypeEnum.EmojiSlider);
+			}}
 			style={{ width: 100, position: "relative", marginBlock: 30 }}
 		>
 			<EmojiSliderStyle>
