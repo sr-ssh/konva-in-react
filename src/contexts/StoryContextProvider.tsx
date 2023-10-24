@@ -95,6 +95,7 @@ interface StoryContextType {
 	addClock: () => void;
 	addEmoji: (emoji: string) => void;
 	popAndSaveShape: (name: string) => any;
+	addLink: (text: string) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -125,6 +126,7 @@ export const StoryContext = createContext<StoryContextType>({
 	) => {},
 	addClock: () => {},
 	addEmoji: (emoji: string) => {},
+	addLink: (text: string) => {},
 	popAndSaveShape: (name: string) => {},
 });
 
@@ -870,8 +872,12 @@ export const StoryContextProvider = memo(
 			setMode(StoryContextModes.IsMentionEditing, false);
 		};
 
-		const addLink = () => {
-			const link = drawLink(linkColors[0].color, linkColors[0].fill);
+		const addLink = (text: string) => {
+			const link = drawLink(
+				linkColors[0].color,
+				linkColors[0].fill,
+				text
+			);
 			addInteractivity(
 				link,
 				"link",
@@ -992,6 +998,7 @@ export const StoryContextProvider = memo(
 					addPoll,
 					addClock,
 					addEmoji,
+					addLink,
 					popAndSaveShape,
 				}}
 			>

@@ -37,11 +37,9 @@ const TexStyle = styled.div({
 });
 
 const LinkPreview = () => {
-	// const { openPage } = usePageMangerContext();
+	const { openPage } = usePageMangerContext();
 	return (
-		<ContainerStyle
-		// onClick={() => openPage(PageTypeEnum.Link)}
-		>
+		<ContainerStyle onClick={() => openPage(PageTypeEnum.Link)}>
 			<TexStyle>
 				<span>🔗</span> LINK
 			</TexStyle>

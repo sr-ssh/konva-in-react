@@ -25,3 +25,16 @@ export const placeCursorAtTheEnd = (event: React.ChangeEvent<HTMLDivElement>) =>
     selection.addRange(range);
   }
 }
+
+export const getDomain = (address: string): string => {
+  // Remove "http://" or "https://" from the beginning of the address
+  const urlWithoutProtocol = address.replace(/^(https?:\/\/)?/, '');
+
+  // Split the remaining address by "/"
+  const parts = urlWithoutProtocol.split('/');
+
+  // Extract the domain from the first part
+  const domain = parts[0];
+
+  return domain;
+}
