@@ -5,25 +5,34 @@ import styled from "@emotion/styled";
 import { hashtagColors } from "../../utils/widgetColors";
 import { getGradient, placeCursorAtTheEnd } from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
-import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
+import {
+	PageAttrs,
+	PageTypeEnum,
+} from "../../contexts/PageManagerContextProvider";
 import HashtagSearchSection from "../../sections/widgetsPage/HashtagSearchSection";
 
-export const HashtagStyle = styled.div({
-	justifySelf: "center",
-	alignSelf: "center",
-	borderRadius: 5,
-	padding: "5px 8px",
-	backgroundColor: hashtagColors[0].fill,
-});
+type HashtagStyleType = {
+	colorsIndex?: number;
+};
+export const HashtagStyle = styled.div<HashtagStyleType>(
+	({ colorsIndex = 0 }) => ({
+		justifySelf: "center",
+		alignSelf: "center",
+		borderRadius: 5,
+		padding: "5px 8px",
+		backgroundColor: hashtagColors[colorsIndex].fill,
+	})
+);
 
 type HashtagTextStyleType = {
 	fontSize: number;
 	text?: string;
+	colorsIndex?: number;
 };
 export const HashtagTextStyle = styled.div<HashtagTextStyleType>(
-	({ fontSize, text }) => ({
+	({ fontSize, text, colorsIndex = 0 }) => ({
 		outline: "none",
-		backgroundImage: getGradient(hashtagColors[0].color),
+		backgroundImage: getGradient(hashtagColors[colorsIndex].color),
 		backgroundSize: "100%",
 		backgroundRepeat: "repeat",
 		WebkitBackgroundClip: "text",
@@ -39,9 +48,9 @@ export const HashtagTextStyle = styled.div<HashtagTextStyleType>(
 	})
 );
 export const HashtagPlaceHolderStyle = styled.div<HashtagTextStyleType>(
-	({ fontSize }) => ({
+	({ fontSize, colorsIndex = 0 }) => ({
 		outline: "none",
-		backgroundImage: getGradient(hashtagColors[0].color),
+		backgroundImage: getGradient(hashtagColors[colorsIndex].color),
 		backgroundSize: "100%",
 		backgroundRepeat: "repeat",
 		WebkitBackgroundClip: "text",
@@ -61,6 +70,7 @@ const HashtagPage = () => {
 	const [show, setShow] = useState(false);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
+	const [colorsIndex, setColorsIndex] = useState(0);
 
 	const textRef = useRef<HTMLDivElement>(null);
 	const textStrRef = useRef<string>();
@@ -117,10 +127,6 @@ const HashtagPage = () => {
 		addHashtag(str);
 	};
 
-	const listen = (status: boolean) => {
-		setShow(status);
-	};
-
 	if (textRef.current?.innerText)
 		textStrRef.current = textRef.current?.innerText;
 
@@ -130,9 +136,19 @@ const HashtagPage = () => {
 		}
 	}, [show]);
 
+	const pageHandler = ({ colorsIndex }: Partial<PageAttrs>) => {
+		if (colorsIndex) {
+			setColorsIndex(colorsIndex);
+		}
+	};
+
+	const listen = (status: boolean) => {
+		setShow(status);
+	};
+
 	useEffect(() => {
 		textRef.current?.focus();
-		registerPage(PageTypeEnum.Hashtag, listen);
+		registerPage(PageTypeEnum.Hashtag, listen, pageHandler);
 	}, [registerPage]);
 
 	if (!show) {
@@ -142,6 +158,7 @@ const HashtagPage = () => {
 	return (
 		<EditWidgetLayout handleClose={handleClose}>
 			<HashtagStyle
+				colorsIndex={colorsIndex}
 				style={{
 					position: "relative",
 					zIndex: 1,
@@ -151,6 +168,7 @@ const HashtagPage = () => {
 			>
 				<HashtagTextStyle
 					ref={textRef}
+					colorsIndex={colorsIndex}
 					contentEditable
 					onInput={handleTextChange}
 					dir="auto"
@@ -163,6 +181,7 @@ const HashtagPage = () => {
 			</HashtagStyle>
 			<HashtagStyle
 				ref={textPlaceHolderRef}
+				colorsIndex={colorsIndex}
 				style={{
 					position: "absolute",
 					zIndex: 0,
@@ -173,6 +192,7 @@ const HashtagPage = () => {
 				<HashtagPlaceHolderStyle
 					dir="auto"
 					fontSize={fontSize}
+					colorsIndex={colorsIndex}
 					text={text}
 				>
 					#HASHTAG

@@ -94,7 +94,7 @@ interface StoryContextType {
 	) => void;
 	addClock: () => void;
 	addEmoji: (emoji: string) => void;
-	popShape: (name: string) => void;
+	popAndSaveShape: (name: string) => any;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -125,7 +125,7 @@ export const StoryContext = createContext<StoryContextType>({
 	) => {},
 	addClock: () => {},
 	addEmoji: (emoji: string) => {},
-	popShape: (name: string) => {},
+	popAndSaveShape: (name: string) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -160,6 +160,8 @@ export const StoryContextProvider = memo(
 		let cancelAnimation = useRef<() => void>();
 		let lastScaleRef = useRef<number>(1);
 		let maxScaleRef = useRef<number>(1);
+		let lastPoppedShape = useRef<any>();
+		let lastHashtagColorIndexRef = useRef<number>(0);
 
 		const { listenTap } = useEvent();
 		const { setMode } = usePageMangerContext();
@@ -778,6 +780,19 @@ export const StoryContextProvider = memo(
 			return shapeAttrs;
 		};
 
+		const popAndSaveShape = (name: string) => {
+			const layer = getLayer();
+			const foundShape = layer.findOne(`.${name}`);
+			const shapeAttrs = foundShape?.getAttrs();
+			foundShape?.destroy();
+			if (shapeAttrs) {
+				lastPoppedShape.current = shapeAttrs;
+				lastPoppedShape.current.lastColorIndex =
+					lastHashtagColorIndexRef.current;
+				return lastPoppedShape.current;
+			}
+		};
+
 		const addText = (defaultText?: string, color?: string) => {
 			const name = new Date().toISOString();
 			setMode(StoryContextModes.IsAddingText, true);
@@ -807,16 +822,23 @@ export const StoryContextProvider = memo(
 		const changeWidgetColor = (
 			group: Group,
 			colorArray: { color: (string | number)[]; fill: string }[],
-			i: number
+			i: number,
+			isHashtag: boolean = false
 		) => {
 			return function () {
 				i = (i + 1) % colorArray.length;
+				if (isHashtag) {
+					lastHashtagColorIndexRef.current = i;
+				}
 				setHashtagColor(group, colorArray[i].color, colorArray[i].fill);
 			};
 		};
 
 		const addHashtag = (text?: string) => {
-			let i = 0;
+			let i = lastHashtagColorIndexRef.current || 0;
+			if (lastPoppedShape.current?.name === "hashtag") {
+				currentEditingShapeRef.current = lastPoppedShape.current;
+			}
 			if (text) {
 				const hashtag = drawHashtag(
 					text,
@@ -826,7 +848,7 @@ export const StoryContextProvider = memo(
 				addInteractivity(
 					hashtag,
 					"hashtag",
-					changeWidgetColor(hashtag, hashtagColors, 0)
+					changeWidgetColor(hashtag, hashtagColors, i, true)
 				);
 			}
 			setMode(StoryContextModes.IsHashtagEditing, false);
@@ -970,7 +992,7 @@ export const StoryContextProvider = memo(
 					addPoll,
 					addClock,
 					addEmoji,
-					popShape,
+					popAndSaveShape,
 				}}
 			>
 				{children}

@@ -10,12 +10,12 @@ import { getGradient } from "../../utils/widgetUtils";
 
 const PollPreview = () => {
 	const { openPage } = usePageMangerContext();
-	const { popShape } = useStoryContext();
+	const { popAndSaveShape } = useStoryContext();
 
 	return (
 		<div
 			onClick={() => {
-				popShape("poll");
+				popAndSaveShape("poll");
 				openPage(PageTypeEnum.Poll);
 			}}
 			style={{ minWidth: 80, marginBlock: 30 }}

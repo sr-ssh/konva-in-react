@@ -7,17 +7,20 @@ import {
 } from "../../pages/widgetsPage/HashtagPage";
 
 const HashtagPreview = () => {
-	const { openPage } = usePageMangerContext();
-	const { popShape } = useStoryContext();
+	const { showPageWithAttrs } = usePageMangerContext();
+	const { popAndSaveShape } = useStoryContext();
+
+	const handleClick = () => {
+		const prevHashtag = popAndSaveShape("hashtag");
+		let config = {};
+		if (prevHashtag) {
+			config = { colorsIndex: prevHashtag.lastColorIndex };
+		}
+		showPageWithAttrs(PageTypeEnum.Hashtag, config);
+	};
 
 	return (
-		<div
-			style={{ width: 100, marginBlock: 30 }}
-			onClick={() => {
-				popShape("hashtag");
-				openPage(PageTypeEnum.Hashtag);
-			}}
-		>
+		<div style={{ width: 100, marginBlock: 30 }} onClick={handleClick}>
 			<HashtagStyle style={{ borderRadius: 10, paddingInline: 8 }}>
 				<HashtagTextStyle
 					style={{

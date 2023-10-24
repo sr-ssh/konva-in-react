@@ -48,12 +48,12 @@ const FakeThumbStyle = styled.div({
 
 const EmojiSliderPreview = () => {
 	const { openPage } = usePageMangerContext();
-	const { popShape } = useStoryContext();
+	const { popAndSaveShape } = useStoryContext();
 
 	return (
 		<div
 			onClick={() => {
-				popShape("emoji-slider");
+				popAndSaveShape("emoji-slider");
 				openPage(PageTypeEnum.EmojiSlider);
 			}}
 			style={{ width: 100, position: "relative", marginBlock: 30 }}

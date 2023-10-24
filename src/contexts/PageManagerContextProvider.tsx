@@ -27,6 +27,10 @@ interface PageManagerContextType {
 		listener: PageListenerType,
 		handlePage?: PageHandlerType
 	) => void;
+	showPageWithAttrs: (
+		pageType: PageTypeEnum,
+		config?: Partial<PageAttrs>
+	) => void;
 	openPage: (pageType: PageTypeEnum) => void;
 }
 
@@ -40,6 +44,10 @@ export const PageManagerContext = createContext<PageManagerContextType>({
 		pageType: PageTypeEnum,
 		listener: PageListenerType,
 		handlePage?: PageHandlerType
+	) => {},
+	showPageWithAttrs: (
+		pageType: PageTypeEnum,
+		config?: Partial<PageAttrs>
 	) => {},
 	openPage: (pageType: PageTypeEnum) => {},
 });
@@ -220,6 +228,7 @@ export const PageManagerContextProvider = memo(
 				value={{
 					setMode,
 					registerPage,
+					showPageWithAttrs,
 					openPage,
 				}}
 			>
