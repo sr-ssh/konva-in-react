@@ -5,6 +5,13 @@ import StoryPage from "./pages/StoryPage";
 import { PageManagerContextProvider } from "./contexts/PageManagerContextProvider";
 
 function App() {
+	window.addEventListener("resize", () => {
+		const height = window.visualViewport?.height;
+		console.log(height, window.innerHeight);
+		document.body.style.height = height + "px";
+	});
+	console.log(window.innerHeight, window.visualViewport?.height);
+
 	return (
 		<div className="App" dir="rtl">
 			<PageManagerContextProvider>

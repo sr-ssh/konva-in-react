@@ -22,13 +22,16 @@ const RageInputStyle = styled.input<RageInputStyleType>(({ colors }) => ({
 	zIndex: 1,
 	background: "transparent",
 	"::-webkit-slider-runnable-track": {
+		WebkitAppearance: "none",
 		height: "13px",
 		background: "transparent",
 		borderRadius: "16px",
 	},
 	"::-webkit-slider-thumb": {
+		boxShadow: "none",
 		WebkitAppearance: "none",
 		appearance: "none",
+		backgroundColor: "transparent",
 		height: "13px",
 		width: "15px",
 	},
