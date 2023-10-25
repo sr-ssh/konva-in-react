@@ -644,6 +644,12 @@ export const StoryContextProvider = memo(
 				if (draggingNode.current) {
 					let pos = stageRef.current?.getPointerPosition();
 					if (pos && isInTrash(pos)) {
+						if (draggingNode.current.name() === "hashtag") {
+							lastHashtagColorIndexRef.current = 0;
+						}
+						if (draggingNode.current.name() === "link") {
+							lastLinkColorIndexRef.current = 0;
+						}
 						draggingNode.current.remove();
 					}
 				}
