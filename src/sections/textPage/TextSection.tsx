@@ -23,7 +23,6 @@ const SpanInputStyle = styled.span<PInputStylePropsType>(
 			hasOpacity && backgroundColor !== "transparent" ? "80" : ""
 		}`,
 		borderRadius,
-		WebkitBoxDecorationBreak: "clone",
 		// maxWidth: "calc(100% - 88px)",
 		// justifySelf: "center",
 		// alignSelf: "center",
