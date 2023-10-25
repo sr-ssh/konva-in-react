@@ -258,10 +258,10 @@ const degreeToKonva = (degree: number, width: number, height: number) => {
   }
 }
 
-const drawTextWithBackground = (gradient: any, defaultText: string, background: string) => {
+const drawTextWithBackground = (gradient: any, defaultText: string, background: string, fontSize: number = 40) => {
 
   let tmp = new Konva.Text({
-    text: defaultText, fontSize: 40,
+    text: defaultText, fontSize,
     fontFamily: "AvenyTRegular",
   })
 
@@ -291,7 +291,8 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     fillLinearGradientColorStops: gradient,
     align: "center",
     justify: "center",
-    fontSize: 40,
+    fontSize,
+    fontStyle: "bold",
     name: hashtagTextName,
     offsetX: -2,
     offsetY: -6,
@@ -313,7 +314,7 @@ export const drawMention = (text: string, gradient: any, background: string) => 
 }
 
 export const drawLink = (gradient: any, background: string, defaultText: string) => {
-  return drawTextWithBackground(gradient, '🔗' + defaultText, background)
+  return drawTextWithBackground(gradient, defaultText.toLocaleUpperCase() + '🔗', background, 25)
 }
 
 export const changeTextColorByName = (textName: string, backgroundName: string, group: Group, gradient: any, background: string) => {

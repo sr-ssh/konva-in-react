@@ -50,21 +50,37 @@ const LinkPage = () => {
 	const [show, setShow] = useState(false);
 	const [showStickerText, setShowStickerText] = useState(false);
 	const [hasAddress, setHasAddress] = useState(false);
+	const [address, setAddress] = useState("");
+	const [addressText, setAddressText] = useState("");
 
 	const addressRef = useRef<HTMLInputElement>(null);
+	const addressStrRef = useRef<string>("");
 	const addressTextRef = useRef<HTMLInputElement>(null);
+	const addressTextStrRef = useRef<string>("");
+
+	if (addressRef.current?.value) {
+		addressStrRef.current = addressRef.current?.value;
+	}
+	if (addressTextRef.current?.value) {
+		addressTextStrRef.current = addressTextRef.current?.value;
+	}
 
 	const { registerPage, openPage } = usePageMangerContext();
-	const { addLink } = useStoryContext();
+	const { addLink, popAndSaveShape } = useStoryContext();
 
 	const submitHandler = () => {
 		if (addressRef.current?.value) {
+			popAndSaveShape("link");
 			addLink(
 				addressTextRef.current?.value ||
 					getDomain(addressRef.current?.value)
 			);
 			openPage(PageTypeEnum.Default);
 		}
+	};
+
+	const handleBack = () => {
+		openPage(PageTypeEnum.Widgets);
 	};
 
 	const listen = (status: boolean) => {
@@ -75,6 +91,15 @@ const LinkPage = () => {
 		registerPage(PageTypeEnum.Link, listen);
 	}, [registerPage]);
 
+	useEffect(() => {
+		if (addressStrRef.current) {
+			setAddress(addressStrRef.current);
+		}
+		if (addressTextStrRef.current) {
+			setAddressText(addressTextStrRef.current);
+		}
+	}, [show]);
+
 	if (!show) {
 		return <></>;
 	}
@@ -84,7 +109,11 @@ const LinkPage = () => {
 			<HeaderStyle>
 				<div onClick={submitHandler}>تایید</div>
 				<div style={{ fontSize: 14 }}>افزودن لینک</div>
-				<img src="assets/images/arrow-back.svg" alt="arrow-back" />
+				<img
+					onClick={handleBack}
+					src="assets/images/arrow-back.svg"
+					alt="arrow-back"
+				/>
 			</HeaderStyle>
 			<AddressStyle>
 				<label htmlFor="address">آدرس</label>
@@ -94,6 +123,7 @@ const LinkPage = () => {
 					ref={addressRef}
 					placeholder="http://example.com"
 					onChange={(e) => setHasAddress(!!e.target.value)}
+					defaultValue={address}
 				/>
 				<span>
 					کسانی که استوری شما را می‌بینند می‌توانند با کلیک بر روی این
@@ -103,7 +133,12 @@ const LinkPage = () => {
 			{showStickerText ? (
 				<AddressStyle style={{ marginBlockStart: 20 }}>
 					<label htmlFor="text">متن برچسب</label>
-					<input ref={addressTextRef} type="text" name="text" />
+					<input
+						ref={addressTextRef}
+						type="text"
+						name="text"
+						defaultValue={addressText}
+					/>
 					<span>
 						این متن به جای نشانی وب در برچسب نمایش داده خواهد شد
 					</span>

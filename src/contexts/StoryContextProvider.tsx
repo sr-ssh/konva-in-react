@@ -164,6 +164,7 @@ export const StoryContextProvider = memo(
 		let maxScaleRef = useRef<number>(1);
 		let lastPoppedShape = useRef<any>();
 		let lastHashtagColorIndexRef = useRef<number>(0);
+		let lastLinkColorIndexRef = useRef<number>(0);
 
 		const { listenTap } = useEvent();
 		const { setMode } = usePageMangerContext();
@@ -789,8 +790,14 @@ export const StoryContextProvider = memo(
 			foundShape?.destroy();
 			if (shapeAttrs) {
 				lastPoppedShape.current = shapeAttrs;
-				lastPoppedShape.current.lastColorIndex =
-					lastHashtagColorIndexRef.current;
+				if (name === "hashtag") {
+					lastPoppedShape.current.lastColorIndex =
+						lastHashtagColorIndexRef.current;
+				}
+				if (name === "link") {
+					lastPoppedShape.current.lastColorIndex =
+						lastLinkColorIndexRef.current;
+				}
 				return lastPoppedShape.current;
 			}
 		};
@@ -825,12 +832,12 @@ export const StoryContextProvider = memo(
 			group: Group,
 			colorArray: { color: (string | number)[]; fill: string }[],
 			i: number,
-			isHashtag: boolean = false
+			setI?: React.MutableRefObject<number>
 		) => {
 			return function () {
 				i = (i + 1) % colorArray.length;
-				if (isHashtag) {
-					lastHashtagColorIndexRef.current = i;
+				if (setI) {
+					setI.current = i;
 				}
 				setHashtagColor(group, colorArray[i].color, colorArray[i].fill);
 			};
@@ -850,7 +857,12 @@ export const StoryContextProvider = memo(
 				addInteractivity(
 					hashtag,
 					"hashtag",
-					changeWidgetColor(hashtag, hashtagColors, i, true)
+					changeWidgetColor(
+						hashtag,
+						hashtagColors,
+						i,
+						lastHashtagColorIndexRef
+					)
 				);
 			}
 			setMode(StoryContextModes.IsHashtagEditing, false);
@@ -873,15 +885,19 @@ export const StoryContextProvider = memo(
 		};
 
 		const addLink = (text: string) => {
+			let i = lastLinkColorIndexRef.current || 0;
+			if (lastPoppedShape.current?.name === "link") {
+				currentEditingShapeRef.current = lastPoppedShape.current;
+			}
 			const link = drawLink(
-				linkColors[0].color,
-				linkColors[0].fill,
+				linkColors[i].color,
+				linkColors[i].fill,
 				text
 			);
 			addInteractivity(
 				link,
 				"link",
-				changeWidgetColor(link, linkColors, 0)
+				changeWidgetColor(link, linkColors, i, lastLinkColorIndexRef)
 			);
 		};
 
