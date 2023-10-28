@@ -1,8 +1,9 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { getColorBrightness } from "../../utils/konvaUtils";
 import { BrushColorEnum } from "../../@types/drawType";
 import { isIOS } from "../../utils/widgetUtils";
+import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
 
 export type PInputStylePropsType = {
 	color: string;
@@ -13,7 +14,6 @@ export type PInputStylePropsType = {
 const SpanInputStyle = styled.span<PInputStylePropsType>(
 	({ color, backgroundColor, borderRadius, hasOpacity }) => ({
 		outline: "none",
-		// minWidth: 10,
 		color:
 			backgroundColor !== "transparent"
 				? getColorBrightness(color)
@@ -24,9 +24,6 @@ const SpanInputStyle = styled.span<PInputStylePropsType>(
 			hasOpacity && backgroundColor !== "transparent" ? "80" : ""
 		}`,
 		borderRadius,
-		// maxWidth: "calc(100% - 88px)",
-		// justifySelf: "center",
-		// alignSelf: "center",
 		padding: "4px 3px",
 	})
 );
@@ -50,36 +47,20 @@ const TextSection: FC<AddTextProps> = ({
 	text,
 	containerRef,
 }) => {
-	// let [textStyle, setTextStyle] = useState<PInputStylePropsType>({
-	// 	color: BrushColorEnum.White,
-	// 	backgroundColor: "transparent",
-	// 	borderRadius: 0,
-	// });
+	const { handleBlur, handleFocus } = useHeightResetOnInput();
 
 	useEffect(() => {
 		textRef.current?.focus();
 	}, [textRef]);
-	console.log("dynamicHeight", containerRef.current?.style.height);
 
 	return (
-		// <PInputStyle ref={textRef} contentEditable {...textStyle}></PInputStyle>
 		<ContainerStyle onClick={(e) => e.stopPropagation()}>
 			<SpanInputStyle
 				ref={textRef}
 				contentEditable
 				{...textStyle}
-				onFocus={() => {
-					window.scrollTo(0, 0);
-					document.body.scrollTop = 0;
-				}}
-				onBlur={() => {
-					if (isIOS()) {
-						console.log("This is an iOS device.");
-						if (containerRef.current) {
-							containerRef.current.style.height = "100%";
-						}
-					}
-				}}
+				onFocus={handleFocus}
+				onBlur={() => handleBlur(containerRef)}
 				suppressContentEditableWarning={true}
 			>
 				{text}

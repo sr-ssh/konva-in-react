@@ -3,17 +3,14 @@ import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
 import { hashtagColors } from "../../utils/widgetColors";
-import {
-	getGradient,
-	isIOS,
-	placeCursorAtTheEnd,
-} from "../../utils/widgetUtils";
+import { getGradient, placeCursorAtTheEnd } from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import {
 	PageAttrs,
 	PageTypeEnum,
 } from "../../contexts/PageManagerContextProvider";
 import HashtagSearchSection from "../../sections/widgetsPage/HashtagSearchSection";
+import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
 
 type HashtagStyleType = {
 	colorsIndex?: number;
@@ -83,6 +80,7 @@ const HashtagPage = () => {
 
 	const { registerPage } = usePageMangerContext();
 	const { addHashtag } = useStoryContext();
+	const { handleBlur, handleFocus } = useHeightResetOnInput();
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
 		const div = event.target;
@@ -174,13 +172,8 @@ const HashtagPage = () => {
 					dir="auto"
 					fontSize={fontSize}
 					text={text}
-					onBlur={() => {
-						if (isIOS()) {
-							if (containerRef.current) {
-								containerRef.current.style.height = "100%";
-							}
-						}
-					}}
+					onBlur={() => handleBlur(containerRef)}
+					onFocus={handleFocus}
 					suppressContentEditableWarning={true}
 				>
 					{text}

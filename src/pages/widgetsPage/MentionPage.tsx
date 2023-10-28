@@ -3,14 +3,11 @@ import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
 import { mentionColors } from "../../utils/widgetColors";
-import {
-	getGradient,
-	isIOS,
-	placeCursorAtTheEnd,
-} from "../../utils/widgetUtils";
+import { getGradient, placeCursorAtTheEnd } from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import MentionSearchSection from "../../sections/widgetsPage/MentionSearchSection";
+import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
 
 export const MentionStyle = styled.div({
 	justifySelf: "center",
@@ -38,7 +35,7 @@ export const MentionTextStyle = styled.div<MentionTextStyleType>(
 		fontSize: fontSize,
 		fontWeight: "bold",
 		textAlign: "left",
-		opacity: 0,
+		opacity: text ? 1 : 0,
 		minWidth: text ? "auto" : 157,
 	})
 );
@@ -71,6 +68,7 @@ const MentionPage = () => {
 
 	const { registerPage } = usePageMangerContext();
 	const { addMention } = useStoryContext();
+	const { handleBlur, handleFocus } = useHeightResetOnInput();
 
 	const handleTextChange = (event: React.ChangeEvent<HTMLDivElement>) => {
 		const div = event.target;
@@ -144,14 +142,10 @@ const MentionPage = () => {
 					onInput={handleTextChange}
 					dir="auto"
 					fontSize={fontSize}
-					onBlur={() => {
-						if (isIOS()) {
-							if (containerRef.current) {
-								containerRef.current.style.height = "100%";
-							}
-						}
-					}}
+					onBlur={() => handleBlur(containerRef)}
+					onFocus={handleFocus}
 					suppressContentEditableWarning={true}
+					text={text}
 				>
 					{text}
 				</MentionTextStyle>

@@ -14,6 +14,7 @@ import EmojisSection from "../../sections/widgetsPage/EmojisSection";
 import EmojiSlider from "../../components/widgets/EmojiSlider";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { isIOS, placeCursorAtTheEnd } from "../../utils/widgetUtils";
+import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
 
 type EmojiSliderStyleType = {
 	colors: EmojiSliderColorsType;
@@ -95,6 +96,7 @@ const EmojiSliderPage = () => {
 
 	const { registerPage } = usePageMangerContext();
 	const { addEmojiSlider } = useStoryContext();
+	const { handleBlur, handleFocus } = useHeightResetOnInput();
 
 	if (emoji) {
 		emojiRef.current = emoji;
@@ -218,13 +220,8 @@ const EmojiSliderPage = () => {
 					colors={emojiSliderColors[colorsIndex]}
 					suppressContentEditableWarning={true}
 					text={text}
-					onBlur={() => {
-						if (isIOS()) {
-							if (containerRef.current) {
-								containerRef.current.style.height = "100%";
-							}
-						}
-					}}
+					onBlur={() => handleBlur(containerRef)}
+					onFocus={handleFocus}
 				>
 					{text}
 				</EmojiSliderTextStyle>
