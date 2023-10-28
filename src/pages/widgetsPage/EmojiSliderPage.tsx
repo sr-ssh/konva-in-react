@@ -13,7 +13,7 @@ import {
 import EmojisSection from "../../sections/widgetsPage/EmojisSection";
 import EmojiSlider from "../../components/widgets/EmojiSlider";
 import { useStoryContext } from "../../hooks/useStoryContext";
-import { isIOS, placeCursorAtTheEnd } from "../../utils/widgetUtils";
+import { placeCursorAtTheEnd } from "../../utils/widgetUtils";
 import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
 
 type EmojiSliderStyleType = {

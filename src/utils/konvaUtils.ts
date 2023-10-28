@@ -263,27 +263,27 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
   let tmp = new Konva.Text({
     text: defaultText, fontSize,
     fontFamily: "AvenyTRegular",
+    fontStyle: "bold",
   })
 
   const textWidth = tmp.width()
   const textHeight = tmp.height()
 
-  let originalAttrs = {
-    x: -textWidth / 2
-  };
-
-  let group = new Konva.Group(originalAttrs);
+  let group = new Konva.Group();
 
   const gradientPoints = degreeToKonva(90, textWidth, textHeight)
 
   let rect = new Konva.Rect({
-    width: textWidth + 5,
+    width: textWidth + 20,
     height: textHeight + 8,
     fill: background,
     cornerRadius: 5,
     name: hashtagBackgroundName
   });
+  rect.offsetX(rect.width() / 2)
+  rect.offsetY(rect.height() / 2)
   group.add(rect);
+
   let text = new Konva.Text({
     text: defaultText,
     fillLinearGradientStartPoint: { x: gradientPoints.x1, y: gradientPoints.y1 },
@@ -294,10 +294,10 @@ const drawTextWithBackground = (gradient: any, defaultText: string, background: 
     fontSize,
     fontStyle: "bold",
     name: hashtagTextName,
-    offsetX: -2,
-    offsetY: -6,
     fontFamily: "AvenyTRegular",
   });
+  text.offsetX(text.width() / 2)
+  text.offsetY(text.height() / 2)
 
   group.add(text);
 

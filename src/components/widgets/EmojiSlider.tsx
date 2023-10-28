@@ -60,7 +60,7 @@ type FakeThumbStyleType = {
 };
 const FakeThumbStyle = styled.div<FakeThumbStyleType>(({ left }) => ({
 	position: "absolute",
-	top: 2,
+	top: 4,
 	fontSize: 30,
 	left,
 	marginInlineStart: -3,
