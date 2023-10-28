@@ -55,7 +55,7 @@ export const EmojiSliderTextStyle = styled.div<EmojiSliderTextStyleType>(
 		opacity: text ? 1 : 0.3,
 		color: colors.textColor,
 		width: (window.innerWidth * 3) / 5,
-		marginBottom: 17,
+		marginBottom: 7,
 		whiteSpace: "pre-wrap",
 		position: "relative",
 		zIndex: 1,
@@ -73,7 +73,7 @@ const EmojiSliderPlaceHolderStyle = styled.div<EmojiSliderTextStyleType>(
 		opacity: text ? 0 : 0.3,
 		color: colors.textColor,
 		width: (window.innerWidth * 3) / 5,
-		marginBottom: 17,
+		marginBottom: 7,
 	})
 );
 

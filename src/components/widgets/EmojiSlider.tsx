@@ -20,11 +20,12 @@ const RageInputStyle = styled.input<RageInputStyleType>(({ colors }) => ({
 	borderRadius: "16px",
 	position: "relative",
 	zIndex: 1,
+	height: 28,
 	background: "transparent",
 	"::-webkit-slider-runnable-track": {
 		WebkitAppearance: "none",
-		height: "13px",
 		background: "transparent",
+		height: 28,
 		borderRadius: "16px",
 	},
 	"::-webkit-slider-thumb": {
@@ -32,8 +33,8 @@ const RageInputStyle = styled.input<RageInputStyleType>(({ colors }) => ({
 		WebkitAppearance: "none",
 		appearance: "none",
 		backgroundColor: "transparent",
-		height: "13px",
-		width: "15px",
+		height: "28px",
+		width: "28px",
 	},
 }));
 type FakeRangeStyleType = {
@@ -59,7 +60,7 @@ type FakeThumbStyleType = {
 };
 const FakeThumbStyle = styled.div<FakeThumbStyleType>(({ left }) => ({
 	position: "absolute",
-	top: -10,
+	top: 2,
 	fontSize: 30,
 	left,
 	marginInlineStart: -3,
@@ -116,6 +117,7 @@ const EmojiSlider = ({ emoji, rate, colors, getRate }: EmojiSliderProps) => {
 	);
 
 	const handleRangeStart = () => {
+		console.log("touch start on input");
 		clearTimeout(animationTimeoutRef.current);
 		setShowThumbImage(true);
 		setThumbImageAnimation(floatAnimation);
