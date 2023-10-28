@@ -821,6 +821,7 @@ export const StoryContextProvider = memo(
 					width: size,
 					align: "center",
 					fontSize: 30,
+					padding: 20,
 				});
 				addInteractivity(text, name, function (ev) {
 					currentEditingShapeRef.current = popShape(name);

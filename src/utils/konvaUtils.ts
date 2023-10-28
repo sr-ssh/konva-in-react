@@ -653,8 +653,12 @@ export const drawEmoji = (emoji: string) => {
   const emojiNode = new Konva.Text({
     text: emoji,
     fontSize: 30,
+    padding: 20
   })
-  const group = new Konva.Group({ x: -emojiNode.width() / 2 })
+  emojiNode.offsetX(emojiNode.width() / 2)
+  emojiNode.offsetY(emojiNode.height() / 2)
+
+  const group = new Konva.Group()
   group.add(emojiNode)
   return group
 }
