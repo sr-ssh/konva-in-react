@@ -2,6 +2,7 @@ import React, { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import { getColorBrightness } from "../../utils/konvaUtils";
 import { BrushColorEnum } from "../../@types/drawType";
+import { isIOS } from "../../utils/widgetUtils";
 
 export type PInputStylePropsType = {
 	color: string;
@@ -39,10 +40,16 @@ const ContainerStyle = styled.div({
 
 type AddTextProps = {
 	textRef: React.RefObject<HTMLSpanElement>;
+	containerRef: React.RefObject<HTMLDivElement>;
 	textStyle: PInputStylePropsType;
 	text: string;
 };
-const TextSection: FC<AddTextProps> = ({ textRef, textStyle, text }) => {
+const TextSection: FC<AddTextProps> = ({
+	textRef,
+	textStyle,
+	text,
+	containerRef,
+}) => {
 	// let [textStyle, setTextStyle] = useState<PInputStylePropsType>({
 	// 	color: BrushColorEnum.White,
 	// 	backgroundColor: "transparent",
@@ -52,6 +59,7 @@ const TextSection: FC<AddTextProps> = ({ textRef, textStyle, text }) => {
 	useEffect(() => {
 		textRef.current?.focus();
 	}, [textRef]);
+	console.log("dynamicHeight", containerRef.current?.style.height);
 
 	return (
 		// <PInputStyle ref={textRef} contentEditable {...textStyle}></PInputStyle>
@@ -60,6 +68,18 @@ const TextSection: FC<AddTextProps> = ({ textRef, textStyle, text }) => {
 				ref={textRef}
 				contentEditable
 				{...textStyle}
+				onFocus={() => {
+					window.scrollTo(0, 0);
+					document.body.scrollTop = 0;
+				}}
+				onBlur={() => {
+					if (isIOS()) {
+						console.log("This is an iOS device.");
+						if (containerRef.current) {
+							containerRef.current.style.height = "100%";
+						}
+					}
+				}}
 				suppressContentEditableWarning={true}
 			>
 				{text}

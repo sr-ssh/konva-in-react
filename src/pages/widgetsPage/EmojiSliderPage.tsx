@@ -13,7 +13,7 @@ import {
 import EmojisSection from "../../sections/widgetsPage/EmojisSection";
 import EmojiSlider from "../../components/widgets/EmojiSlider";
 import { useStoryContext } from "../../hooks/useStoryContext";
-import { placeCursorAtTheEnd } from "../../utils/widgetUtils";
+import { isIOS, placeCursorAtTheEnd } from "../../utils/widgetUtils";
 
 type EmojiSliderStyleType = {
 	colors: EmojiSliderColorsType;
@@ -91,6 +91,7 @@ const EmojiSliderPage = () => {
 	const colorsIndexRef = useRef<number>(0);
 	const textStrRef = useRef<string>("");
 	const rateRef = useRef<number>(10);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addEmojiSlider } = useStoryContext();
@@ -181,12 +182,16 @@ const EmojiSliderPage = () => {
 		}
 	}, [show]);
 
+	useEffect(() => {
+		textRef.current?.focus();
+	});
+
 	if (!show) {
 		return <></>;
 	}
 
 	return (
-		<EditWidgetLayout handleClose={handleClose}>
+		<EditWidgetLayout containerRef={containerRef} handleClose={handleClose}>
 			<ColorWheelStyle
 				src="assets/images/color-wheel.png"
 				alt="color-wheel"
@@ -213,6 +218,13 @@ const EmojiSliderPage = () => {
 					colors={emojiSliderColors[colorsIndex]}
 					suppressContentEditableWarning={true}
 					text={text}
+					onBlur={() => {
+						if (isIOS()) {
+							if (containerRef.current) {
+								containerRef.current.style.height = "100%";
+							}
+						}
+					}}
 				>
 					{text}
 				</EmojiSliderTextStyle>

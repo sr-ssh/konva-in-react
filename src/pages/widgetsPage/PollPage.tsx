@@ -7,7 +7,11 @@ import {
 	optionLeftGradient,
 	optionRightGradient,
 } from "../../utils/widgetColors";
-import { getGradient, placeCursorAtTheEnd } from "../../utils/widgetUtils";
+import {
+	getGradient,
+	isIOS,
+	placeCursorAtTheEnd,
+} from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import {
 	PageAttrs,
@@ -150,6 +154,7 @@ const PollPage = () => {
 	const rightOptionRef = useRef<HTMLDivElement>(null);
 	const rightOptionTextRef = useRef<string>("");
 	const rightOptionPlaceHolderRef = useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addPoll } = useStoryContext();
@@ -266,12 +271,16 @@ const PollPage = () => {
 		}
 	}, [show]);
 
+	useEffect(() => {
+		questionRef.current?.focus();
+	});
+
 	if (!show) {
 		return <></>;
 	}
 
 	return (
-		<EditWidgetLayout handleClose={handleClose}>
+		<EditWidgetLayout containerRef={containerRef} handleClose={handleClose}>
 			<PollStyle onClick={(e) => e.stopPropagation()}>
 				<QuestionStyle
 					contentEditable
@@ -281,6 +290,13 @@ const PollPage = () => {
 					dir="auto"
 					suppressContentEditableWarning={true}
 					question={question}
+					onBlur={() => {
+						if (isIOS()) {
+							if (containerRef.current) {
+								containerRef.current.style.height = "100%";
+							}
+						}
+					}}
 				>
 					{question}
 				</QuestionStyle>

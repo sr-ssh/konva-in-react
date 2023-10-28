@@ -3,7 +3,11 @@ import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
 import { hashtagColors } from "../../utils/widgetColors";
-import { getGradient, placeCursorAtTheEnd } from "../../utils/widgetUtils";
+import {
+	getGradient,
+	isIOS,
+	placeCursorAtTheEnd,
+} from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import {
 	PageAttrs,
@@ -75,6 +79,7 @@ const HashtagPage = () => {
 	const textRef = useRef<HTMLDivElement>(null);
 	const textStrRef = useRef<string>();
 	const textPlaceHolderRef = useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
 	const { addHashtag } = useStoryContext();
@@ -115,15 +120,6 @@ const HashtagPage = () => {
 
 	const handleClose = () => {
 		let str = textRef.current?.innerText || "";
-		// const isEnglish = /^[A-Za-z\s]+$/.test(str);
-		// let modifiedStr;
-		// if (isEnglish) {
-		// 	modifiedStr = str.substring(1);
-		// 	modifiedStr.concat(str.charAt(0));
-		// } else {
-		// 	modifiedStr = str;
-		// }
-		// console.log(str, modifiedStr, str.substring(1), str.charAt(0), " ");
 		addHashtag(str);
 	};
 
@@ -151,12 +147,16 @@ const HashtagPage = () => {
 		registerPage(PageTypeEnum.Hashtag, listen, pageHandler);
 	}, [registerPage]);
 
+	useEffect(() => {
+		textRef.current?.focus();
+	});
+
 	if (!show) {
 		return <></>;
 	}
 
 	return (
-		<EditWidgetLayout handleClose={handleClose}>
+		<EditWidgetLayout containerRef={containerRef} handleClose={handleClose}>
 			<HashtagStyle
 				colorsIndex={colorsIndex}
 				style={{
@@ -174,6 +174,13 @@ const HashtagPage = () => {
 					dir="auto"
 					fontSize={fontSize}
 					text={text}
+					onBlur={() => {
+						if (isIOS()) {
+							if (containerRef.current) {
+								containerRef.current.style.height = "100%";
+							}
+						}
+					}}
 					suppressContentEditableWarning={true}
 				>
 					{text}

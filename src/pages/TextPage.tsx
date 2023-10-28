@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import ColorsSection from "../sections/drawPage/ColorsSection";
 import styled from "@emotion/styled";
 import HeaderSection from "../sections/textPage/HeaderSection";
@@ -11,6 +11,7 @@ import {
 	PageAttrs,
 	PageTypeEnum,
 } from "../contexts/PageManagerContextProvider";
+import { isIOS } from "../utils/widgetUtils";
 
 type ContainerStyleProps = { height: string };
 const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
@@ -20,6 +21,7 @@ const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
 	height: height,
 	flexDirection: "column",
 	overflow: "hidden",
+	transition: "height .3s ease",
 }));
 
 type AddTextProps = {
@@ -28,6 +30,7 @@ type AddTextProps = {
 
 const TextPage: FC<AddTextProps> = ({ close }) => {
 	let [dynamicHeight, setDynamicHeight] = useState("100%");
+	let [colorsBottom, setColorsBottom] = useState(0);
 	let [show, setShow] = useState(false);
 	let [text, setText] = useState("");
 	let [textStyle, setTextStyle] = useState<PInputStylePropsType>({
@@ -37,14 +40,27 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 		hasOpacity: false,
 	});
 
+	const containerRef = useRef<HTMLDivElement>(null);
 	const textRef = React.useRef<HTMLSpanElement>(null);
 	const { registerPage } = usePageMangerContext();
 
-	window.addEventListener("resize", () => {
-		const height = window.visualViewport?.height;
-		setDynamicHeight(height ? height + "px" : "100%");
-		document.body.style.height = height + "px";
-	});
+	if (isIOS()) {
+		visualViewport?.addEventListener("resize", () => {
+			const height = window.visualViewport?.height;
+			if (containerRef.current && height && height < window.innerHeight) {
+				containerRef.current.style.height = height + "px";
+			}
+			window.scrollTo(0, 0);
+			document.body.scrollTop = 0;
+			document.body.style.height = height + "px";
+		});
+	} else {
+		window.addEventListener("resize", () => {
+			const height = window.visualViewport?.height;
+			setDynamicHeight(height ? height + "px" : "100%");
+			document.body.style.height = height + "px";
+		});
+	}
 
 	const listen = (showPage: boolean) => {
 		setShow(showPage);
@@ -75,8 +91,8 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 				background: "rgba(0, 0, 0, .5)",
 				border: "none",
 				boxSizing: "border-box",
-				height: dynamicHeight,
-				// touchAction: "none",
+				// height: dynamicHeight,
+				touchAction: "none",
 				inset: 0,
 				overflow: "hidden",
 				position: "absolute",
@@ -86,7 +102,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 				outline: "none",
 			}}
 		>
-			<ContainerStyle height={dynamicHeight}>
+			<ContainerStyle ref={containerRef} height={dynamicHeight}>
 				<HeaderSection
 					inputRef={textRef}
 					setTextStyle={setTextStyle}
@@ -94,6 +110,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 				/>
 				<TextSection
 					textRef={textRef}
+					containerRef={containerRef}
 					textStyle={textStyle}
 					text={text}
 				/>

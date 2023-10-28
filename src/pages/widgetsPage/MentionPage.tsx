@@ -3,7 +3,11 @@ import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
 import { mentionColors } from "../../utils/widgetColors";
-import { getGradient, placeCursorAtTheEnd } from "../../utils/widgetUtils";
+import {
+	getGradient,
+	isIOS,
+	placeCursorAtTheEnd,
+} from "../../utils/widgetUtils";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import MentionSearchSection from "../../sections/widgetsPage/MentionSearchSection";
@@ -62,6 +66,7 @@ const MentionPage = () => {
 	const [text, setText] = useState("");
 
 	const textRef = useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 	const placeHolderRef = useRef<HTMLDivElement>(null);
 
 	const { registerPage } = usePageMangerContext();
@@ -115,12 +120,16 @@ const MentionPage = () => {
 		registerPage(PageTypeEnum.Mention, listen);
 	}, [registerPage]);
 
+	useEffect(() => {
+		textRef.current?.focus();
+	});
+
 	if (!show) {
 		return <></>;
 	}
 
 	return (
-		<EditWidgetLayout handleClose={handleClose}>
+		<EditWidgetLayout containerRef={containerRef} handleClose={handleClose}>
 			<MentionStyle
 				style={{
 					position: "relative",
@@ -135,6 +144,13 @@ const MentionPage = () => {
 					onInput={handleTextChange}
 					dir="auto"
 					fontSize={fontSize}
+					onBlur={() => {
+						if (isIOS()) {
+							if (containerRef.current) {
+								containerRef.current.style.height = "100%";
+							}
+						}
+					}}
 					suppressContentEditableWarning={true}
 				>
 					{text}

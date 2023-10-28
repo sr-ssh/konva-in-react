@@ -38,3 +38,10 @@ export const getDomain = (address: string): string => {
 
   return domain;
 }
+
+export const isIOS = () => {
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+    return true
+  }
+  return false
+}
