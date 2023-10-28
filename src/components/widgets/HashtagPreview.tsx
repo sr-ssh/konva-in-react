@@ -20,7 +20,12 @@ const HashtagPreview = () => {
 	};
 
 	return (
-		<div style={{ width: 100, marginBlock: 30 }} onClick={handleClick}>
+		<div
+			style={{
+				marginBlock: 30,
+			}}
+			onClick={handleClick}
+		>
 			<HashtagStyle style={{ borderRadius: 10, paddingInline: 8 }}>
 				<HashtagTextStyle
 					style={{

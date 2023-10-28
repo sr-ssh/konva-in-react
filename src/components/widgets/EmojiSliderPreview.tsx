@@ -56,7 +56,11 @@ const EmojiSliderPreview = () => {
 				popAndSaveShape("emoji-slider");
 				openPage(PageTypeEnum.EmojiSlider);
 			}}
-			style={{ width: 100, position: "relative", marginBlock: 30 }}
+			style={{
+				width: 100,
+				position: "relative",
+				marginBlock: 30,
+			}}
 		>
 			<EmojiSliderStyle>
 				<FakeRangeTrackStyle />

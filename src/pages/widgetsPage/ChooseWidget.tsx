@@ -18,7 +18,7 @@ const ContainerStyle = styled.div({
 	background: "black",
 	zIndex: 2,
 	overflowY: "scroll",
-	padding: 24,
+	padding: 18,
 });
 const WidgetsStyle = styled.div({
 	display: "grid",

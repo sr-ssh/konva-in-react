@@ -10,7 +10,9 @@ const MentionPreview = () => {
 	return (
 		<div
 			onClick={() => openPage(PageTypeEnum.Mention)}
-			style={{ width: 100, marginBlock: 30 }}
+			style={{
+				marginBlock: 30,
+			}}
 		>
 			<MentionStyle style={{ borderRadius: 10, paddingInline: 8 }}>
 				<MentionTextStyle
