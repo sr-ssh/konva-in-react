@@ -529,7 +529,7 @@ export const StoryContextProvider = memo(
 				width,
 				height,
 				mimeType: "image/jpeg",
-				quality: 1,
+				pixelRatio: 3,
 			});
 
 			const downloadLink = document.createElement("a");
