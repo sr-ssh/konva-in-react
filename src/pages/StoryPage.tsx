@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import TextPage from "./TextPage";
 import DrawPage from "./DrawPage";
 import DefaultPage from "./DefaultPage";
@@ -9,8 +9,15 @@ import PollPage from "./widgetsPage/PollPage";
 import TrashPage from "./TrashPage";
 import ChooseWidget from "./widgetsPage/ChooseWidget";
 import LinkPage from "./widgetsPage/LinkPage";
+import { useStoryContext } from "../hooks/useStoryContext";
 
 function StoryPage() {
+	const { addStoryImage } = useStoryContext();
+
+	useEffect(() => {
+		addStoryImage("assets/images/longPic.png");
+	}, [addStoryImage]);
+
 	return (
 		<>
 			<TextPage />

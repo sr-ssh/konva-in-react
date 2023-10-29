@@ -81,7 +81,6 @@ export const PageManagerContextProvider = memo(
 			listener: PageListenerType,
 			handlePage?: PageHandlerType
 		) => {
-			console.log(pageType, handlePage);
 			pagesRef.current[pageType] = {
 				pageListener: listener,
 				pageHandler: handlePage,

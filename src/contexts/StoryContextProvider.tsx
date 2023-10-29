@@ -97,6 +97,7 @@ interface StoryContextType {
 	popAndSaveShape: (name: string) => any;
 	addLink: (text: string) => void;
 	getStrokeWidth: () => OneToTwentyType;
+	addStoryImage: (src: string) => void;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -130,6 +131,7 @@ export const StoryContext = createContext<StoryContextType>({
 	addLink: (text: string) => {},
 	popAndSaveShape: (name: string) => {},
 	getStrokeWidth: () => 1,
+	addStoryImage: (src: string) => {},
 });
 
 export const StoryContextProvider = memo(
@@ -234,9 +236,10 @@ export const StoryContextProvider = memo(
 			return clockLayerRef.current;
 		};
 
-		const addStoryImage = () => {
+		const addStoryImage = (src: string) => {
+			stageRef.current = getStage();
 			const layer = getBackgroundLayer();
-			layer.add(addBackgroundImage());
+			layer.add(addBackgroundImage(src));
 		};
 
 		const drawWithAccuracy = async (
@@ -995,7 +998,7 @@ export const StoryContextProvider = memo(
 
 		useEffect(() => {
 			stageRef.current = getStage();
-			addStoryImage();
+			// addStoryImage("assets/images/longPic.png");
 			draw();
 
 			return () => {
@@ -1030,6 +1033,7 @@ export const StoryContextProvider = memo(
 					addEmoji,
 					addLink,
 					popAndSaveShape,
+					addStoryImage,
 				}}
 			>
 				{children}

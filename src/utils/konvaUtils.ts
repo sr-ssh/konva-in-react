@@ -91,11 +91,11 @@ export const getColorBrightness = (color: string) => {
   }
 }
 
-export const addBackgroundImage = () => {
+export const addBackgroundImage = (src: string) => {
   Konva.hitOnDragEnabled = true;
 
   let imageObj = new Image();
-  imageObj.src = "assets/images/longPic.png";
+  imageObj.src = src;
   let konvaImage = new Konva.Image({
     image: imageObj,
   });
