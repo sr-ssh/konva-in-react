@@ -96,6 +96,7 @@ interface StoryContextType {
 	addEmoji: (emoji: string) => void;
 	popAndSaveShape: (name: string) => any;
 	addLink: (text: string) => void;
+	getStrokeWidth: () => OneToTwentyType;
 }
 
 export const StoryContext = createContext<StoryContextType>({
@@ -128,6 +129,7 @@ export const StoryContext = createContext<StoryContextType>({
 	addEmoji: (emoji: string) => {},
 	addLink: (text: string) => {},
 	popAndSaveShape: (name: string) => {},
+	getStrokeWidth: () => 1,
 });
 
 export const StoryContextProvider = memo(
@@ -504,6 +506,10 @@ export const StoryContextProvider = memo(
 
 		const setBrushStrokeWidth = (strokeWidth: OneToTwentyType) => {
 			brushConfig.current.strokeWidth = strokeWidth;
+		};
+
+		const getStrokeWidth = () => {
+			return brushConfig.current.strokeWidth;
 		};
 
 		const undoDraw = () => {
@@ -1015,6 +1021,7 @@ export const StoryContextProvider = memo(
 					registerDrawContainerSetColor,
 					addText,
 					getBrushColor: brushConfig.current.stroke,
+					getStrokeWidth,
 					addHashtag,
 					addMention,
 					addEmojiSlider,

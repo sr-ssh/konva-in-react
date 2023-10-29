@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { OneToTwentyType } from "../../@types/drawType";
@@ -79,14 +79,13 @@ const RangeStyle = styled.input<RangePropsType>((props) => ({
 		borderRadius: "50%",
 		background: "rgb(255, 255, 255)",
 		cursor: "pointer",
-		// boxShadow: "1px 1px 1px #000000, 0px 0px 1px #0d0d0d",
 	},
 }));
 
 const RangeInputSection: FC = () => {
 	let [dynamicHeight, setDynamicHeight] = useState(window.innerHeight);
 
-	const { setBrushStrokeWidth } = useStoryContext();
+	const { setBrushStrokeWidth, getStrokeWidth } = useStoryContext();
 
 	window.addEventListener("resize", () => {
 		const height = window.visualViewport?.height;
@@ -106,12 +105,11 @@ const RangeInputSection: FC = () => {
 				type="range"
 				min={1}
 				max={20}
-				defaultValue={10}
-				onChange={(e) =>
-					setBrushStrokeWidth(
-						parseInt(e.target.value) as OneToTwentyType
-					)
-				}
+				defaultValue={getStrokeWidth()}
+				onChange={(e) => {
+					const value = e.target.value;
+					setBrushStrokeWidth(parseInt(value) as OneToTwentyType);
+				}}
 			/>
 		</>
 	);
