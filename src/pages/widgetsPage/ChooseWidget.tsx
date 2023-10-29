@@ -6,8 +6,7 @@ import LinkPreview from "../../components/widgets/LinkPreview";
 import EmojiSliderPreview from "../../components/widgets/EmojiSliderPreview";
 import ClockPreview from "../../components/widgets/ClockPreview";
 import EmojisArray from "../../components/widgets/EmojisArray";
-import { useEffect, useState } from "react";
-import { usePageMangerContext } from "../../hooks/usePageMangerContext";
+import usePageWithShow from "../../hooks/usePageWithShow";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 
 const ContainerStyle = styled.div({
@@ -30,17 +29,7 @@ const WidgetsStyle = styled.div({
 });
 
 const ChooseWidget = () => {
-	const [show, setShow] = useState(false);
-
-	const { registerPage } = usePageMangerContext();
-
-	const listen = (status: boolean) => {
-		setShow(status);
-	};
-
-	useEffect(() => {
-		registerPage(PageTypeEnum.Widgets, listen);
-	}, [registerPage]);
+	const show = usePageWithShow(PageTypeEnum.Widgets);
 
 	if (!show) {
 		return <></>;

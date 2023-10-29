@@ -11,6 +11,7 @@ import {
 } from "../../contexts/PageManagerContextProvider";
 import HashtagSearchSection from "../../sections/widgetsPage/HashtagSearchSection";
 import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
+import usePageWithShow from "../../hooks/usePageWithShow";
 
 type HashtagStyleType = {
 	colorsIndex?: number;
@@ -68,7 +69,6 @@ export const HashtagPlaceHolderStyle = styled.div<HashtagTextStyleType>(
 
 // TODO add api of hashtag
 const HashtagPage = () => {
-	const [show, setShow] = useState(false);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
 	const [colorsIndex, setColorsIndex] = useState(0);
@@ -78,7 +78,6 @@ const HashtagPage = () => {
 	const textPlaceHolderRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const { registerPage } = usePageMangerContext();
 	const { addHashtag } = useStoryContext();
 	const { handleBlur, handleFocus } = useHeightResetOnInput();
 
@@ -124,26 +123,19 @@ const HashtagPage = () => {
 	if (textRef.current?.innerText)
 		textStrRef.current = textRef.current?.innerText;
 
-	useEffect(() => {
-		if (textStrRef.current) {
-			setText(textStrRef.current);
-		}
-	}, [show]);
-
 	const pageHandler = ({ colorsIndex }: Partial<PageAttrs>) => {
 		if (colorsIndex) {
 			setColorsIndex(colorsIndex);
 		}
 	};
 
-	const listen = (status: boolean) => {
-		setShow(status);
-	};
+	const show = usePageWithShow(PageTypeEnum.Hashtag, false, pageHandler);
 
 	useEffect(() => {
-		textRef.current?.focus();
-		registerPage(PageTypeEnum.Hashtag, listen, pageHandler);
-	}, [registerPage]);
+		if (textStrRef.current) {
+			setText(textStrRef.current);
+		}
+	}, [show]);
 
 	useEffect(() => {
 		textRef.current?.focus();

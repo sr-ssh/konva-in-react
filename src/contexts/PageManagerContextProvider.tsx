@@ -14,7 +14,7 @@ export type PageAttrs = {
 	status: boolean;
 	hasLine: boolean;
 };
-type PageHandlerType = (config: Partial<PageAttrs>) => void;
+export type PageHandlerType = (config: Partial<PageAttrs>) => void;
 
 interface PageManagerContextType {
 	setMode: (
@@ -81,6 +81,7 @@ export const PageManagerContextProvider = memo(
 			listener: PageListenerType,
 			handlePage?: PageHandlerType
 		) => {
+			console.log(pageType, handlePage);
 			pagesRef.current[pageType] = {
 				pageListener: listener,
 				pageHandler: handlePage,

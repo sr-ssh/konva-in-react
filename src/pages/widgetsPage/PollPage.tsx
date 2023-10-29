@@ -1,5 +1,4 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
 import {
@@ -17,6 +16,7 @@ import {
 	PageAttrs,
 	PageTypeEnum,
 } from "../../contexts/PageManagerContextProvider";
+import usePageWithShow from "../../hooks/usePageWithShow";
 
 const optionsHeight = 75;
 const optionsWidth = (window.innerWidth * 2) / 3;
@@ -139,7 +139,6 @@ const PollPlaceHolderStyle = styled.div<PollTextStyleType>(
 );
 
 const PollPage = () => {
-	const [show, setShow] = useState(false);
 	const [leftOptionFontSize, setLeftOptionFontSize] = useState(40);
 	const [rightOptionFontSize, setRightOptionFontSize] = useState(40);
 	const [question, setQuestion] = useState("");
@@ -156,7 +155,6 @@ const PollPage = () => {
 	const rightOptionPlaceHolderRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const { registerPage } = usePageMangerContext();
 	const { addPoll } = useStoryContext();
 
 	if (questionRef.current?.innerText)
@@ -237,9 +235,9 @@ const PollPage = () => {
 		);
 	};
 
-	const listen = (status: boolean) => {
-		setShow(status);
-	};
+	useEffect(() => {
+		questionRef.current?.focus();
+	});
 
 	const handlePage = ({
 		question,
@@ -254,10 +252,7 @@ const PollPage = () => {
 		}
 	};
 
-	useEffect(() => {
-		questionRef.current?.focus();
-		registerPage(PageTypeEnum.Poll, listen, handlePage);
-	}, [registerPage]);
+	const show = usePageWithShow(PageTypeEnum.Poll, false, handlePage);
 
 	useEffect(() => {
 		if (questionTextRef.current) {
@@ -270,10 +265,6 @@ const PollPage = () => {
 			setRightOption(rightOptionTextRef.current);
 		}
 	}, [show]);
-
-	useEffect(() => {
-		questionRef.current?.focus();
-	});
 
 	if (!show) {
 		return <></>;

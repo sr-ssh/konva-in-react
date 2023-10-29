@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
 import {
@@ -15,6 +14,7 @@ import EmojiSlider from "../../components/widgets/EmojiSlider";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { placeCursorAtTheEnd } from "../../utils/widgetUtils";
 import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
+import usePageWithShow from "../../hooks/usePageWithShow";
 
 type EmojiSliderStyleType = {
 	colors: EmojiSliderColorsType;
@@ -79,7 +79,6 @@ const EmojiSliderPlaceHolderStyle = styled.div<EmojiSliderTextStyleType>(
 );
 
 const EmojiSliderPage = () => {
-	const [show, setShow] = useState(false);
 	const [emoji, setEmoji] = useState("😍");
 	const [colorsIndex, setColorsIndex] = useState(0);
 	const [text, setText] = useState("");
@@ -94,7 +93,6 @@ const EmojiSliderPage = () => {
 	const rateRef = useRef<number>(10);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const { registerPage } = usePageMangerContext();
 	const { addEmojiSlider } = useStoryContext();
 	const { handleBlur, handleFocus } = useHeightResetOnInput();
 
@@ -142,32 +140,26 @@ const EmojiSliderPage = () => {
 			colorsIndex
 		);
 	};
-
 	useEffect(() => {
-		const listen = (status: boolean) => {
-			setShow(status);
-		};
-		const handlePage = ({
-			text,
-			emoji,
-			defaultValue,
-			colorsIndex,
-		}: Partial<PageAttrs>) => {
-			if (
-				emoji &&
-				defaultValue !== undefined &&
-				colorsIndex !== undefined
-			) {
-				setText(text || "");
-				setEmoji(emoji);
-				setRate(defaultValue);
-				setColorsIndex(colorsIndex);
-				textRef.current?.focus();
-			}
-		};
 		textRef.current?.focus();
-		registerPage(PageTypeEnum.EmojiSlider, listen, handlePage);
-	}, [registerPage]);
+	});
+
+	const handlePage = ({
+		text,
+		emoji,
+		defaultValue,
+		colorsIndex,
+	}: Partial<PageAttrs>) => {
+		if (emoji && defaultValue !== undefined && colorsIndex !== undefined) {
+			setText(text || "");
+			setEmoji(emoji);
+			setRate(defaultValue);
+			setColorsIndex(colorsIndex);
+			textRef.current?.focus();
+		}
+	};
+
+	const show = usePageWithShow(PageTypeEnum.EmojiSlider, false, handlePage);
 
 	useEffect(() => {
 		if (emojiRef.current) {
@@ -183,10 +175,6 @@ const EmojiSliderPage = () => {
 			setRate(rateRef.current);
 		}
 	}, [show]);
-
-	useEffect(() => {
-		textRef.current?.focus();
-	});
 
 	if (!show) {
 		return <></>;

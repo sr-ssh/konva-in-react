@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import EditWidgetLayout from "../../sections/widgetsPage/EditWidgetLayout";
 import styled from "@emotion/styled";
 import { mentionColors } from "../../utils/widgetColors";
@@ -8,6 +7,7 @@ import { useStoryContext } from "../../hooks/useStoryContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import MentionSearchSection from "../../sections/widgetsPage/MentionSearchSection";
 import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
+import usePageWithShow from "../../hooks/usePageWithShow";
 
 export const MentionStyle = styled.div({
 	justifySelf: "center",
@@ -58,7 +58,6 @@ export const MentionPlaceHolderStyle = styled.div<MentionTextStyleType>(
 
 // TODO add api of mention
 const MentionPage = () => {
-	const [show, setShow] = useState(false);
 	const [fontSize, setFontSize] = useState(40);
 	const [text, setText] = useState("");
 
@@ -66,7 +65,6 @@ const MentionPage = () => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const placeHolderRef = useRef<HTMLDivElement>(null);
 
-	const { registerPage } = usePageMangerContext();
 	const { addMention } = useStoryContext();
 	const { handleBlur, handleFocus } = useHeightResetOnInput();
 
@@ -111,16 +109,10 @@ const MentionPage = () => {
 	};
 
 	useEffect(() => {
-		const listen = (status: boolean) => {
-			setShow(status);
-		};
-		textRef.current?.focus();
-		registerPage(PageTypeEnum.Mention, listen);
-	}, [registerPage]);
-
-	useEffect(() => {
 		textRef.current?.focus();
 	});
+
+	const show = usePageWithShow(PageTypeEnum.Mention);
 
 	if (!show) {
 		return <></>;

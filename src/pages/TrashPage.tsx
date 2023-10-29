@@ -1,10 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from "react";
-import { usePageMangerContext } from "../hooks/usePageMangerContext";
+import { memo, useState } from "react";
 import {
 	PageAttrs,
 	PageTypeEnum,
 } from "../contexts/PageManagerContextProvider";
 import styled from "@emotion/styled";
+import usePageWithShow from "../hooks/usePageWithShow";
 
 export const trashBottom = 20;
 export const trashHeight = 44;
@@ -26,14 +26,7 @@ const TrashStyle = styled.img<TrashStyleType>(({ scale }) => ({
 }));
 
 const TrashPage = () => {
-	const [show, setShow] = useState(false);
 	const [scale, setScale] = useState<boolean>(false);
-
-	const { registerPage } = usePageMangerContext();
-
-	const listen = (showPage: boolean) => {
-		setShow(showPage);
-	};
 
 	const handlePage = ({ status }: Partial<PageAttrs>) => {
 		if (status !== undefined) {
@@ -41,9 +34,7 @@ const TrashPage = () => {
 		}
 	};
 
-	useEffect(() => {
-		registerPage(PageTypeEnum.Trash, listen, handlePage);
-	}, [registerPage]);
+	const show = usePageWithShow(PageTypeEnum.Trash, false, handlePage);
 
 	if (!show) {
 		return <></>;

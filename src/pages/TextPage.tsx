@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ColorsSection from "../sections/drawPage/ColorsSection";
 import styled from "@emotion/styled";
 import HeaderSection from "../sections/textPage/HeaderSection";
@@ -6,12 +6,13 @@ import { BrushColorEnum } from "../@types/drawType";
 import TextSection, {
 	PInputStylePropsType,
 } from "../sections/textPage/TextSection";
-import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import {
 	PageAttrs,
 	PageTypeEnum,
 } from "../contexts/PageManagerContextProvider";
 import { isIOS } from "../utils/widgetUtils";
+import { useStoryContext } from "../hooks/useStoryContext";
+import usePageWithShow from "../hooks/usePageWithShow";
 
 type ContainerStyleProps = { height: string };
 const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
@@ -24,14 +25,8 @@ const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
 	transition: "height .3s ease",
 }));
 
-type AddTextProps = {
-	close: (text?: string, color?: string) => void;
-};
-
-const TextPage: FC<AddTextProps> = ({ close }) => {
+const TextPage = () => {
 	let [dynamicHeight, setDynamicHeight] = useState("100%");
-	let [colorsBottom, setColorsBottom] = useState(0);
-	let [show, setShow] = useState(false);
 	let [text, setText] = useState("");
 	let [textStyle, setTextStyle] = useState<PInputStylePropsType>({
 		color: BrushColorEnum.White,
@@ -42,7 +37,8 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 
 	const containerRef = useRef<HTMLDivElement>(null);
 	const textRef = React.useRef<HTMLSpanElement>(null);
-	const { registerPage } = usePageMangerContext();
+
+	const { addText } = useStoryContext();
 
 	if (isIOS()) {
 		visualViewport?.addEventListener("resize", () => {
@@ -62,21 +58,19 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 		});
 	}
 
-	const listen = (showPage: boolean) => {
-		setShow(showPage);
+	const handlePage = ({ text, color }: Partial<PageAttrs>) => {
+		if (text && color) {
+			setText(text);
+			setTextStyle({ ...textStyle, color: color });
+			textRef.current?.focus();
+		}
 	};
 
 	useEffect(() => {
-		const handleText = ({ text, color }: Partial<PageAttrs>) => {
-			if (text && color) {
-				setText(text);
-				setTextStyle({ ...textStyle, color: color });
-				textRef.current?.focus();
-			}
-		};
 		textRef.current?.focus();
-		registerPage(PageTypeEnum.Text, listen, handleText);
-	}, [registerPage, textStyle]);
+	}, [textStyle]);
+
+	const show = usePageWithShow(PageTypeEnum.Text, false, handlePage);
 
 	if (!show) {
 		return <></>;
@@ -85,7 +79,7 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 	return (
 		<div
 			onClick={() => {
-				close(textRef.current?.innerText, textStyle.color);
+				addText(textRef.current?.innerText, textStyle.color);
 			}}
 			style={{
 				background: "rgba(0, 0, 0, .5)",
@@ -114,7 +108,6 @@ const TextPage: FC<AddTextProps> = ({ close }) => {
 					textStyle={textStyle}
 					text={text}
 				/>
-				{/* <RangeInputSection /> */}
 				<ColorsSection
 					position="absolute"
 					getColor={(color: string) => {

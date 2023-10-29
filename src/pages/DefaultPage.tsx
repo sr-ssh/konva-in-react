@@ -1,11 +1,11 @@
-import React, { memo, useEffect, useState } from "react";
+import { memo } from "react";
 import styled from "@emotion/styled";
 import { useStoryContext } from "../hooks/useStoryContext";
 import { HeaderStyle } from "../components/Header";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import { StoryContextModes } from "../contexts/StoryContextProvider";
 import { PageTypeEnum } from "../contexts/PageManagerContextProvider";
-import ChooseWidget from "./widgetsPage/ChooseWidget";
+import usePageWithShow from "../hooks/usePageWithShow";
 
 const FooterStyle = styled.div({
 	position: "absolute",
@@ -39,18 +39,10 @@ const CloseIcon = styled(IconsStyle)({
 });
 
 const DefaultPage = () => {
-	const [show, setShow] = useState(true);
-
 	const { startDrawMode, downloadStage } = useStoryContext();
-	const { setMode, registerPage, openPage } = usePageMangerContext();
+	const { setMode, openPage } = usePageMangerContext();
 
-	const listen = (showPage: boolean) => {
-		setShow(showPage);
-	};
-
-	useEffect(() => {
-		registerPage(PageTypeEnum.Default, listen);
-	}, [registerPage]);
+	const show = usePageWithShow(PageTypeEnum.Default, true);
 
 	if (!show) {
 		return <></>;

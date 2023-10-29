@@ -4,6 +4,7 @@ import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { getDomain } from "../../utils/widgetUtils";
+import usePageWithShow from "../../hooks/usePageWithShow";
 
 const ContainerStyle = styled.div({
 	position: "absolute",
@@ -47,7 +48,6 @@ const AddressStyle = styled.div({
 });
 
 const LinkPage = () => {
-	const [show, setShow] = useState(false);
 	const [showStickerText, setShowStickerText] = useState(false);
 	const [hasAddress, setHasAddress] = useState(false);
 	const [address, setAddress] = useState("");
@@ -58,15 +58,15 @@ const LinkPage = () => {
 	const addressTextRef = useRef<HTMLInputElement>(null);
 	const addressTextStrRef = useRef<string>("");
 
+	const { openPage } = usePageMangerContext();
+	const { addLink, popAndSaveShape } = useStoryContext();
+
 	if (addressRef.current?.value) {
 		addressStrRef.current = addressRef.current?.value;
 	}
 	if (addressTextRef.current?.value) {
 		addressTextStrRef.current = addressTextRef.current?.value;
 	}
-
-	const { registerPage, openPage } = usePageMangerContext();
-	const { addLink, popAndSaveShape } = useStoryContext();
 
 	const submitHandler = () => {
 		if (addressRef.current?.value) {
@@ -83,13 +83,7 @@ const LinkPage = () => {
 		openPage(PageTypeEnum.Widgets);
 	};
 
-	const listen = (status: boolean) => {
-		setShow(status);
-	};
-
-	useEffect(() => {
-		registerPage(PageTypeEnum.Link, listen);
-	}, [registerPage]);
+	const show = usePageWithShow(PageTypeEnum.Link);
 
 	useEffect(() => {
 		if (addressStrRef.current) {
