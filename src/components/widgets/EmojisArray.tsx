@@ -1,3 +1,4 @@
+import styled from "@emotion/styled";
 import { PageTypeEnum } from "../../contexts/PageManagerContextProvider";
 import { usePageMangerContext } from "../../hooks/usePageMangerContext";
 import { useStoryContext } from "../../hooks/useStoryContext";
@@ -3449,21 +3450,24 @@ const emojis = [
 	"🇿🇼",
 ];
 
+const ContainerStyle = styled.div({
+	display: "flex",
+	fontSize: "30px",
+	flexWrap: "wrap",
+	gap: "25px",
+	justifyContent: "center",
+	overflowX: "hidden",
+	div: {
+		width: 30,
+	},
+});
+
 const EmojisArray = () => {
 	const { addEmoji } = useStoryContext();
 	const { openPage } = usePageMangerContext();
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				fontSize: "30px",
-				flexWrap: "wrap",
-				gap: "25px",
-				justifyContent: "center",
-				overflowX: "hidden",
-			}}
-		>
+		<ContainerStyle>
 			{emojis.map((emoji) => (
 				<div
 					key={emoji}
@@ -3475,7 +3479,7 @@ const EmojisArray = () => {
 					{emoji}
 				</div>
 			))}
-		</div>
+		</ContainerStyle>
 	);
 };
 
