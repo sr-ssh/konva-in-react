@@ -1,7 +1,14 @@
+@font-face {
+	font-family: AvenyTRegular;
+	font-style: normal;
+	font-weight: 500;
+	src: url("/public/assets/fonts/Aveny-T-Regular.ttf") format("truetype");
+}
+
 body {
 	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-		"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+	font-family: "AvenyTRegular", -apple-system, BlinkMacSystemFont, "Segoe UI",
+		"Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
 		"Helvetica Neue", sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -24,17 +31,12 @@ body {
 	background-color: black;
 }
 
-@font-face {
-	font-family: AvenyTRegular;
-	font-style: normal;
-	font-weight: 500;
-	/* src: url("assets/fonts/Aveny-T-Regular.ttf"); */
-	src: url("/public/assets/fonts/Aveny-T-Regular.ttf") format("truetype");
-}
-
 #root {
 	height: 100%;
 	touch-action: none;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+		"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+		"Helvetica Neue", sans-serif;
 }
 
 @keyframes floatAnimation {
