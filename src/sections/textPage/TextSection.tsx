@@ -1,8 +1,7 @@
-import React, { FC, useEffect, useRef } from "react";
+import React, { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import { getColorBrightness } from "../../utils/konvaUtils";
 import { BrushColorEnum } from "../../@types/drawType";
-import { isIOS } from "../../utils/widgetUtils";
 import useHeightResetOnInput from "../../hooks/useHeightResetOnInput";
 
 export type PInputStylePropsType = {

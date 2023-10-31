@@ -31,7 +31,7 @@ import { Rect } from "konva/lib/shapes/Rect";
 import { Path } from "konva/lib/shapes/Path";
 import { Circle } from "konva/lib/shapes/Circle";
 import { smokeSVG } from "../assets/svg/smokeSVG";
-import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { Shape } from "konva/lib/Shape";
 import { EventType, useEvent } from "../hooks/useEvent";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import {
@@ -1201,7 +1201,6 @@ export const StoryContextProvider = memo(
 
 		useEffect(() => {
 			stageRef.current = getStage();
-			// addStoryImage("assets/images/longPic.png");
 			draw();
 			captureRotateOnStage();
 
