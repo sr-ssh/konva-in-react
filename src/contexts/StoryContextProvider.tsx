@@ -9,7 +9,7 @@ import {
 	OneToTwentyType,
 } from "../@types/drawType";
 import {
-	addBackgroundImage,
+	addBackgroundColor,
 	drawClock,
 	drawColorPickerShape,
 	drawEmoji,
@@ -23,6 +23,7 @@ import {
 	drawSVG,
 	rgbToHex,
 	setHashtagColor,
+	setImagePosition,
 } from "../utils/konvaUtils";
 import { Vector2d } from "konva/lib/types";
 import { Group } from "konva/lib/Group";
@@ -30,7 +31,7 @@ import { Rect } from "konva/lib/shapes/Rect";
 import { Path } from "konva/lib/shapes/Path";
 import { Circle } from "konva/lib/shapes/Circle";
 import { smokeSVG } from "../assets/svg/smokeSVG";
-import { Shape } from "konva/lib/Shape";
+import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { EventType, useEvent } from "../hooks/useEvent";
 import { usePageMangerContext } from "../hooks/usePageMangerContext";
 import {
@@ -42,6 +43,7 @@ import {
 import { ClockEnum } from "../@types/widgetType";
 import { trashBottom, trashHeight, trashWidth } from "../pages/TrashPage";
 import { useAnimate } from "../hooks/useAnimate";
+import { KonvaEventObject } from "konva/lib/Node";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -169,6 +171,8 @@ export const StoryContextProvider = memo(
 		let lastPoppedShape = useRef<any>();
 		let lastHashtagColorIndexRef = useRef<number>(0);
 		let lastLinkColorIndexRef = useRef<number>(0);
+		let rotateRef = useRef<boolean>(false);
+		let groupToRotate = useRef<any>();
 
 		const { listenTap } = useEvent();
 		const { setMode } = usePageMangerContext();
@@ -186,7 +190,7 @@ export const StoryContextProvider = memo(
 				return new Konva.Stage({
 					container: "container",
 					width: width,
-					height: height,
+					height: window.innerHeight,
 				});
 			}
 			return stageRef.current;
@@ -207,10 +211,8 @@ export const StoryContextProvider = memo(
 				backgroundLayerRef.current = new Konva.Layer();
 				const stage = getStage();
 				stage.add(backgroundLayerRef.current);
-				backgroundLayerRef.current.listening(false);
 				return backgroundLayerRef.current;
 			}
-			backgroundLayerRef.current.listening(false);
 			return backgroundLayerRef.current;
 		};
 
@@ -239,7 +241,32 @@ export const StoryContextProvider = memo(
 		const addStoryImage = (src: string) => {
 			stageRef.current = getStage();
 			const layer = getBackgroundLayer();
-			layer.add(addBackgroundImage(src));
+			Konva.hitOnDragEnabled = true;
+
+			let imageObj = new Image();
+			imageObj.src = src;
+			let konvaImage = new Konva.Image({
+				image: imageObj,
+			});
+			imageObj.onload = () => {
+				konvaImage.setAttrs({
+					...setImagePosition(imageObj),
+					name: "storyImage",
+				});
+
+				konvaImage.offsetX(konvaImage.width() / 2);
+				konvaImage.offsetY(konvaImage.height() / 2);
+				addInteractivity(
+					konvaImage,
+					"storyImage",
+					function (ev) {},
+					layer
+				);
+				addBackgroundColor(imageObj, konvaImage, (rect: Rect) => {
+					layer.add(rect);
+					rect.zIndex(0);
+				});
+			};
 		};
 
 		const drawWithAccuracy = async (
@@ -556,6 +583,104 @@ export const StoryContextProvider = memo(
 			return false;
 		};
 
+		const findGroupToRotate = (ev: KonvaEventObject<any>) => {
+			// (touchX1, touchY1) ------------- (touchX2, touchY1)
+			//     |                                     |
+			//     |              touch rect             |
+			//     |                                     |
+			// (touchX1, touchYy2) ------------- (touchX2, touchY2)
+
+			// (x1, y1) ------------- (x2, y1)
+			//     |                     |
+			//     |   the rect inside   |
+			//     |                     |
+			// (x1, y2) ------------- (x2, y2)
+
+			const touchArray = ev.evt.gesture.pointers;
+			if (touchArray.length < 2) {
+				return;
+			}
+			const touchX1 = Math.min(
+				touchArray[0].clientX,
+				touchArray[1].clientX
+			);
+			const touchY1 = Math.min(
+				touchArray[0].clientY,
+				touchArray[1].clientY
+			);
+			const touchX2 = Math.max(
+				touchArray[0].clientX,
+				touchArray[1].clientX
+			);
+			const touchY2 = Math.max(
+				touchArray[0].clientY,
+				touchArray[1].clientY
+			);
+
+			const isInTouchRect = (x: number, y: number) => {
+				if (
+					x >= touchX1 &&
+					x <= touchX2 &&
+					y >= touchY1 &&
+					y <= touchY2
+				) {
+					return true;
+				}
+				return false;
+			};
+
+			const isLargerThanTouchRect = (
+				x1: number,
+				y1: number,
+				x2: number,
+				y2: number
+			) => {
+				if (
+					(x1 <= touchX1 &&
+						x2 >= touchX2 &&
+						((y1 >= touchY1 && y1 <= touchY2) ||
+							(y2 >= touchY1 && y2 <= touchY2))) ||
+					(y1 <= touchY1 &&
+						y2 >= touchY2 &&
+						((x1 >= touchX1 && x1 <= touchX2) ||
+							(x2 >= touchX1 && x2 <= touchX2)))
+				) {
+					return true;
+				}
+				return false;
+			};
+
+			const searchLayer = (layer: Layer) => {
+				if (layer.children) {
+					for (let i = layer.children.length - 1; i >= 0; i--) {
+						const item = layer.children[i];
+						const {
+							x: x1,
+							y: y1,
+							width,
+							height,
+						} = item.getClientRect();
+						const x2 = x1 + width;
+						const y2 = y1 + height;
+
+						if (
+							isInTouchRect(x1, y1) ||
+							isInTouchRect(x2, y1) ||
+							isInTouchRect(x1, y2) ||
+							isInTouchRect(x2, y2) ||
+							isLargerThanTouchRect(x1, y1, x2, y2)
+						) {
+							return item;
+						}
+					}
+				}
+			};
+
+			const layer = getLayer();
+			const clockLayer = getClockLayer();
+			return searchLayer(layer) || searchLayer(clockLayer);
+		};
+
 		const addInteractivity = (
 			shape: Shape | Group,
 			name: string,
@@ -613,11 +738,18 @@ export const StoryContextProvider = memo(
 			let oldRotation = 0;
 			let startScaleX = 0;
 			group.on("rotatestart", function (ev) {
+				if (groupToRotate.current && group.name() === "storyImage") {
+					return;
+				}
+				rotateRef.current = true;
 				oldRotation = ev.evt.gesture.rotation;
 				startScaleX = group.scaleX();
 			});
 
 			group.on("rotate", function (ev) {
+				if (groupToRotate.current && group.name() === "storyImage") {
+					return;
+				}
 				const gestureRotation = ev.evt.gesture.rotation;
 				let delta = oldRotation - gestureRotation;
 				oldRotation = gestureRotation;
@@ -633,6 +765,10 @@ export const StoryContextProvider = memo(
 					lastScaleRef.current = scale;
 					maxScaleRef.current = scale;
 				}
+			});
+
+			group.on("rotateend", function (ev) {
+				rotateRef.current = false;
 			});
 
 			group.on("touchstart mousedown", function (ev) {
@@ -668,6 +804,12 @@ export const StoryContextProvider = memo(
 			});
 
 			const touchMove = (e: any) => {
+				if (
+					(group.name() === "storyImage" && !rotateRef.current) ||
+					(group.name() === "storyImage" && groupToRotate.current)
+				) {
+					return;
+				}
 				setMode(StoryContextModes.IsDragging, true);
 				if (!draggingNode.current) {
 					return;
@@ -788,6 +930,58 @@ export const StoryContextProvider = memo(
 			if (isClock) {
 				clockAttrsRef.current = null;
 			}
+		};
+
+		const captureRotateOnStage = () => {
+			let stageHammerTime = new Hammer(stageRef.current as any, {
+				domEvents: true,
+			});
+
+			stageHammerTime.get("rotate").set({ enable: true });
+
+			stageRef.current?.on("rotate", function (ev) {
+				rotateRef.current = true;
+				groupToRotate.current = findGroupToRotate(ev);
+			});
+
+			let oldRotation = 0;
+			let startScaleX = 0;
+			let target: any;
+
+			stageRef.current?.on("rotatestart", function (ev) {
+				target = findGroupToRotate(ev);
+				groupToRotate.current = target;
+				if (!target) return;
+				oldRotation = ev.evt.gesture.rotation;
+				startScaleX = target.scaleX();
+			});
+
+			stageRef.current?.on("rotate", function (ev) {
+				if (!target) return;
+
+				const gestureRotation = ev.evt.gesture.rotation;
+				let delta = oldRotation - gestureRotation;
+				oldRotation = gestureRotation;
+				if (Math.abs(delta) < 20) {
+					target.rotate(-delta);
+				}
+
+				const gestureScale = ev.evt.gesture.scale;
+				if (!target) return;
+
+				if (gestureScale !== 1) {
+					const scale = startScaleX * gestureScale;
+					target.scaleX(scale);
+					target.scaleY(scale);
+					lastScaleRef.current = scale;
+					maxScaleRef.current = scale;
+				}
+			});
+
+			stageRef.current?.on("rotateend", function (ev) {
+				rotateRef.current = false;
+				groupToRotate.current = null;
+			});
 		};
 
 		const popShape = (name: string) => {
@@ -1000,6 +1194,7 @@ export const StoryContextProvider = memo(
 			stageRef.current = getStage();
 			// addStoryImage("assets/images/longPic.png");
 			draw();
+			captureRotateOnStage();
 
 			return () => {
 				stageRef.current?.off("mousedown touchstart");

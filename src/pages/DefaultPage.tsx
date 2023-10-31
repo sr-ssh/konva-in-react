@@ -19,7 +19,7 @@ const FooterStyle = styled.div({
 	justifyContent: "center",
 	color: "#fff",
 	zIndex: 2,
-	background: "linear-gradient(to top, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0))",
+	// background: "linear-gradient(to top, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0))",
 });
 const IconsStyle = styled.div({
 	backgroundImage: "url(/assets/images/icons.png)",

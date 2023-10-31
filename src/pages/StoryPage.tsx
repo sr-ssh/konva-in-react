@@ -15,8 +15,8 @@ function StoryPage() {
 	const { addStoryImage } = useStoryContext();
 
 	useEffect(() => {
-		addStoryImage("assets/images/longPic.png");
-	}, [addStoryImage]);
+		addStoryImage("assets/images/test2.jpeg");
+	}, []);
 
 	return (
 		<>

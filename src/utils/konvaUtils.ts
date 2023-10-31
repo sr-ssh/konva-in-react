@@ -6,6 +6,8 @@ import { Vector2d } from "konva/lib/types";
 import { BrushConfigType } from "../contexts/StoryContextProvider";
 import { EmojiSliderColorsType, optionLeftGradient, optionRightGradient } from "./widgetColors";
 import { ClockEnum } from "../@types/widgetType";
+import { Image as KonvaImage } from "konva/lib/shapes/Image";
+import { Rect } from "konva/lib/shapes/Rect";
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -56,11 +58,13 @@ export const setImagePosition = (imageObj: HTMLImageElement) => {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
+  const newHeight = width * imageHeight / imageWidth
+
   return {
-    x: imageWidth > width ? -(imageWidth - width) / 2 : 0,
-    y: imageHeight > height ? -(imageHeight - height) / 2 : 0,
-    ...(imageHeight > height && { width }),
-    ...(imageWidth > width && { height }),
+    // x: 0,
+    // y: newHeight > height ? -(newHeight - height) / 2 : (height - newHeight) / 2,
+    width,
+    height: newHeight
   };
 };
 
@@ -103,9 +107,57 @@ export const addBackgroundImage = (src: string) => {
     ...setImagePosition(imageObj),
     name: "storyImage",
   });
-
-  return konvaImage;
+  const group = new Konva.Group()
+  addBackgroundColor(imageObj, konvaImage, (rect: Rect) => { group.add(rect); konvaImage.zIndex(1) })
+  group.add(konvaImage)
+  return group;
 };
+
+export const addBackgroundColor = (imageObj: HTMLImageElement, konvaImage: KonvaImage, callback: (rect: Rect) => void) => {
+  console.log(konvaImage)
+  if (!konvaImage.height()) return
+  let canvas = document.createElement('canvas');
+  let context = canvas.getContext('2d');
+  canvas.width = konvaImage.width();
+  canvas.height = konvaImage.height();
+  context?.drawImage(imageObj, 0, 0, konvaImage.width(), konvaImage.height());
+
+  let imageData = context?.getImageData(0, 0, konvaImage.width(), konvaImage.height()).data;
+
+  let redSum = 0;
+  let greenSum = 0;
+  let blueSum = 0;
+  let totalPixels = konvaImage.width() * konvaImage.height();
+
+  if (imageData) {
+    for (let i = 0; i < imageData.length; i += 4) {
+      redSum += imageData[i];
+      greenSum += imageData[i + 1];
+      blueSum += imageData[i + 2];
+    }
+  }
+
+  let averageRed = Math.round(redSum / totalPixels);
+  let averageGreen = Math.round(greenSum / totalPixels);
+  let averageBlue = Math.round(blueSum / totalPixels);
+
+  callback(new Konva.Rect({
+    x: 0,
+    y: 0,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    fillLinearGradientStartPoint: { x: window.innerWidth / 2, y: 0 },
+    fillLinearGradientEndPoint: { x: window.innerWidth / 2, y: window.innerHeight },
+    fillLinearGradientColorStops: [
+      0,
+      `rgb(${averageRed},${averageGreen},${averageBlue})`,
+      .5,
+      `rgba(${averageRed},${averageGreen},${averageBlue},0.5)`,
+      1,
+      `rgba(${averageRed},${averageGreen},${averageBlue},0.2)`
+    ],
+  }));
+}
 
 
 export const drawRect = (x: number, y: number, brushConfig: { stroke: BrushColorEnum | string, strokeWidth: OneToTwentyType }) => {
@@ -576,7 +628,7 @@ const drawCardClock = (hour: number, minute: number) => {
 }
 
 const degreesToRadians = (degrees: number) => {
-  var pi = Math.PI;
+  let pi = Math.PI;
   return degrees * (pi / 180);
 }
 
@@ -653,7 +705,7 @@ export const drawEmoji = (emoji: string) => {
   const emojiNode = new Konva.Text({
     text: emoji,
     fontSize: 30,
-    padding: 20
+    padding: 10
   })
   emojiNode.offsetX(emojiNode.width() / 2)
   emojiNode.offsetY(emojiNode.height() / 2)
