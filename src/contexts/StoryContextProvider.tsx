@@ -629,6 +629,25 @@ export const StoryContextProvider = memo(
 				return false;
 			};
 
+			const isTouchRectInGroup = (
+				x1: number,
+				y1: number,
+				x2: number,
+				y2: number,
+				touchX: number,
+				touchY: number
+			) => {
+				if (
+					touchX >= x1 &&
+					touchX <= x2 &&
+					touchY >= y1 &&
+					touchY <= y2
+				) {
+					return true;
+				}
+				return false;
+			};
+
 			const isLargerThanTouchRect = (
 				x1: number,
 				y1: number,
@@ -668,7 +687,32 @@ export const StoryContextProvider = memo(
 							isInTouchRect(x2, y1) ||
 							isInTouchRect(x1, y2) ||
 							isInTouchRect(x2, y2) ||
-							isLargerThanTouchRect(x1, y1, x2, y2)
+							isLargerThanTouchRect(x1, y1, x2, y2) ||
+							isTouchRectInGroup(
+								x1,
+								y1,
+								x2,
+								y2,
+								touchX1,
+								touchY1
+							) ||
+							isTouchRectInGroup(
+								x1,
+								y1,
+								x2,
+								y2,
+								touchX1,
+								touchY2
+							) ||
+							isTouchRectInGroup(
+								x1,
+								y1,
+								x2,
+								y2,
+								touchX2,
+								touchY1
+							) ||
+							isTouchRectInGroup(x1, y1, x2, y2, touchX2, touchY2)
 						) {
 							return item;
 						}
@@ -735,42 +779,6 @@ export const StoryContextProvider = memo(
 
 			hammerTime.get("rotate").set({ enable: true });
 
-			let oldRotation = 0;
-			let startScaleX = 0;
-			group.on("rotatestart", function (ev) {
-				if (groupToRotate.current && group.name() === "storyImage") {
-					return;
-				}
-				rotateRef.current = true;
-				oldRotation = ev.evt.gesture.rotation;
-				startScaleX = group.scaleX();
-			});
-
-			group.on("rotate", function (ev) {
-				if (groupToRotate.current && group.name() === "storyImage") {
-					return;
-				}
-				const gestureRotation = ev.evt.gesture.rotation;
-				let delta = oldRotation - gestureRotation;
-				oldRotation = gestureRotation;
-				if (Math.abs(delta) < 20) {
-					group.rotate(-delta);
-				}
-
-				const gestureScale = ev.evt.gesture.scale;
-				if (gestureScale !== 1) {
-					const scale = startScaleX * gestureScale;
-					group.scaleX(scale);
-					group.scaleY(scale);
-					lastScaleRef.current = scale;
-					maxScaleRef.current = scale;
-				}
-			});
-
-			group.on("rotateend", function (ev) {
-				rotateRef.current = false;
-			});
-
 			group.on("touchstart mousedown", function (ev) {
 				stageRef.current?.on("touchmove mousemove", touchMove);
 				let pos = stageRef.current?.getPointerPosition();
@@ -806,7 +814,8 @@ export const StoryContextProvider = memo(
 			const touchMove = (e: any) => {
 				if (
 					(group.name() === "storyImage" && !rotateRef.current) ||
-					(group.name() === "storyImage" && groupToRotate.current)
+					(groupToRotate.current &&
+						groupToRotate.current?.name() !== group.name())
 				) {
 					return;
 				}
@@ -937,42 +946,41 @@ export const StoryContextProvider = memo(
 				domEvents: true,
 			});
 
-			stageHammerTime.get("rotate").set({ enable: true });
-
-			stageRef.current?.on("rotate", function (ev) {
-				rotateRef.current = true;
-				groupToRotate.current = findGroupToRotate(ev);
-			});
-
 			let oldRotation = 0;
 			let startScaleX = 0;
-			let target: any;
+
+			stageHammerTime.get("rotate").set({ enable: true });
 
 			stageRef.current?.on("rotatestart", function (ev) {
-				target = findGroupToRotate(ev);
-				groupToRotate.current = target;
-				if (!target) return;
+				groupToRotate.current = findGroupToRotate(ev);
+				if (!groupToRotate.current) {
+					const layer = getBackgroundLayer();
+					const backgroundImage = layer.findOne(".storyImage");
+					console.log(backgroundImage);
+					groupToRotate.current = backgroundImage;
+				} else {
+				}
+				rotateRef.current = true;
 				oldRotation = ev.evt.gesture.rotation;
-				startScaleX = target.scaleX();
+				startScaleX = groupToRotate.current.scaleX();
 			});
 
 			stageRef.current?.on("rotate", function (ev) {
-				if (!target) return;
+				if (!groupToRotate.current) return;
 
 				const gestureRotation = ev.evt.gesture.rotation;
 				let delta = oldRotation - gestureRotation;
 				oldRotation = gestureRotation;
 				if (Math.abs(delta) < 20) {
-					target.rotate(-delta);
+					groupToRotate.current.rotate(-delta);
 				}
 
 				const gestureScale = ev.evt.gesture.scale;
-				if (!target) return;
 
 				if (gestureScale !== 1) {
 					const scale = startScaleX * gestureScale;
-					target.scaleX(scale);
-					target.scaleY(scale);
+					groupToRotate.current.scaleX(scale);
+					groupToRotate.current.scaleY(scale);
 					lastScaleRef.current = scale;
 					maxScaleRef.current = scale;
 				}
