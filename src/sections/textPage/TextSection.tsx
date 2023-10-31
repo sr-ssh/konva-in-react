@@ -62,6 +62,7 @@ const TextSection: FC<AddTextProps> = ({
 				onFocus={handleFocus}
 				onBlur={() => handleBlur(containerRef)}
 				suppressContentEditableWarning={true}
+				dir="auto"
 			>
 				{text}
 			</SpanInputStyle>

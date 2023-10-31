@@ -176,7 +176,7 @@ const PollPage = () => {
 			if (placeholderRef.current) {
 				placeholderRef.current.style.opacity = "0";
 			}
-			const isEnglish = /^[A-Za-z\s]+$/.test(div.innerText);
+			const isEnglish = !/^[^\u0000-\u007F]+$/.test(div.innerText);
 
 			const newText = div.innerText;
 			div.innerText = newText.toLocaleUpperCase();

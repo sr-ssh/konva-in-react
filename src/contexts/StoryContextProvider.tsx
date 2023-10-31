@@ -1024,13 +1024,14 @@ export const StoryContextProvider = memo(
 			setMode(StoryContextModes.IsAddingText, true);
 			if (defaultText && color) {
 				let size = 200;
+				const isEnglish = !/^[^\u0000-\u007F]+$/.test(defaultText);
 
 				let text = new Konva.Text({
 					text: defaultText,
 					fill: color,
 					x: -size / 2,
 					width: size,
-					align: "center",
+					align: isEnglish ? "left" : "right",
 					fontSize: 30,
 					padding: 20,
 				});

@@ -395,7 +395,7 @@ const drawPollOptions = (text: string, gradientColor: any, gradientPoints: {
   y2: number;
 }, fontSize: number, pollWidth: number, optionsHeight: number, offsetX?: number) => {
   const optionWidth = pollWidth / 2 - 12
-  const isEnglish = /^[A-Za-z\s]+$/.test(text);
+  const isEnglish = !/^[^\u0000-\u007F]+$/.test(text);
 
   let optionNode = new Konva.Text({
     text,
@@ -453,7 +453,7 @@ export const drawPoll = (question: string, leftOption: string = "YES", rightOpti
   const tmp = new Konva.Text({ text: question, fontSize: 30 })
   const questionTexWidth = tmp.width()
   let conditionalOffsetX = 0
-  const isEnglish = /^[A-Za-z\s]+$/.test(question);
+  const isEnglish = !/^[^\u0000-\u007F]+$/.test(question);
   if (pollWidth - 36 >= questionTexWidth) {
     if (isEnglish) {
       conditionalOffsetX = -50
@@ -504,7 +504,7 @@ export const drawEmojiSlider = (colorProps: EmojiSliderColorsType, percent: numb
 
   let textNode
   if (text) {
-    const isEnglish = /^[A-Za-z\s]+$/.test(text);
+    const isEnglish = !(/^[^\u0000-\u007F]+$/.test(text));
     textNode = new Konva.Text({
       text,
       fontSize: 20,
