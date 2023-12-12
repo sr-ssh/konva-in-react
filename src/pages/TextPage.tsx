@@ -10,9 +10,9 @@ import {
 	PageAttrs,
 	PageTypeEnum,
 } from "../contexts/PageManagerContextProvider";
-import { isIOS } from "../utils/widgetUtils";
 import { useStoryContext } from "../hooks/useStoryContext";
 import usePageWithShow from "../hooks/usePageWithShow";
+import { useResize } from "../hooks/useResize";
 
 type ContainerStyleProps = { height: string };
 const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
@@ -40,8 +40,13 @@ const TextPage = () => {
 
 	const { addText } = useStoryContext();
 
-	if (isIOS()) {
-		visualViewport?.addEventListener("resize", () => {
+	useResize(
+		() => {
+			const height = window.visualViewport?.height;
+			setDynamicHeight(height ? height + "px" : "100%");
+			document.body.style.height = height + "px";
+		},
+		() => {
 			const height = window.visualViewport?.height;
 			if (containerRef.current && height && height < window.innerHeight) {
 				containerRef.current.style.height = height + "px";
@@ -49,14 +54,8 @@ const TextPage = () => {
 			window.scrollTo(0, 0);
 			document.body.scrollTop = 0;
 			document.body.style.height = height + "px";
-		});
-	} else {
-		window.addEventListener("resize", () => {
-			const height = window.visualViewport?.height;
-			setDynamicHeight(height ? height + "px" : "100%");
-			document.body.style.height = height + "px";
-		});
-	}
+		}
+	);
 
 	const handlePage = ({ text, color }: Partial<PageAttrs>) => {
 		if (text && color) {

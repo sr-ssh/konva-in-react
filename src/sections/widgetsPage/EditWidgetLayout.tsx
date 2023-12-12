@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, useState } from "react";
 import styled from "@emotion/styled";
 import HeaderSection from "./HeaderSection";
-import { isIOS } from "../../utils/widgetUtils";
+import { useResize } from "../../hooks/useResize";
 
 type ContainerStyleProps = { height: string };
 const ContainerStyle = styled.div<ContainerStyleProps>(({ height }) => ({
@@ -28,9 +28,13 @@ const EditWidgetLayout: FC<EditWidgetLayoutType> = ({
 
 	let [dynamicHeight, setDynamicHeight] = useState("100%");
 
-	if (isIOS()) {
-		console.log("This is an iOS device.");
-		visualViewport?.addEventListener("resize", () => {
+	useResize(
+		() => {
+			const height = window.visualViewport?.height;
+			setDynamicHeight(height ? height + "px" : "100%");
+			document.body.style.height = height + "px";
+		},
+		() => {
 			const height = window.visualViewport?.height;
 			if (
 				containerRef?.current &&
@@ -42,14 +46,8 @@ const EditWidgetLayout: FC<EditWidgetLayoutType> = ({
 			window.scrollTo(0, 0);
 			document.body.scrollTop = 0;
 			document.body.style.height = height + "px";
-		});
-	} else {
-		window.addEventListener("resize", () => {
-			const height = window.visualViewport?.height;
-			setDynamicHeight(height ? height + "px" : "100%");
-			document.body.style.height = height + "px";
-		});
-	}
+		}
+	);
 
 	return (
 		<div

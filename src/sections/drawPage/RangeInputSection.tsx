@@ -1,7 +1,8 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { useStoryContext } from "../../hooks/useStoryContext";
 import { OneToTwentyType } from "../../@types/drawType";
+import { useResize } from "../../hooks/useResize";
 
 type RangePropsType = { height: number };
 const RangeBackgroundStyle = styled.div<RangePropsType>((props) => ({
@@ -87,7 +88,7 @@ const RangeInputSection: FC = () => {
 
 	const { setBrushStrokeWidth, getStrokeWidth } = useStoryContext();
 
-	window.addEventListener("resize", () => {
+	useResize(() => {
 		const height = window.visualViewport?.height;
 		setDynamicHeight(height ? height : window.innerHeight);
 	});
